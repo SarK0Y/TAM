@@ -85,6 +85,7 @@ class childs2run:
     running: list = []
     viewer: list = []
     prnt: str = ""
+    full_path = ""
 class page_struct:
     num_page: int = 0
     num_cols: int = 3
@@ -100,10 +101,12 @@ def log(msg, num_line: int, funcName: str):
 def clear_screen():
     os.system('clear')
 def init_view(c2r: childs2run):
+    i = 0
     for v in range(1, len(sys.argv)):
         if sys.argv[v] == "-view_w":
             c2r.viewer.append(str(sys.argv[v + 1]))
-            c2r.prnt.join(f"\n{c2r.viewer[-1]}")
+            c2r.prnt += f"\n  {i}: {c2r.viewer[-1]}"
+            i += 1
     return c2r
 def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
     viewer_indx, file_indx = cmd.split()
@@ -114,7 +117,6 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
     file2run = file2run.replace("$", "\$")
     cmd = f'{c2r.viewer[viewer_indx]}' + ' ' + f'"{file2run}"'
     cmd = [cmd,]
-    log(cmd, 47, "run_vi")
     t = sp.Popen(cmd, shell=True)
     c2r.running.append(t)
 
@@ -142,7 +144,8 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
         return
     if cmd[0:2] == "fp":
         _, file_indx = cmd.split()
-        achtung(fileListMain[int(file_indx)])
+        #achtung(fileListMain[int(file_indx)])
+        ps.c2r.full_path = f"file {file_indx}\n{str(fileListMain[int(file_indx)])}"
         return
     run_viewers(ps.c2r, fileListMain, cmd)
 def manage_pages(fileListMain: list, ps: page_struct):
@@ -150,9 +153,8 @@ def manage_pages(fileListMain: list, ps: page_struct):
     c2r = ps.c2r
     while True:
         clear_screen()
-        print(f"Viewers:{c2r.prnt}")
+        print(f"Viewers: \n{c2r.prnt}\n\nFull path to {c2r.full_path}")
         table, too_short_row = make_page_of_files(fileListMain, ps)
-        print(f"too = {too_short_row}")
         if too_short_row == 0:
             ps.num_cols = 2
             table, too_short_row = make_page_of_files(fileListMain, ps)
