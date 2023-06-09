@@ -12,7 +12,7 @@ For now, TAM makes possible to find files in whatever directory and run them wit
 
 So, actually we have hella number of files & we (in many cases) need to use regex to make searching through that endless damn heap efficient, but the most of us have no time to learn such stuff + regex software have some differences. 2nd moment, we need not just run files, but run them with different options. So, let's deal w/ example..
 
- python3 ./tam.py -path0 "/tst"  -find_files -tmp_file "/tmp/tst02" -in_name ".mp3" -view_w "vlc --sout-x264-b-bias=-15" -view_w "smplayer"  -cols 2 -rows 15 -col_w 100 -in_name "some"
+ python3 ./tam.py -path0 "/tst"  -find_files -tmp_file "/tmp/tst02" -in_name ".mp4" -view_w "vlc --sout-x264-b-bias=-15" -view_w "smplayer"  -cols 2 -rows 15 -col_w 100 -in_name "some"
  
  -path0 sets folder to search stuff.<br>
  -find_files activates function to search.<br>
