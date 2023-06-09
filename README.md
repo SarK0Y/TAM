@@ -2,7 +2,7 @@
 # Project TAM.
 # GOAL:
 
-The very reason of this project is to make Your life easy at at least for a little bit thanks to efficient automation of daily routine.
+The very reason of this project is to make Your life easy at least for a little bit thanks to efficient automation of daily routine.
 
 # FUNCTIONS:
 
