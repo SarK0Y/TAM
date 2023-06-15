@@ -66,7 +66,7 @@ def info():
     print(" E-MAIL: sark0y@protonmail.com ".center(int(colsize), "◑"))
     print(" Supported platforms: so far, i've been tested TAM only for Linux. ".center(int(colsize), "◑"))
     print(" Version: 1. ".center(int(colsize), "◑"))
-    print(" Revision: 1. ".center(int(colsize), "◑"))
+    print(" Revision: 2. ".center(int(colsize), "◑"))
     print(f"\nlicense/Agreement:".title())
     print("Personal usage will cost You $0.00, but don't be shy to donate me.. or You could support me any other way You want - just call/mail me to discuss possible variants for mutual gains. 🙂")
     print("Commercial use takes $0.77 per month from You.. or just Your Soul 😇😜")
@@ -115,6 +115,7 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
     file2run: str = fileListMain[file_indx]
     file2run = file2run[0:len(file2run) - 1]
     file2run = file2run.replace("$", "\$")
+    file2run = file2run.replace(";", "\;")
     cmd = f'{c2r.viewer[viewer_indx]}' + ' ' + f'"{file2run}"'
     cmd = [cmd,]
     t = sp.Popen(cmd, shell=True)
@@ -260,9 +261,9 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
     print(f"{funcName} exited")
 def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     funcName = "find_files"
-    cmd = [f"find '{path}' -type f{in_name} > {pipes.outNorm_w.name};echo '\n{pipes.stop}'"]
+    cmd = [f"find -L '{path}' -type f{in_name} > {pipes.outNorm_w.name};echo '\n{pipes.stop}'"]
     if tmp_file is None:
-        cmd = [f"find '{path}' -type f{in_name};echo '\n{pipes.stop}'"]
+        cmd = [f"find -L '{path}' -type f{in_name};echo '\n{pipes.stop}'"]
 
     print(f"{cmd}")
     lapse.find_files_start = time.time_ns()
