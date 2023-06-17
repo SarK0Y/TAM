@@ -22,6 +22,10 @@ def SYS():
         sys.exit(0)
     print("\r\nSee You Soon\nBye.. bye 🙂")
     sys.exit(0)
+def SetDefaultKonsoleTitle():
+    out = get_arg_in_cmd("-path0", sys.argv)
+    out += f" {put_in_name()}"
+    os.system(f"echo -ne '\033]30;{out}\007'")
 def self_recursion():
     no_SYS = os.path.exists("/tmp/no_SYS")
     no_SYS1 = get_arg_in_cmd("-SYS", sys.argv)
@@ -94,7 +98,7 @@ class page_struct:
     num_spaces: int = 4
     c2r: childs2run
 def achtung(msg):
-    os.system(f"wall {msg}")
+    os.system(f"wall '{msg}'")
 def log(msg, num_line: int, funcName: str):
     f = open("./it.log", mode="w")
     print(f"{funcName} said cmd = {msg} at line: {str(num_line)}", file=f)
@@ -159,7 +163,10 @@ def manage_pages(fileListMain: list, ps: page_struct):
         if too_short_row == 0:
             ps.num_cols = 2
             table, too_short_row = make_page_of_files(fileListMain, ps)
-        print(tabulate(table, tablefmt="fancy_grid", maxcolwidths=[ps.col_width]))
+        try:
+            print(tabulate(table, tablefmt="fancy_grid", maxcolwidths=[ps.col_width]))
+        except IndexError:
+            errMsg("Unfortunately, Nothing has been found.", "TAM")
         print(cmd)
         try:
             cmd = input("Please, enter Your command: ")
@@ -350,21 +357,46 @@ def time_samples(type0="time", num_of_samples=10):
 # search params in cmd line
 def get_arg_in_cmd(key: str, argv):
     cmd_len = len(argv)
-    key0 = ''
     for i in range(1, cmd_len):
         key0 = argv[i]
         if key0 == key:
             return argv[i + 1]
     return None
+def if_no_quotes(num0: int, cmd_len:int) -> str:
+    grep0 = ''
+    i0: int
+    print(f"num0 = {num0}, cmdLen = {cmd_len}, argv = {sys.argv}")
+    for i0 in range(num0, cmd_len):
+        if sys.argv[i0][0:1] != "-":
+           grep0 += f" {sys.argv[i0]}"
+        else:
+            grep0 = f"|grep -i '{grep0[1:len(grep0)]}'"
+            return [grep0, i0]
+    print(f"num0 from if_ = {sys.argv[num0]}")
 def put_in_name() -> str:
     cmd_len = len(sys.argv)
+    final_grep = ""
     grep0 = ""
-    for i in range(1, cmd_len):
-        if sys.argv[i] == "-in_name":
-            grep0 +=f"|grep -i '{str(sys.argv[i + 1])}'"
-    return grep0
+    num0 = []
+    i = []
+    i0 = 1
+    i.append(i0)
+    while i0 < cmd_len:
+        if sys.argv[i0] == "-in_name":
+            i0 = i0 + 1
+            tmp = if_no_quotes(i0, cmd_len)
+            print(f"tmp {tmp}")
+            if tmp is not None:
+                final_grep += f" {tmp[0]}"
+                i0 = tmp[1]
+        i0 += 1
+    return final_grep
 def cmd():
-    self_recursion()
+    sys.argv.append("-!") # Stop code
+    SetDefaultKonsoleTitle()
+    print("start cmd")
+    sys.argv[0] = str(sys.argv)
+   # self_recursion()
     cmd_len = len(sys.argv)
     cmd_key = ''
     cmd_val = ''
