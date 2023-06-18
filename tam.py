@@ -20,11 +20,14 @@ def SYS():
     if no_SYS == True or no_SYS1 == "1":
         os.system("rm -f /tmp/no_SYS")
         sys.exit(0)
-    print("\r\nSee You Soon\nBye.. bye 🙂")
+    print("\r\nSee You Soon\nBye.. bye, my Dear User 🙂")
     sys.exit(0)
 def SetDefaultKonsoleTitle():
     out = get_arg_in_cmd("-path0", sys.argv)
-    out += f" {put_in_name()}"
+    try:
+        out += f" {put_in_name()}"
+    except TypeError:
+        out = "cmd is empty"
     os.system(f"echo -ne '\033]30;{out}\007'")
 def self_recursion():
     no_SYS = os.path.exists("/tmp/no_SYS")
@@ -70,7 +73,7 @@ def info():
     print(" E-MAIL: sark0y@protonmail.com ".center(int(colsize), "◑"))
     print(" Supported platforms: so far, i've been tested TAM only for Linux. ".center(int(colsize), "◑"))
     print(" Version: 1. ".center(int(colsize), "◑"))
-    print(" Revision: 2. ".center(int(colsize), "◑"))
+    print(" Revision: 3. ".center(int(colsize), "◑"))
     print(f"\nlicense/Agreement:".title())
     print("Personal usage will cost You $0.00, but don't be shy to donate me.. or You could support me any other way You want - just call/mail me to discuss possible variants for mutual gains. 🙂")
     print("Commercial use takes $0.77 per month from You.. or just Your Soul 😇😜")
@@ -393,6 +396,7 @@ def put_in_name() -> str:
     return final_grep
 def cmd():
     sys.argv.append("-!") # Stop code
+    print(f"argv = {sys.argv}")
     SetDefaultKonsoleTitle()
     print("start cmd")
     sys.argv[0] = str(sys.argv)
