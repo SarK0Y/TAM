@@ -44,7 +44,7 @@ def self_recursion():
     os.system(cmd)
     os.system("rm -f /tmp/no_SYS")
 def banner0(delay: int):
-    _, colsize = os.popen("stty size", 'r').read().split()
+    colsize = os.popen("powershell $host.UI.RawUI.MaxWindowSize.Width", 'r').read().split()
     while True:
         typeIt = "© SarK0Y 2023".center(int(colsize), "8")
         print(f"\r{typeIt}", flush=True, end='')
@@ -66,13 +66,14 @@ def banner0(delay: int):
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
 def info():
-    _, colsize = os.popen("stty size", 'r').read().split()
+    colsize = os.popen("powershell $host.UI.RawUI.MaxWindowSize.Width", 'r').read().split()[0]
+    print(f"colsize ={colsize}")
     print(" Project: Tiny Automation Manager. ".center(int(colsize), "◑"))
     print(" WWW: https://alg0z.blogspot.com ".center(int(colsize), "◑"))
     print(" E-MAIL: sark0y@protonmail.com ".center(int(colsize), "◑"))
-    print(" Supported platforms: so far, i've been tested TAM only for Linux. ".center(int(colsize), "◑"))
+    print(" Supported platforms: TAM for Linux; TAW stands for TAM Windows Version ".center(int(colsize), "◑"))
     print(" Version: 1. ".center(int(colsize), "◑"))
-    print(" Revision: 3. ".center(int(colsize), "◑"))
+    print(" Revision: 1. ".center(int(colsize), "◑"))
     print(f"\nlicense/Agreement:".title())
     print("Personal usage will cost You $0.00, but don't be shy to donate me.. or You could support me any other way You want - just call/mail me to discuss possible variants for mutual gains. 🙂")
     print("Commercial use takes $0.77 per month from You.. or just Your Soul 😇😜")
