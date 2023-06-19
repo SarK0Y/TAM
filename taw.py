@@ -44,7 +44,7 @@ def self_recursion():
     os.system(cmd)
     os.system("rm -f /tmp/no_SYS")
 def banner0(delay: int):
-    colsize = os.popen("powershell $host.UI.RawUI.MaxWindowSize.Width", 'r').read().split()
+    colsize = os.popen("powershell $host.UI.RawUI.MaxWindowSize.Width", 'r').read().split()[0]
     while True:
         typeIt = "© SarK0Y 2023".center(int(colsize), "8")
         print(f"\r{typeIt}", flush=True, end='')
