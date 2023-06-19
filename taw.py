@@ -273,7 +273,7 @@ def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     funcName = "find_files"
     cmd = [f"find -L '{path}' -type f{in_name} > {pipes.outNorm_w.name};echo '\n{pipes.stop}'"]
     if tmp_file is None:
-        cmd = [f"find -L '{path}' -type f{in_name};echo '\n{pipes.stop}'"]
+        cmd = [f"Get-Children {path} -Name -Recurse -File '{in_name}';echo '\n{pipes.stop}'"]
 
     print(f"{cmd}")
     lapse.find_files_start = time.time_ns()
