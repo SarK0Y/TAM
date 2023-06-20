@@ -22,7 +22,7 @@ def SYS():
     print("\r\nSee You Soon\nBye.. bye, my Dear User 🙂")
     sys.exit(0)
 def SetAlias(name: str, val: str) -> None:
-    cmd = f"powershell.exe Set-Alias -Name '{name}' -Value '{val}';echo 'Alias was set';Start-Sleep 70000"
+    cmd = f"powershell.exe Set-Alias -Name '{name}' -Value '{val}'"
     sp.Popen(cmd, shell=True)
 def SetDefaultKonsoleTitle():
     out = get_arg_in_cmd("-path0", sys.argv)
@@ -30,7 +30,7 @@ def SetDefaultKonsoleTitle():
         out += f" {put_in_name()}"
     except TypeError:
         out = "cmd is empty"
-    sp.Popen(f"powershell.exe $host.ui.RawUI.WindowTitle = '{out}';Start-Sleep 70000", shell=True)
+    sp.Popen(f"powershell.exe $host.ui.RawUI.WindowTitle = '{out}'", shell=True)
 def self_recursion():
     no_SYS = os.path.exists("/tmp/no_SYS")
     no_SYS1 = get_arg_in_cmd("-SYS", sys.argv)
@@ -276,11 +276,11 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
     print(f"{funcName} exited")
 def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     funcName = "find_files"
-    cmd = [f"find -L '{path}' -type f{in_name} > {pipes.outNorm_w.name};echo '\n{pipes.stop}'"]
+    cmd = [f"Get-Children '{path}' -Name -Recurse -File{in_name} > {pipes.outNorm_w.name};echo '\n{pipes.stop}'"]
     if tmp_file is None:
-        cmd = [f"Get-Children {path} -Name -Recurse -File '{in_name}';echo '\n{pipes.stop}'"]
+        cmd = [f"Get-Children '{path}' -Name -Recurse -File{in_name};echo '\n{pipes.stop}'"]
 
-    print(f"{cmd}")
+    print(f"{funcName} got cmd = {cmd}")
     lapse.find_files_start = time.time_ns()
     proc = sp.Popen(
         cmd,
@@ -380,12 +380,13 @@ def get_arg_in_cmd(key: str, argv):
 def if_no_quotes(num0: int, cmd_len:int) -> str:
     grep0 = ''
     i0: int
+    SetAlias("grep", "findstr")
     print(f"num0 = {num0}, cmdLen = {cmd_len}, argv = {sys.argv}")
     for i0 in range(num0, cmd_len):
         if sys.argv[i0][0:1] != "-":
            grep0 += f" {sys.argv[i0]}"
         else:
-            grep0 = f"|grep -i '{grep0[1:len(grep0)]}'"
+            grep0 = f"|findstr -i '{grep0[1:len(grep0)]}'"
             return [grep0, i0]
     print(f"num0 from if_ = {sys.argv[num0]}")
 def put_in_name() -> str:
@@ -405,6 +406,7 @@ def put_in_name() -> str:
                 final_grep += f" {tmp[0]}"
                 i0 = tmp[1]
         i0 += 1
+    print(f"final grep = {final_grep}")
     return final_grep
 def cmd():
     SetAlias("grep", "findstr")
