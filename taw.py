@@ -21,6 +21,9 @@ def SYS():
         sys.exit(0)
     print("\r\nSee You Soon\nBye.. bye, my Dear User 🙂")
     sys.exit(0)
+def SetAlias(name: str, val: str) -> None:
+    cmd = f"powershell.exe Set-Alias -Name '{name}' -Value '{val}';echo 'Alias was set';Start-Sleep 70000"
+    sp.Popen(cmd, shell=True)
 def SetDefaultKonsoleTitle():
     out = get_arg_in_cmd("-path0", sys.argv)
     try:
@@ -211,13 +214,15 @@ def make_page_of_files(fileListMain: list, ps: page_struct):
 stopCode = "∇\n"
 class PIPES:
     def __init__(self, outNorm, outErr):
-        self.outNorm_r = open(outNorm.name, mode="r", encoding="utf8")
-        self.outErr_r = open(outErr.name, encoding="utf8", mode="r")
-        self.outNorm_w = open(outNorm.name, encoding="utf8", mode="w+")
-        self.outErr_w = open(outErr.name,  encoding="utf8", mode="w+")
+        codepage = f"cp{os.popen('powershell.exe [System.Text.Encoding]::Default.CodePage', mode='r').read().split()[0]}"
+        print(f"codepage ={codepage}")
+        self.outNorm_r = open(outNorm.name, mode="r", encoding=codepage)
+        self.outErr_r = open(outErr.name, encoding=codepage, mode="r")
+        self.outNorm_w = open(outNorm.name, encoding=codepage, mode="w+")
+        self.outErr_w = open(outErr.name,  encoding=codepage, mode="w+")
         self.outNorm_name = outNorm.name
         self.outErr_name = outErr.name
-        self.stdout = open(sys.stdin.name, mode="w+", encoding="utf8")
+       # self.stdout = open(sys.stdin.name, mode="w+", encoding=codepage)
         self.stop = globals()['stopCode']
 class lapse:
     find_files_start = 0
@@ -247,8 +252,8 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
         type(pipes.outNorm_r)
     except AttributeError:
         errMsg(funcName=funcName, msg=f"proc has wrong type {type(pipes)} id: {id(pipes)}")
-    if pipes.outErr_r != "":
-        errMsg(f"{pipes.outErr_r}", funcName)
+   # if pipes.outErr_r != "":
+    #    errMsg(f"{pipes.outErr_r}", funcName)
     lapse.read_midway_data_from_pipes_start = time.time_ns()
     path0 = ""
     pipes.outNorm_r.flush()
@@ -402,6 +407,8 @@ def put_in_name() -> str:
         i0 += 1
     return final_grep
 def cmd():
+    SetAlias("grep", "findstr")
+    os.system("echo 'tst string\nwrong str'|grep -i tst")
     sys.argv.append("-!") # Stop code
     print(f"argv = {sys.argv}")
     SetDefaultKonsoleTitle()
