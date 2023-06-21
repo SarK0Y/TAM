@@ -276,9 +276,9 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
     print(f"{funcName} exited")
 def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     funcName = "find_files"
-    cmd = [f"Get-Children '{path}' -Name -Recurse -File{in_name} > {pipes.outNorm_w.name};echo '\n{pipes.stop}'"]
+    cmd = [f"Get-Children '{path}' -Name -Recurse -File{in_name} > {pipes.outNorm_w.name}"]
     if tmp_file is None:
-        cmd = [f"Get-Children '{path}' -Name -Recurse -File{in_name};echo '\n{pipes.stop}'"]
+        cmd = [f"Get-Children '{path}' -Name -Recurse -File{in_name}"]
 
     print(f"{funcName} got cmd = {cmd}")
     lapse.find_files_start = time.time_ns()
@@ -288,6 +288,8 @@ def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
         stderr=pipes.outErr_w,
         shell=True
         )
+    proc.communicate()
+    pipes.outNorm_w.write(f"\n{pipes.stop}")
     lapse.find_files_stop = time.time_ns()
     print(f"{funcName} exited")
     return proc
