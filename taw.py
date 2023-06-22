@@ -19,7 +19,7 @@ def SYS():
     if no_SYS == True or no_SYS1 == "1":
         os.system("rm -f /tmp/no_SYS")
         sys.exit(0)
-    print("\r\nSee You Soon\nBye.. bye, my Dear User 🙂")
+    print("\r\nSee You Soon\nBye.. bye, my Dear User ?")
     sys.exit(0)
 def SetAlias(name: str, val: str) -> None:
     cmd = f"powershell.exe Set-Alias -Name '{name}' -Value '{val}'"
@@ -49,39 +49,39 @@ def self_recursion():
 def banner0(delay: int):
     colsize = os.popen("powershell $host.UI.RawUI.MaxWindowSize.Width", 'r').read().split()[0]
     while True:
-        typeIt = "© SarK0Y 2023".center(int(colsize), "8")
+        typeIt = "(c) SarK0Y 2023".center(int(colsize), "8")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
-        typeIt = "© Knyazhev Evgeney 2023".center(int(colsize), "|")
+        typeIt = "(c) Knyazhev Evgeney 2023".center(int(colsize), "|")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
-        typeIt = "© Knyazhev Evgeney 2023".center(int(colsize), "/")
+        typeIt = "(c) Knyazhev Evgeney 2023".center(int(colsize), "/")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
-        typeIt = "© Knyazhev Evgeney 2023".center(int(colsize), "-")
+        typeIt = "(c) Knyazhev Evgeney 2023".center(int(colsize), "-")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
-        typeIt = "© Knyazhev Evgeney 2023".center(int(colsize), "+")
+        typeIt = "(c) Knyazhev Evgeney 2023".center(int(colsize), "+")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
-        typeIt = "© Knyazhev Evgeney 2023".center(int(colsize), "=")
-        typeIt = "© SarK0Y 2023".center(int(colsize), "∞")
+        typeIt = "(c) Knyazhev Evgeney 2023".center(int(colsize), "=")
+        typeIt = "(c) SarK0Y 2023".center(int(colsize), "oo")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
 def info():
     colsize = os.popen("powershell $host.UI.RawUI.MaxWindowSize.Width", 'r').read().split()[0]
     print(f"colsize ={colsize}")
-    print(" Project: Tiny Automation Manager. ".center(int(colsize), "◑"))
-    print(" WWW: https://alg0z.blogspot.com ".center(int(colsize), "◑"))
-    print(" E-MAIL: sark0y@protonmail.com ".center(int(colsize), "◑"))
-    print(" Supported platforms: TAM for Linux; TAW stands for TAM Windows Version ".center(int(colsize), "◑"))
-    print(" Version: 1. ".center(int(colsize), "◑"))
-    print(" Revision: 1. ".center(int(colsize), "◑"))
+    print(" Project: Tiny Automation Manager. ".center(int(colsize), "*"))
+    print(" WWW: https://alg0z.blogspot.com ".center(int(colsize), "*"))
+    print(" E-MAIL: sark0y@protonmail.com ".center(int(colsize), "*"))
+    print(" Supported platforms: TAM for Linux; TAW stands for TAM Windows Version ".center(int(colsize), "+"))
+    print(" Version: 1. ".center(int(colsize), "*"))
+    print(" Revision: 1. ".center(int(colsize), "*"))
     print(f"\nlicense/Agreement:".title())
-    print("Personal usage will cost You $0.00, but don't be shy to donate me.. or You could support me any other way You want - just call/mail me to discuss possible variants for mutual gains. 🙂")
-    print("Commercial use takes $0.77 per month from You.. or just Your Soul 😇😜")
-    print("my the Best Wishes to You 🙃")
-    print(" Donations: https://boosty.to/alg0z/donate ".center(int(colsize), "◑"))
+    print("Personal usage will cost You $0.00, but don't be shy to donate me.. or You could support me any other way You want - just call/mail me to discuss possible variants for mutual gains. ?")
+    print("Commercial use takes $0.77 per month from You.. or just Your Soul ;P")
+    print("my the Best Wishes to You ?")
+    print(" Donations: https://boosty.to/alg0z/donate ".center(int(colsize), "~"))
     print("\n")
     try:
         banner0(.3)
@@ -211,14 +211,18 @@ def make_page_of_files(fileListMain: list, ps: page_struct):
 
 
 # Threads
-stopCode = "∇\n"
+stopCode = "!:$TOP:!\n"
+def GetWindowsCodePage() -> str:
+    return  f"cp{os.popen('powershell.exe [System.Text.Encoding]::Default.CodePage', mode='r').read().split()[0]}"
 class PIPES:
     def __init__(self, outNorm, outErr):
-        codepage = f"cp{os.popen('powershell.exe [System.Text.Encoding]::Default.CodePage', mode='r').read().split()[0]}"
+        codepage = GetWindowsCodePage()
         print(f"codepage ={codepage}")
-        self.outNorm_r = open(outNorm.name, mode="r", encoding=codepage)
+        self.outNorm_w = outNorm
+        self.outNorm_w.write("tst")
+        self.outNorm_r = open(outNorm.name, encoding=codepage, mode="w+")
+        os.dup2(self.outNorm_w.fileno(), self.outNorm_r.fileno(), True)
         self.outErr_r = open(outErr.name, encoding=codepage, mode="r")
-        self.outNorm_w = open(outNorm.name, encoding=codepage, mode="w+")
         self.outErr_w = open(outErr.name,  encoding=codepage, mode="w+")
         self.outNorm_name = outNorm.name
         self.outErr_name = outErr.name
@@ -235,8 +239,11 @@ def get_fd(fileName: str = ""):
     if fileName == "":
         fileName = "/tmp/tam.out"
     path, name = os.path.split(fileName)
-    norm_out = open(f"{path}/norm_{name}", mode="a")
-    err_out = open(f"{path}/err_{name}", mode="a")
+    well_encoded_path = f"{path}\\norm_{name}".encode(encoding=GetWindowsCodePage())
+    norm_out = open(well_encoded_path, mode="w+")
+    well_encoded_path = f"{path}\\err_{name}".encode(encoding=GetWindowsCodePage())
+    err_out = open(well_encoded_path, mode="w+")
+    err_out.write(f"{funcName}")
     try:
         assert (norm_out > 0)
         assert (err_out > 0)
@@ -276,10 +283,14 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
     print(f"{funcName} exited")
 def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     funcName = "find_files"
-    cmd = [f"Get-Children '{path}' -Name -Recurse -File{in_name} > {pipes.outNorm_w.name}"]
-    if tmp_file is None:
-        cmd = [f"Get-Children '{path}' -Name -Recurse -File{in_name}"]
-
+    in_name = ""
+    try:
+        path = f"{path[0:2].capitalize()}{path[2:len(path)]}"
+    except IndexError:
+        path = path.capitalize()
+    print(f"outNorm.name = {pipes.outNorm_w.name}")
+    cmd = [f"powershell.exe Get-ChildItem '{path}' -Name -Recurse -File{in_name} > C:\\Users\\tst\\tmp\\norm_01547.log"]
+    os.popen(f"{cmd}")
     print(f"{funcName} got cmd = {cmd}")
     lapse.find_files_start = time.time_ns()
     proc = sp.Popen(
@@ -288,10 +299,10 @@ def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
         stderr=pipes.outErr_w,
         shell=True
         )
-    proc.communicate()
+    print(f"{proc.communicate()}")
     pipes.outNorm_w.write(f"\n{pipes.stop}")
     lapse.find_files_stop = time.time_ns()
-    print(f"{funcName} exited")
+    print(f"\n{funcName} exited")
     return proc
 # End threads
 #measure performance
@@ -405,7 +416,7 @@ def put_in_name() -> str:
             tmp = if_no_quotes(i0, cmd_len)
             print(f"tmp {tmp}")
             if tmp is not None:
-                final_grep += f" {tmp[0]}"
+                final_grep += f"{tmp[0]}"
                 i0 = tmp[1]
         i0 += 1
     print(f"final grep = {final_grep}")
@@ -463,8 +474,8 @@ def cmd():
             thr_read_midway_data_from_pipes.start()
             thr_find_files.join()
             thr_read_midway_data_from_pipes.join()
-            delta_4_entries = f"Δt for entry points of find_files() & read_midway_data_from_pipes(): {lapse.find_files_start - lapse.read_midway_data_from_pipes_start} ns"
-            вар = 5
+            delta_4_entries = f"?t for entry points of find_files() & read_midway_data_from_pipes(): {lapse.find_files_start - lapse.read_midway_data_from_pipes_start} ns"
+            ??? = 5
             print(delta_4_entries)
             print(f"len of list = {len(fileListMain)}")
             ps = page_struct()
