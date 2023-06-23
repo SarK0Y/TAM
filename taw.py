@@ -218,10 +218,13 @@ class PIPES:
     def __init__(self, outNorm, outErr):
         codepage = GetWindowsCodePage()
         print(f"codepage ={codepage}")
-        self.outNorm_w = outNorm
-        self.outNorm_w.write("tst")
+        self.outNorm_w = open(outNorm.name, encoding=codepage, mode="w+")
+        os.dup2(outNorm.fileno(), self.outNorm_w.fileno(), True)
+        self.outNorm_w.write("_w tst")
         self.outNorm_r = open(outNorm.name, encoding=codepage, mode="w+")
         os.dup2(self.outNorm_w.fileno(), self.outNorm_r.fileno(), True)
+        self.outNorm_r.write("_r tst")
+        print(f"read from outnorm_w: {self.outNorm_w.read()}")
         self.outErr_r = open(outErr.name, encoding=codepage, mode="r")
         self.outErr_w = open(outErr.name,  encoding=codepage, mode="w+")
         self.outNorm_name = outNorm.name
@@ -289,13 +292,14 @@ def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     except IndexError:
         path = path.capitalize()
     print(f"outNorm.name = {pipes.outNorm_w.name}")
-    cmd = [f"powershell.exe Get-ChildItem '{path}' -Name -Recurse -File{in_name} > C:\\Users\\tst\\tmp\\norm_01547.log"]
-    os.popen(f"{cmd}")
+    cmd = [f"powershell", f"Set-PSDebug -Trace 2;Get-Process;echo 'this tst';Get-ChildItem {path.encode(encoding=GetWindowsCodePage())} -Name -Recurse -File{in_name}"]
+    #cmd = [f"powershell", "Set-PSDebug -Trace 2;Get-Process;echo 'this tst'"]
+    #os.popen(f"{cmd}")
     print(f"{funcName} got cmd = {cmd}")
     lapse.find_files_start = time.time_ns()
     proc = sp.Popen(
         cmd,
-        stdout=pipes.outNorm_w,
+        stdout=pipes.outNorm_r,
         stderr=pipes.outErr_w,
         shell=True
         )
@@ -474,8 +478,7 @@ def cmd():
             thr_read_midway_data_from_pipes.start()
             thr_find_files.join()
             thr_read_midway_data_from_pipes.join()
-            delta_4_entries = f"?t for entry points of find_files() & read_midway_data_from_pipes(): {lapse.find_files_start - lapse.read_midway_data_from_pipes_start} ns"
-            ??? = 5
+            delta_4_entries = f"dt for entry points of find_files() & read_midway_data_from_pipes(): {lapse.find_files_start - lapse.read_midway_data_from_pipes_start} ns"
             print(delta_4_entries)
             print(f"len of list = {len(fileListMain)}")
             ps = page_struct()
