@@ -292,7 +292,7 @@ def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     except IndexError:
         path = path.capitalize()
     print(f"outNorm.name = {pipes.outNorm_w.name}")
-    cmd = [f"powershell", f"Set-PSDebug -Trace 2;Get-Process;echo 'this tst';Get-ChildItem {path.encode(encoding=GetWindowsCodePage())} -Name -Recurse -File{in_name}"]
+    cmd = [f"powershell", f"Set-PSDebug -Trace 2;echo 'this tst';Get-ChildItem {path} -Name -Recurse -File{in_name}"]
     #cmd = [f"powershell", "Set-PSDebug -Trace 2;Get-Process;echo 'this tst'"]
     #os.popen(f"{cmd}")
     print(f"{funcName} got cmd = {cmd}")
