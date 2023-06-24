@@ -1,3 +1,4 @@
+import gc
 import subprocess
 from tabulate import tabulate
 import sys, os, signal
@@ -220,17 +221,16 @@ class PIPES:
         print(f"codepage ={codepage}")
         self.outNorm_w = open(outNorm.name, encoding=codepage, mode="w+")
         os.dup2(outNorm.fileno(), self.outNorm_w.fileno(), True)
-        self.outNorm_w.write("_w tst")
-        self.outNorm_r = open(outNorm.name, encoding=codepage, mode="w+")
+        self.outNorm_r = open(outNorm.name, encoding=codepage, mode="r")
         os.dup2(self.outNorm_w.fileno(), self.outNorm_r.fileno(), True)
-        self.outNorm_r.write("_r tst")
-        print(f"read from outnorm_w: {self.outNorm_w.read()}")
         self.outErr_r = open(outErr.name, encoding=codepage, mode="r")
         self.outErr_w = open(outErr.name,  encoding=codepage, mode="w+")
         self.outNorm_name = outNorm.name
         self.outErr_name = outErr.name
        # self.stdout = open(sys.stdin.name, mode="w+", encoding=codepage)
         self.stop = globals()['stopCode']
+    def __del__(self):
+        print("prevents gc to destroy this obj")
 class lapse:
     find_files_start = 0
     find_files_stop = 0
@@ -272,8 +272,10 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
     print(f"tst: {pipes.outNorm_r.read()}")
     prev_pos = 0
     cur_pos = 1
-    for path in iter(pipes.outNorm_r.readline, b''):
+    outNorm_r = open(pipes.outNorm_name, mode="r")
+    for path in iter(outNorm_r.readline, b''):
         if path == pipes.stop:
+            print(f"{funcName} {pipes.stop}")
             break
         if path !="":
           fileListMain.append(path)
@@ -292,19 +294,21 @@ def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     except IndexError:
         path = path.capitalize()
     print(f"outNorm.name = {pipes.outNorm_w.name}")
-    cmd = [f"powershell", f"Set-PSDebug -Trace 2;echo 'this tst';Get-ChildItem {path} -Name -Recurse -File{in_name}"]
+    cmd = ["powershell", "Get-ChildItem "f"{path}"" -Filter * -Recurse -File | %{$_.FullName}"f"{in_name}"]
     #cmd = [f"powershell", "Set-PSDebug -Trace 2;Get-Process;echo 'this tst'"]
-    #os.popen(f"{cmd}")
     print(f"{funcName} got cmd = {cmd}")
     lapse.find_files_start = time.time_ns()
     proc = sp.Popen(
         cmd,
-        stdout=pipes.outNorm_r,
+        stdout=pipes.outNorm_w,
         stderr=pipes.outErr_w,
         shell=True
         )
-    print(f"{proc.communicate()}")
-    pipes.outNorm_w.write(f"\n{pipes.stop}")
+    print(f"outnorm_r {pipes.outNorm_r.read()}")
+    print(f"{proc.communicate()}, {pipes.stop}")
+    outNorm_w = open(pipes.outNorm_name, mode="a", encoding=GetWindowsCodePage())
+    outNorm_w.write(f"\n{pipes.stop}")
+    outNorm_w.close()
     lapse.find_files_stop = time.time_ns()
     print(f"\n{funcName} exited")
     return proc
