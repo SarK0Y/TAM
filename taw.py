@@ -9,7 +9,30 @@ import subprocess as sp, copy, threading as thr
 from colorama import init as colorama_init
 from colorama import Fore
 from colorama import Style
+import ctypes, msvcrt
 from colorama import Back
+#import pywin32
+import win32file
+import win32con
+import win32security
+import win32api
+import pywintypes
+import codecs
+#Win32/64
+def makeSharedFile(fileName: str):
+    secur_att = win32security.SECURITY_ATTRIBUTES()
+    secur_att.Initialize()
+   # fileName = codecs.decode(f"b'{fileName}'", encoding=GetWindowsCodePage())
+    print(f"file = {fileName}")
+    hfile=win32file.CreateFileW( fileName,\
+            win32con.GENERIC_READ|win32con.GENERIC_WRITE,\
+            win32con.FILE_SHARE_READ|win32con.FILE_SHARE_WRITE,\
+            secur_att,\
+            win32con.OPEN_ALWAYS,\
+            win32con.FILE_ATTRIBUTE_NORMAL , 0 )
+    return hfile
+
+#End W32/64
 # Terminals
 def signal_manager(sig, frame):
     print(f"sig = {sig}")
@@ -20,7 +43,7 @@ def SYS():
     if no_SYS == True or no_SYS1 == "1":
         os.system("rm -f /tmp/no_SYS")
         sys.exit(0)
-    print("\r\nSee You Soon\nBye.. bye, my Dear User ?")
+    print("\r\nSee You Soon\nBye.. bye, my Dear User 🙂")
     sys.exit(0)
 def SetAlias(name: str, val: str) -> None:
     cmd = f"powershell.exe Set-Alias -Name '{name}' -Value '{val}'"
@@ -80,8 +103,8 @@ def info():
     print(" Revision: 1. ".center(int(colsize), "*"))
     print(f"\nlicense/Agreement:".title())
     print("Personal usage will cost You $0.00, but don't be shy to donate me.. or You could support me any other way You want - just call/mail me to discuss possible variants for mutual gains. ?")
-    print("Commercial use takes $0.77 per month from You.. or just Your Soul ;P")
-    print("my the Best Wishes to You ?")
+    print("Commercial use takes $0.77 per month from You.. or just Your Soul 😇😜")
+    print("my the Best Wishes to You 🙃")
     print(" Donations: https://boosty.to/alg0z/donate ".center(int(colsize), "~"))
     print("\n")
     try:
@@ -110,7 +133,7 @@ def log(msg, num_line: int, funcName: str):
     f = open("./it.log", mode="w")
     print(f"{funcName} said cmd = {msg} at line: {str(num_line)}", file=f)
 def clear_screen():
-    os.system('clear')
+    os.system('cls')
 def init_view(c2r: childs2run):
     i = 0
     for v in range(1, len(sys.argv)):
@@ -218,15 +241,14 @@ def GetWindowsCodePage() -> str:
 class PIPES:
     def __init__(self, outNorm, outErr):
         codepage = GetWindowsCodePage()
-        print(f"codepage ={codepage}")
-        self.outNorm_w = open(outNorm.name, encoding=codepage, mode="w+")
-        os.dup2(outNorm.fileno(), self.outNorm_w.fileno(), True)
-        self.outNorm_r = open(outNorm.name, encoding=codepage, mode="r")
-        os.dup2(self.outNorm_w.fileno(), self.outNorm_r.fileno(), True)
-        self.outErr_r = open(outErr.name, encoding=codepage, mode="r")
-        self.outErr_w = open(outErr.name,  encoding=codepage, mode="w+")
-        self.outNorm_name = outNorm.name
-        self.outErr_name = outErr.name
+        hfile = makeSharedFile(outNorm)
+        print(f"hfile = {hfile}")
+        self.outNorm_w = open(outNorm, encoding=codepage, mode="w")
+        self.outNorm_r = open(outNorm, encoding=codepage, mode="r")
+        self.outErr_r = open(outErr, encoding=codepage, mode="r")
+        self.outErr_w = open(outErr,  encoding=codepage, mode="w+")
+        self.outNorm_name = outNorm
+        self.outErr_name = outErr
        # self.stdout = open(sys.stdin.name, mode="w+", encoding=codepage)
         self.stop = globals()['stopCode']
     def __del__(self):
@@ -237,6 +259,14 @@ class lapse:
     read_midway_data_from_pipes_start = 0
     read_midway_data_from_pipes_stop = 0
 #manage files
+def GetFileNames(fileName: str):
+    funcName = "get_fd"
+    if fileName == "":
+        fileName = "/tmp/tam.out"
+    path, name = os.path.split(fileName)
+    norm_out = f"{path}\\norm_{name}"
+    err_out = f"{path}\\err_{name}"
+    return norm_out, err_out
 def get_fd(fileName: str = ""):
     funcName = "get_fd"
     if fileName == "":
@@ -269,17 +299,15 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
     pipes.outNorm_r.flush()
     pipes.outNorm_r.seek(0)
     print(f"\nprobe write for _r {pipes.outNorm_r.read()} pipes.outNorm_r.fileno ={pipes.outNorm_r.fileno()} ")
-    print(f"tst: {pipes.outNorm_r.read()}")
     prev_pos = 0
     cur_pos = 1
     outNorm_r = open(pipes.outNorm_name, mode="r")
-    for path in iter(outNorm_r.readline, b''):
+    for path in iter(pipes.outNorm_r.readline, b''):
         if path == pipes.stop:
             print(f"{funcName} {pipes.stop}")
             break
         if path !="":
           fileListMain.append(path)
-          print(f"{path}", end='', file=sys.stdout)
         prev_pos = cur_pos
         cur_pos = pipes.outNorm_r.tell()
     lapse.read_midway_data_from_pipes_stop = time.time_ns()
@@ -304,7 +332,6 @@ def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
         stderr=pipes.outErr_w,
         shell=True
         )
-    print(f"outnorm_r {pipes.outNorm_r.read()}")
     print(f"{proc.communicate()}, {pipes.stop}")
     outNorm_w = open(pipes.outNorm_name, mode="a", encoding=GetWindowsCodePage())
     outNorm_w.write(f"\n{pipes.stop}")
@@ -472,7 +499,7 @@ def cmd():
                 base_path = "./"
             fileListMain = []
             tmp_file = get_arg_in_cmd("-tmp_file", argv)
-            outNorm, outErr = get_fd(tmp_file)
+            outNorm, outErr = GetFileNames(tmp_file)
             tmp_file = None
             print(f"IDs: norm = {outNorm}, err = {outErr}")
             pipes = PIPES(outNorm, outErr)
@@ -480,8 +507,9 @@ def cmd():
             thr_find_files.start()
             thr_read_midway_data_from_pipes: Thread = thr.Thread(target=read_midway_data_from_pipes, args=(pipes, fileListMain))
             thr_read_midway_data_from_pipes.start()
-            thr_find_files.join()
-            thr_read_midway_data_from_pipes.join()
+            time.sleep(3)
+            #thr_find_files.join()
+            #thr_read_midway_data_from_pipes.join()
             delta_4_entries = f"dt for entry points of find_files() & read_midway_data_from_pipes(): {lapse.find_files_start - lapse.read_midway_data_from_pipes_start} ns"
             print(delta_4_entries)
             print(f"len of list = {len(fileListMain)}")
