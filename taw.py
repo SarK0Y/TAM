@@ -133,6 +133,7 @@ def log(msg, num_line: int, funcName: str):
     f = open("./it.log", mode="w")
     print(f"{funcName} said cmd = {msg} at line: {str(num_line)}", file=f)
 def clear_screen():
+    return
     os.system('cls')
 def init_view(c2r: childs2run):
     i = 0
@@ -143,6 +144,7 @@ def init_view(c2r: childs2run):
             i += 1
     return c2r
 def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
+    funcName = "run_viewers"
     viewer_indx, file_indx = cmd.split()
     viewer_indx = int(viewer_indx)
     file_indx = int(file_indx)
@@ -150,8 +152,9 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
     file2run = file2run[0:len(file2run) - 1]
     file2run = file2run.replace("$", "\$")
     file2run = file2run.replace(";", "\;")
-    cmd = f'{c2r.viewer[viewer_indx]}' + ' ' + f'"{file2run}"'
-    cmd = [cmd,]
+    cmd = f'& "{c2r.viewer[viewer_indx]}"' + ' ' + f'"{file2run}"'
+    cmd = ["powershell", cmd]
+    print(f"{funcName}: cmd = {cmd}")
     t = sp.Popen(cmd, shell=True)
     c2r.running.append(t)
 
@@ -440,7 +443,6 @@ def if_no_quotes(num0: int, cmd_len:int) -> str:
 def put_in_name() -> str:
     cmd_len = len(sys.argv)
     final_grep = ""
-    grep0 = ""
     num0 = []
     i = []
     i0 = 1
