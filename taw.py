@@ -18,6 +18,7 @@ import win32security
 import win32api
 import pywintypes
 import codecs
+import win32console
 class keys:
     dirty_mode = False
     def __init__(x):
@@ -55,12 +56,16 @@ def SetAlias(name: str, val: str) -> None:
     cmd = f"powershell.exe Set-Alias -Name '{name}' -Value '{val}'"
     sp.Popen(cmd, shell=True)
 def SetDefaultKonsoleTitle():
+    
     out = get_arg_in_cmd("-path0", sys.argv)
     try:
         out += f" {put_in_name()}"
+        out = out.replace("'", "")
+        print(f"konsole title = {out}")
     except TypeError:
         out = "cmd is empty"
-    sp.Popen(f"powershell.exe $host.ui.RawUI.WindowTitle = '{out}'", shell=True)
+    win32console.SetConsoleTitle(f"{out}")
+    #sp.Popen("powershell.exe", f"$host.ui.RawUI.WindowTitle = 'tst'", shell=True)
 def self_recursion():
     no_SYS = os.path.exists("/tmp/no_SYS")
     no_SYS1 = get_arg_in_cmd("-SYS", sys.argv)
@@ -257,8 +262,8 @@ class PIPES:
         print(f"hfile = {hfile}")
         self.outNorm_w = open(outNorm, encoding=codepage, mode="w")
         self.outNorm_r = open(outNorm, encoding=codepage, mode="r")
-        self.outErr_r = open(outErr, encoding=codepage, mode="r")
         self.outErr_w = open(outErr,  encoding=codepage, mode="w+")
+        self.outErr_r = open(outErr, encoding=codepage, mode="r")
         self.outNorm_name = outNorm
         self.outErr_name = outErr
        # self.stdout = open(sys.stdin.name, mode="w+", encoding=codepage)
@@ -337,7 +342,8 @@ def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     except IndexError:
         path = path.capitalize()
     print(f"outNorm.name = {pipes.outNorm_w.name}")
-    cmd = ["powershell", "Get-ChildItem "f"{path}"" -Filter * -Recurse -File | %{$_.FullName}"f"{in_name}"]
+    opts = "Get-ChildItem -Path " + f"{path}" + " -Filter * -Recurse -File | %{$_.FullName}" + f"{in_name}"
+    cmd = ["powershell", f"{opts}"]
     #cmd = [f"powershell", "Set-PSDebug -Trace 2;Get-Process;echo 'this tst'"]
     print(f"{funcName} got cmd = {cmd}")
     lapse.find_files_start = time.time_ns()
@@ -351,7 +357,7 @@ def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     except:
         print(f"{funcName} catched")
         nop()
-    print(f"{proc.communicate()}, {pipes.stop}")
+    proc.communicate()
     outNorm_w = open(pipes.outNorm_name, mode="a", encoding=GetWindowsCodePage())
     outNorm_w.write(f"\n{pipes.stop}")
     outNorm_w.close()
@@ -448,18 +454,14 @@ def if_no_quotes(num0: int, cmd_len:int) -> str:
     grep0 = ''
     i0: int
     SetAlias("grep", "findstr")
-    print(f"num0 = {num0}, cmdLen = {cmd_len}, argv = {sys.argv}")
     for i0 in range(num0, cmd_len):
         if sys.argv[i0][0:1] != "-":
            grep0 += f" {sys.argv[i0]}"
-           print(f"grep0 = {grep0}")
         else:
-             grep0 = f"| Select-String -Pattern '{grep0[1:len(grep0)]}'"
-             print(f"ggrep0 = {grep0}")
-             if grep0 == "| Select-String -Pattern ''":
+             grep0 = f"|Select-String -Pattern '{grep0[1:len(grep0)]}'"
+             if grep0 == "|Select-String -Pattern ''":
                  grep0 = ""
              return [grep0, i0]
-    print(f"num0 from if_ = {sys.argv[num0]}")
 def put_in_name() -> str:
     cmd_len = len(sys.argv)
     final_grep = ""
@@ -467,17 +469,14 @@ def put_in_name() -> str:
     i = []
     i0 = 1
     i.append(i0)
-    print(f"cmd_len00 = {cmd_len}")
     while i0 < cmd_len:
         if sys.argv[i0] == "-in_name":
             i0 = i0 + 1
             tmp = if_no_quotes(i0, cmd_len)
-            print(f"tmp {tmp}")
             if tmp is not None:
                 final_grep += f"{tmp[0]}"
                 i0 = tmp[1]
         i0 += 1
-    print(f"final grep = {final_grep}")
     return final_grep
 def is_key_in_cmdline(key: str):
     for arg in sys.argv:
