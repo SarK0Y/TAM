@@ -11,7 +11,7 @@ from colorama import Fore
 from colorama import Style
 import ctypes, msvcrt
 from colorama import Back
-#import pywin32
+# import pywin32
 import win32file
 import win32con
 import win32security
@@ -19,31 +19,40 @@ import win32api
 import pywintypes
 import codecs
 import win32console
+
+
 class keys:
     dirty_mode = False
+
     def __init__(x):
         dirty_mode = x
+
     def setDirty():
         dirty_mode = True
-#Win32/64
+
+
+# Win32/64
 def makeSharedFile(fileName: str):
     secur_att = win32security.SECURITY_ATTRIBUTES()
     secur_att.Initialize()
-   # fileName = codecs.decode(f"b'{fileName}'", encoding=GetWindowsCodePage())
+    # fileName = codecs.decode(f"b'{fileName}'", encoding=GetWindowsCodePage())
     print(f"file = {fileName}")
-    hfile=win32file.CreateFileW( fileName,\
-            win32con.GENERIC_READ|win32con.GENERIC_WRITE,\
-            win32con.FILE_SHARE_READ|win32con.FILE_SHARE_WRITE,\
-            secur_att,\
-            win32con.OPEN_ALWAYS,\
-            win32con.FILE_ATTRIBUTE_NORMAL , 0 )
+    hfile = win32file.CreateFileW(fileName, \
+                                  win32con.GENERIC_READ | win32con.GENERIC_WRITE, \
+                                  win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE, \
+                                  secur_att, \
+                                  win32con.OPEN_ALWAYS, \
+                                  win32con.FILE_ATTRIBUTE_NORMAL, 0)
     return hfile
 
-#End W32/64
+
+# End W32/64
 # Terminals
 def signal_manager(sig, frame):
     print(f"sig = {sig}")
-#signal.signal(signal.SIGINT, signal_manager)
+
+
+# signal.signal(signal.SIGINT, signal_manager)
 def SYS():
     no_SYS = os.path.exists("/tmp/no_SYS")
     no_SYS1 = get_arg_in_cmd("-SYS", sys.argv)
@@ -52,11 +61,14 @@ def SYS():
         sys.exit(0)
     print("\r\nSee You Soon\nBye.. bye, my Dear User 🙂")
     sys.exit(0)
+
+
 def SetAlias(name: str, val: str) -> None:
     cmd = f"powershell.exe Set-Alias -Name '{name}' -Value '{val}'"
     sp.Popen(cmd, shell=True)
+
+
 def SetDefaultKonsoleTitle():
-    
     out = get_arg_in_cmd("-path0", sys.argv)
     try:
         out += f" {put_in_name()}"
@@ -65,7 +77,9 @@ def SetDefaultKonsoleTitle():
     except TypeError:
         out = "cmd is empty"
     win32console.SetConsoleTitle(f"{out}")
-    #sp.Popen("powershell.exe", f"$host.ui.RawUI.WindowTitle = 'tst'", shell=True)
+    # sp.Popen("powershell.exe", f"$host.ui.RawUI.WindowTitle = 'tst'", shell=True)
+
+
 def self_recursion():
     no_SYS = os.path.exists("/tmp/no_SYS")
     no_SYS1 = get_arg_in_cmd("-SYS", sys.argv)
@@ -74,13 +88,15 @@ def self_recursion():
         sys.exit(0)
     else:
         os.system("touch -f /tmp/no_SYS")
-    cmd_line=""
+    cmd_line = ""
     for i in range(1, len(sys.argv)):
         cmd_line += f" {sys.argv[i]}"
     cmd_line += f";{sys.executable} {sys.argv[0]} -SYS 1"
     cmd = f"{sys.executable} {sys.argv[0]} {cmd_line}"
     os.system(cmd)
     os.system("rm -f /tmp/no_SYS")
+
+
 def banner0(delay: int):
     colsize = os.popen("powershell $host.UI.RawUI.MaxWindowSize.Width", 'r').read().split()[0]
     while True:
@@ -103,6 +119,8 @@ def banner0(delay: int):
         typeIt = "(c) SarK0Y 2023".center(int(colsize), "oo")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
+
+
 def info():
     clear_screen()
     colsize = os.popen("powershell $host.UI.RawUI.MaxWindowSize.Width", 'r').read().split()[0]
@@ -113,7 +131,8 @@ def info():
     print(" Version: 1. ".center(int(colsize), "*"))
     print(" Revision: 1. ".center(int(colsize), "*"))
     print(f"\nlicense/Agreement:".title())
-    print("Personal usage will cost You $0.00, but don't be shy to donate me.. or You could support me any other way You want - just call/mail me to discuss possible variants for mutual gains. ?")
+    print(
+        "Personal usage will cost You $0.00, but don't be shy to donate me.. or You could support me any other way You want - just call/mail me to discuss possible variants for mutual gains. ?")
     print("Commercial use takes $0.77 per month from You.. or just Your Soul 😇😜")
     print("my the Best Wishes to You 🙃")
     print(" Donations: https://boosty.to/alg0z/donate ".center(int(colsize), "~"))
@@ -124,13 +143,19 @@ def info():
         SYS()
     except Exception:
         SYS()
+
+
 def help():
     print("np - next page pp - previous page 0p - 1st page lp - last page go2 <number of page>", end='')
+
+
 class childs2run:
     running: list = []
     viewer: list = []
     prnt: str = ""
     full_path = ""
+
+
 class page_struct:
     num_page: int = 0
     num_cols: int = 3
@@ -138,17 +163,25 @@ class page_struct:
     num_rows: int = 11
     num_spaces: int = 4
     c2r: childs2run
+
+
 def achtung(msg):
     os.system(f"wall '{msg}'")
+
+
 def log(msg, num_line: int, funcName: str):
     f = open("./it.log", mode="w")
     print(f"{funcName} said cmd = {msg} at line: {str(num_line)}", file=f)
+
+
 def clear_screen():
     dirtyFlag = keys()
     if dirtyFlag.dirty_mode == True:
         return
     print(f"keys.dirty = {dirtyFlag.dirty_mode}")
     os.system('cls')
+
+
 def init_view(c2r: childs2run):
     i = 0
     for v in range(1, len(sys.argv)):
@@ -157,6 +190,8 @@ def init_view(c2r: childs2run):
             c2r.prnt += f"\n  {i}: {c2r.viewer[-1]}"
             i += 1
     return c2r
+
+
 def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
     funcName = "run_viewers"
     viewer_indx, file_indx = cmd.split()
@@ -166,11 +201,21 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
     file2run = file2run[0:len(file2run) - 1]
     file2run = file2run.replace("$", "\$")
     file2run = file2run.replace(";", "\;")
-    cmd = f'& "{c2r.viewer[viewer_indx]}"' + ' ' + f'"{file2run}"'
-    cmd = ["powershell", cmd]
+    entry = str(c2r.viewer[viewer_indx]).find("\'")
+    exe_file = ""
+    viewer_args = ""
+    if entry > -1:
+        exe_file = str(c2r.viewer[viewer_indx])[0:entry]
+        viewer_args = str(c2r.viewer[viewer_indx])[entry:]
+        viewer_args = viewer_args.strip("\'")
+        cmd = ["powershell", f'& "{exe_file}"', f"'{viewer_args}'", f"'{file2run}'"]
+    else:
+        exe_file = str(c2r.viewer[viewer_indx])
+        cmd = ["powershell", f'& "{exe_file}"', f"'{file2run}'"]
     print(f"{funcName}: cmd = {cmd}")
     t = sp.Popen(cmd, shell=True)
     c2r.running.append(t)
+
 
 def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
     lp = len(fileListMain) // (ps.num_cols * ps.num_rows)
@@ -196,10 +241,12 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
         return
     if cmd[0:2] == "fp":
         _, file_indx = cmd.split()
-        #achtung(fileListMain[int(file_indx)])
+        # achtung(fileListMain[int(file_indx)])
         ps.c2r.full_path = f"file {file_indx}\n{str(fileListMain[int(file_indx)])}"
         return
     run_viewers(ps.c2r, fileListMain, cmd)
+
+
 def manage_pages(fileListMain: list, ps: page_struct):
     cmd = ""
     c2r = ps.c2r
@@ -226,10 +273,14 @@ def manage_pages(fileListMain: list, ps: page_struct):
         else:
             cmd_page(cmd, ps, fileListMain)
     return
+
+
 def nop():
     return
+
+
 def make_page_of_files(fileListMain: list, ps: page_struct):
-    row: list =[]
+    row: list = []
     item = ""
     table: list = []
     stop = False
@@ -253,8 +304,12 @@ def make_page_of_files(fileListMain: list, ps: page_struct):
 
 # Threads
 stopCode = "!:$TOP:!\n"
+
+
 def GetWindowsCodePage() -> str:
-    return  f"cp{os.popen('powershell.exe [System.Text.Encoding]::Default.CodePage', mode='r').read().split()[0]}"
+    return f"cp{os.popen('powershell.exe [System.Text.Encoding]::Default.CodePage', mode='r').read().split()[0]}"
+
+
 class PIPES:
     def __init__(self, outNorm, outErr):
         codepage = GetWindowsCodePage()
@@ -262,24 +317,29 @@ class PIPES:
         print(f"hfile = {hfile}")
         self.outNorm_w = open(outNorm, encoding=codepage, mode="w")
         self.outNorm_r = open(outNorm, encoding=codepage, mode="r")
-        self.outErr_w = open(outErr,  encoding=codepage, mode="w+")
+        self.outErr_w = open(outErr, encoding=codepage, mode="w+")
         self.outErr_r = open(outErr, encoding=codepage, mode="r")
         self.outNorm_name = outNorm
         self.outErr_name = outErr
-       # self.stdout = open(sys.stdin.name, mode="w+", encoding=codepage)
+        # self.stdout = open(sys.stdin.name, mode="w+", encoding=codepage)
         self.stop = globals()['stopCode']
+
     def __del__(self):
         try:
             print("For backup's sake, yet another time:)))")
             SYS()
         except:
             nop()
+
+
 class lapse:
     find_files_start = 0
     find_files_stop = 0
     read_midway_data_from_pipes_start = 0
     read_midway_data_from_pipes_stop = 0
-#manage files
+
+
+# manage files
 def GetFileNames(fileName: str):
     funcName = "get_fd"
     if fileName == "":
@@ -288,6 +348,8 @@ def GetFileNames(fileName: str):
     norm_out = f"{path}\\norm_{name}"
     err_out = f"{path}\\err_{name}"
     return norm_out, err_out
+
+
 def get_fd(fileName: str = ""):
     funcName = "get_fd"
     if fileName == "":
@@ -305,15 +367,19 @@ def get_fd(fileName: str = ""):
         errMsg(f"can't open files {fileName}", funcName)
     finally:
         return norm_out, err_out
+
+
 def errMsg(msg: str, funcName: str):
     print(f"{Fore.RED}{funcName} said: {msg}{Style.RESET_ALL}")
+
+
 def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
-    funcName="read_midway_data_from_pipes"
+    funcName = "read_midway_data_from_pipes"
     try:
         type(pipes.outNorm_r)
     except AttributeError:
         errMsg(funcName=funcName, msg=f"proc has wrong type {type(pipes)} id: {id(pipes)}")
-   # if pipes.outErr_r != "":
+    # if pipes.outErr_r != "":
     #    errMsg(f"{pipes.outErr_r}", funcName)
     lapse.read_midway_data_from_pipes_start = time.time_ns()
     path0 = ""
@@ -328,13 +394,15 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
             print(f"{funcName} {pipes.stop}")
             break
         if len(path) > 0:
-          fileListMain.append(path)
+            fileListMain.append(path)
         prev_pos = cur_pos
         cur_pos = pipes.outNorm_r.tell()
     lapse.read_midway_data_from_pipes_stop = time.time_ns()
     print(f"prev_pos = {prev_pos}, {cur_pos}")
     fileListMain = set(fileListMain)
     print(f"{funcName} exited")
+
+
 def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     funcName = "find_files"
     try:
@@ -344,15 +412,15 @@ def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     print(f"outNorm.name = {pipes.outNorm_w.name}")
     opts = "Get-ChildItem -Path " + f"{path}" + " -Filter * -Recurse -File | %{$_.FullName}" + f"{in_name}"
     cmd = ["powershell", f"{opts}"]
-    #cmd = [f"powershell", "Set-PSDebug -Trace 2;Get-Process;echo 'this tst'"]
+    # cmd = [f"powershell", "Set-PSDebug -Trace 2;Get-Process;echo 'this tst'"]
     print(f"{funcName} got cmd = {cmd}")
     lapse.find_files_start = time.time_ns()
     try:
         proc = sp.Popen(
-        cmd,
-        stdout=pipes.outNorm_w,
-        stderr=pipes.outErr_w,
-        shell=True
+            cmd,
+            stdout=pipes.outNorm_w,
+            stderr=pipes.outErr_w,
+            shell=True
         )
     except:
         print(f"{funcName} catched")
@@ -364,8 +432,10 @@ def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     lapse.find_files_stop = time.time_ns()
     print(f"\n{funcName} exited")
     return proc
+
+
 # End threads
-#measure performance
+# measure performance
 class perf0:
     def __init__(self, vec):
         self.vec = np.array(vec, dtype="int64")
@@ -443,6 +513,8 @@ def checkArg(arg: str) -> bool:
         if key0 == arg:
             return True
     return False
+
+
 def get_arg_in_cmd(key: str, argv):
     cmd_len = len(argv)
     for i in range(1, cmd_len):
@@ -450,18 +522,22 @@ def get_arg_in_cmd(key: str, argv):
         if key0 == key:
             return argv[i + 1]
     return None
-def if_no_quotes(num0: int, cmd_len:int) -> str:
+
+
+def if_no_quotes(num0: int, cmd_len: int) -> str:
     grep0 = ''
     i0: int
     SetAlias("grep", "findstr")
     for i0 in range(num0, cmd_len):
         if sys.argv[i0][0:1] != "-":
-           grep0 += f" {sys.argv[i0]}"
+            grep0 += f" {sys.argv[i0]}"
         else:
-             grep0 = f"|Select-String -Pattern '{grep0[1:len(grep0)]}'"
-             if grep0 == "|Select-String -Pattern ''":
-                 grep0 = ""
-             return [grep0, i0]
+            grep0 = f"|Select-String -Pattern '{grep0[1:len(grep0)]}'"
+            if grep0 == "|Select-String -Pattern ''":
+                grep0 = ""
+            return [grep0, i0]
+
+
 def put_in_name() -> str:
     cmd_len = len(sys.argv)
     final_grep = ""
@@ -478,15 +554,19 @@ def put_in_name() -> str:
                 i0 = tmp[1]
         i0 += 1
     return final_grep
+
+
 def is_key_in_cmdline(key: str):
     for arg in sys.argv:
         if arg == key:
             return True
     return False
+
+
 def cmd():
     SetAlias("grep", "findstr")
     os.system("echo 'tst string\nwrong str'|grep -i tst")
-    sys.argv.append("-!") # Stop code
+    sys.argv.append("-!")  # Stop code
     print(f"argv = {sys.argv}")
     SetDefaultKonsoleTitle()
     if is_key_in_cmdline("-dirty"):
@@ -496,7 +576,7 @@ def cmd():
         return
     print("start cmd")
     sys.argv[0] = str(sys.argv)
-   # self_recursion()
+    # self_recursion()
     cmd_len = len(sys.argv)
     cmd_key = ''
     cmd_val = ''
@@ -535,11 +615,12 @@ def cmd():
             pipes = PIPES(outNorm, outErr)
             thr_find_files: Thread = thr.Thread(target=find_files, args=(base_path, pipes, filter_name, tmp_file))
             thr_find_files.start()
-            thr_read_midway_data_from_pipes: Thread = thr.Thread(target=read_midway_data_from_pipes, args=(pipes, fileListMain))
+            thr_read_midway_data_from_pipes: Thread = thr.Thread(target=read_midway_data_from_pipes,
+                                                                 args=(pipes, fileListMain))
             thr_read_midway_data_from_pipes.start()
             time.sleep(3)
-            #thr_find_files.join()
-            #thr_read_midway_data_from_pipes.join()
+            # thr_find_files.join()
+            # thr_read_midway_data_from_pipes.join()
             delta_4_entries = f"dt for entry points of find_files() & read_midway_data_from_pipes(): {lapse.find_files_start - lapse.read_midway_data_from_pipes_start} ns"
             print(delta_4_entries)
             print(f"len of list = {len(fileListMain)}")
@@ -557,4 +638,6 @@ def cmd():
             ps.c2r = init_view(ps.c2r)
             table = make_page_of_files(fileListMain, ps)
             manage_pages(fileListMain, ps)
+
+
 cmd()
