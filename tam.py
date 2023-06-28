@@ -14,6 +14,8 @@ from colorama import Back
 def signal_manager(sig, frame):
     print(f"sig = {sig}")
 #signal.signal(signal.SIGINT, signal_manager)
+class keys:
+    dirty_mode = False
 def SYS():
     no_SYS = os.path.exists("/tmp/no_SYS")
     no_SYS1 = get_arg_in_cmd("-SYS", sys.argv)
@@ -106,6 +108,8 @@ def log(msg, num_line: int, funcName: str):
     f = open("./it.log", mode="w")
     print(f"{funcName} said cmd = {msg} at line: {str(num_line)}", file=f)
 def clear_screen():
+    if keys.dirty_mode:
+        return
     os.system('clear')
 def init_view(c2r: childs2run):
     i = 0
@@ -254,7 +258,6 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
     pipes.outNorm_r.flush()
     pipes.outNorm_r.seek(0)
     print(f"\nprobe write for _r {pipes.outNorm_r.read()} pipes.outNorm_r.fileno ={pipes.outNorm_r.fileno()} ")
-    print(f"tst: {pipes.outNorm_r.read()}")
     prev_pos = 0
     cur_pos = 1
     for path in iter(pipes.outNorm_r.readline, b''):
@@ -262,7 +265,6 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
             break
         if path !="":
           fileListMain.append(path)
-          print(f"{path}", end='', file=sys.stdout)
         prev_pos = cur_pos
         cur_pos = pipes.outNorm_r.tell()
     lapse.read_midway_data_from_pipes_stop = time.time_ns()
@@ -358,6 +360,13 @@ def time_samples(type0="time", num_of_samples=10):
 
 
 # search params in cmd line
+def checkArg(arg: str) -> bool:
+    cmd_len = len(sys.argv)
+    for i in range(1, cmd_len):
+        key0 = sys.argv[i]
+        if key0 == arg:
+            return True
+    return False
 def get_arg_in_cmd(key: str, argv):
     cmd_len = len(argv)
     for i in range(1, cmd_len):
@@ -374,9 +383,12 @@ def if_no_quotes(num0: int, cmd_len:int) -> str:
            grep0 += f" {sys.argv[i0]}"
         else:
             grep0 = f"|grep -i '{grep0[1:len(grep0)]}'"
+            if sys.argv[i0] == "-in_name":
+                i0 -=1
             return [grep0, i0]
     print(f"num0 from if_ = {sys.argv[num0]}")
 def put_in_name() -> str:
+    funcName = "put_in_name"
     cmd_len = len(sys.argv)
     final_grep = ""
     grep0 = ""
@@ -393,8 +405,11 @@ def put_in_name() -> str:
                 final_grep += f" {tmp[0]}"
                 i0 = tmp[1]
         i0 += 1
+        print(f"{funcName} i0 = {i0}")
     return final_grep
 def cmd():
+    if checkArg("-dirty"):
+        keys.dirty_mode = True
     sys.argv.append("-!") # Stop code
     print(f"argv = {sys.argv}")
     SetDefaultKonsoleTitle()
@@ -410,6 +425,9 @@ def cmd():
         cmd_key = sys.argv[i]
         if cmd_key == "-ver":
             info()
+        if "-argv0" == cmd_key:
+            print(f"argv = {sys.argv}")
+            sys.exit()
         if cmd_key == "-time_prec":
             i = i + 1
             cmd_val = sys.argv[i]
@@ -421,6 +439,9 @@ def cmd():
             else:
                 time_samples(cmd_val, int(num_of_samples))
         if cmd_key == "-find_files":
+            if checkArg("-argv0"):
+                print(f"argv = {sys.argv}")
+                sys.exit()
             base_path = get_arg_in_cmd("-path0", argv)
             filter_name = put_in_name()
             if filter_name is None:
