@@ -535,6 +535,8 @@ def if_no_quotes(num0: int, cmd_len: int) -> str:
             grep0 = f"|Select-String -Pattern '{grep0[1:len(grep0)]}'"
             if grep0 == "|Select-String -Pattern ''":
                 grep0 = ""
+            if sys.argv[i0] == "-in_name":
+                i0 -= 1
             return [grep0, i0]
 
 
