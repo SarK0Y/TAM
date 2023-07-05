@@ -1,0 +1,52 @@
+PREFIX = /usr/local
+LD = ld
+CC = cc
+MAKE = make
+PKG_CONFIG = pkg-config
+INSTALL = install
+CFLAGS = -g -O2 -Wall -Wextra
+LDFLAGS =
+LIBS =
+PKGCONFIG += vlc-plugin
+VLC_PLUGIN_CFLAGS := $(shell $(PKG_CONFIG) --cflags vlc-plugin)
+VLC_PLUGIN_LIBS := $(shell $(PKG_CONFIG) --libs vlc-plugin)
+
+libdir = $(PREFIX)/lib
+plugindir := $(shell pkg-config vlc-plugin --variable=pluginsdir)
+
+#override CC += -std=gnu11
+override CPPFLAGS += -D__PLUGIN__ -D_FILE_OFFSET_BITS=64 -D_REENTRANT -D_THREAD_SAFE -g -DPIC -I. -I$(EXTRA_INCLUDES)
+override CFLAGS += -fPIC
+override LDFLAGS += -Wl,-no-undefined,-z,defs
+
+override CPPFLAGS += -DMODULE_STRING=\"vlc_tam\"
+override CFLAGS += $(VLC_PLUGIN_CFLAGS)
+override LIBS += $(VLC_PLUGIN_LIBS)
+name = libvlc_tam_plugin.so
+TARGETS = $(name)
+
+all: $(name)
+
+install: all
+	mkdir -p -- $(DESTDIR)$(plugindir)/vlc_tam
+	$(INSTALL) --mode 0755 $(name) $(DESTDIR)$(plugindir)/misc
+
+install-strip:
+	$(MAKE) install INSTALL="$(INSTALL) -s"
+
+uninstall:
+	rm -f $(plugindir)/misc/$(name)
+
+clean:
+	rm -f *.so *.o
+
+mostlyclean: clean
+
+SOURCES = $(wildcard ./*.cpp)
+#$(SOURCES:%.c=%.o): %: $(SOURCES)
+objs: 
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $(SOURCES:.cpp=.o) -c $(SOURCES)
+$(name): $(SOURCES:.cpp=.o)
+	$(CC) $(LIBS) -shared -o $@ $^ $(LDFLAGS)
+
+.PHONY: all install install-strip uninstall clean mostlyclean
