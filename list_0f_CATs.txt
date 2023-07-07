@@ -1,0 +1,91 @@
+grep -R 'CAT_' ./|grep '.h:'|grep -v '=' >
+./vlc-3.0.18/include/vlc_config_cat.h:    { CAT_INTERFACE, INTF_TITLE, INTF_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_INTERFACE_GENERAL, INTF_TITLE, INTF_GENERAL_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_INTERFACE_MAIN, INTF_MAIN_TITLE, INTF_MAIN_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_INTERFACE_CONTROL, INTF_CONTROL_TITLE, INTF_CONTROL_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_INTERFACE_HOTKEYS, INTF_HOTKEYS_TITLE, INTF_HOTKEYS_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { CAT_AUDIO, AUDIO_TITLE, AUDIO_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_AUDIO_GENERAL, AUDIO_TITLE, AUDIO_GENERAL_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_AUDIO_AOUT, AOUT_TITLE, AOUT_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_AUDIO_AFILTER, AFILTER_TITLE, AFILTER_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_AUDIO_RESAMPLER, ARESAMPLER_TITLE, AFILTER_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_AUDIO_VISUAL, AVISUAL_TITLE, AVISUAL_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_AUDIO_MISC, AMISC_TITLE, AMISC_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { CAT_VIDEO, VIDEO_TITLE, VIDEO_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_VIDEO_GENERAL, VIDEO_TITLE, VIDEO_GENERAL_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_VIDEO_VOUT, _VOUT_TITLE, VOUT_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_VIDEO_VFILTER, VFILTER_TITLE, VFILTER_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_VIDEO_SUBPIC, SUBPIC_TITLE, SUBPIC_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_VIDEO_SPLITTER, SPLITTER_TITLE, SPLITTER_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { CAT_INPUT, INPUT_TITLE, INPUT_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_INPUT_GENERAL, INPUT_TITLE, INPUT_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_INPUT_ACCESS, ACCESS_TITLE, ACCESS_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_INPUT_DEMUX, DEMUX_TITLE, DEMUX_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_INPUT_VCODEC, VDEC_TITLE, VDEC_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_INPUT_ACODEC, ADEC_TITLE, ADEC_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_INPUT_SCODEC, SDEC_TITLE, SDEC_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_INPUT_STREAM_FILTER, STREAM_FILTER_TITLE, STREAM_FILTER_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { CAT_SOUT, SOUT_TITLE, SOUT_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_SOUT_GENERAL, SOUT_TITLE, SOUT_GENERAL_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_SOUT_STREAM, SOUT_STREAM_TITLE, SOUT_STREAM_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_SOUT_MUX, SOUT_MUX_TITLE, SOUT_MUX_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_SOUT_ACO, SOUT_ACO_TITLE, SOUT_ACO_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_SOUT_PACKETIZER, SOUT_PACKET_TITLE, SOUT_PACKET_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_SOUT_VOD, SOUT_VOD_TITLE, SOUT_VOD_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { CAT_PLAYLIST, PLAYLIST_TITLE , PLAYLIST_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_PLAYLIST_GENERAL, PLAYLIST_TITLE, PGENERAL_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_PLAYLIST_SD, SD_TITLE, SD_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { CAT_ADVANCED, AADVANCED_TITLE, AADVANCED_HELP },
+./vlc-3.0.18/include/vlc_config_cat.h:    { SUBCAT_ADVANCED_MISC, MISC_TITLE, AADVANCED_HELP },
+./vlc-3.0.18/include/vlc_plugin.h:#define CAT_INTERFACE 1
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_INTERFACE_GENERAL 101
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_INTERFACE_MAIN 102
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_INTERFACE_CONTROL 103
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_INTERFACE_HOTKEYS 104
+./vlc-3.0.18/include/vlc_plugin.h:#define CAT_AUDIO 2
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_AUDIO_GENERAL 201
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_AUDIO_AOUT 202
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_AUDIO_AFILTER 203
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_AUDIO_VISUAL 204
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_AUDIO_MISC 205
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_AUDIO_RESAMPLER 206
+./vlc-3.0.18/include/vlc_plugin.h:#define CAT_VIDEO 3
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_VIDEO_GENERAL 301
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_VIDEO_VOUT 302
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_VIDEO_VFILTER 303
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_VIDEO_SUBPIC 305
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_VIDEO_SPLITTER 306
+./vlc-3.0.18/include/vlc_plugin.h:#define CAT_INPUT 4
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_INPUT_GENERAL 401
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_INPUT_ACCESS 402
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_INPUT_DEMUX 403
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_INPUT_VCODEC 404
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_INPUT_ACODEC 405
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_INPUT_SCODEC 406
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_INPUT_STREAM_FILTER 407
+./vlc-3.0.18/include/vlc_plugin.h:#define CAT_SOUT 5
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_SOUT_GENERAL 501
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_SOUT_STREAM 502
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_SOUT_MUX 503
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_SOUT_ACO 504
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_SOUT_PACKETIZER 505
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_SOUT_VOD 507
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_SOUT_RENDERER 508
+./vlc-3.0.18/include/vlc_plugin.h:#define CAT_ADVANCED 6
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_ADVANCED_MISC 602
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_ADVANCED_NETWORK 603
+./vlc-3.0.18/include/vlc_plugin.h:#define CAT_PLAYLIST 7
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_PLAYLIST_GENERAL 701
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_PLAYLIST_SD 702
+./vlc-3.0.18/include/vlc_plugin.h:#define SUBCAT_PLAYLIST_EXPORT 703
+./vlc-3.0.18/include/vlc_services_discovery.h:    SD_CAT_LAN,                   /**< LAN/WAN services, like Upnp or SAP */
+./vlc-3.0.18/include/vlc_services_discovery.h:    SD_CAT_INTERNET,              /**< Internet or Website channels services */
+./vlc-3.0.18/include/vlc_services_discovery.h:    SD_CAT_MYCOMPUTER             /**< Computer services, like Discs or Apps */
+./vlc-3.0.18/include/vlc_fixups.h:# define STATIC_ASSERT_CONCAT_(a, b) a##b
+./vlc-3.0.18/include/vlc_fixups.h:# define STATIC_ASSERT_CONCAT(a, b) STATIC_ASSERT_CONCAT_(a, b)
+./vlc-3.0.18/modules/access/avio.h:    set_category(CAT_INPUT)                                                      \
+./vlc-3.0.18/modules/access/avio.h:    set_subcategory(SUBCAT_INPUT_ACCESS)                                         \
+./vlc-3.0.18/modules/access/avio.h:        set_category( CAT_SOUT )                                                 \
+./vlc-3.0.18/modules/access/avio.h:        set_subcategory( SUBCAT_SOUT_ACO )                                       \
+./vlc-3.0.18/modules/packetizer/avparser.h:    set_category( CAT_SOUT )                            \
+./vlc-3.0.18/modules/packetizer/avparser.h:    set_subcategory( SUBCAT_SOUT_PACKETIZER )           \
