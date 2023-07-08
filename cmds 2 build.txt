@@ -1,0 +1,1 @@
+make -f Makefile0 --eval="EXTRA_INCLUDES=/usr/include/vlc/plugins" pre #preprocessor
