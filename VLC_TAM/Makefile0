@@ -44,6 +44,8 @@ mostlyclean: clean
 
 SOURCES = $(wildcard ./*.cpp)
 #$(SOURCES:%.c=%.o): %: $(SOURCES)
+pre:
+	gcc -E -I. -I$(EXTRA_INCLUDES) $(SOURCES) -o $(SOURCES:%.cpp=%.pre.cpp)
 objs: 
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $(SOURCES:.cpp=.o) -c $(SOURCES)
 $(name): $(SOURCES:.cpp=.o)
