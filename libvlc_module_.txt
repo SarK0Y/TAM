@@ -1,0 +1,18 @@
+./vlc-3.0.18/doc/ChangeLog-2011:    libvlc: do not export libvlc_module_description_list_get but only the functions
+./vlc-3.0.18/include/vlc/libvlc.h:    struct libvlc_module_description_t *p_next;
+./vlc-3.0.18/include/vlc/libvlc.h:libvlc_module_description_t *libvlc_audio_filter_list_get( libvlc_instance_t *p_instance );
+./vlc-3.0.18/include/vlc/libvlc.h:libvlc_module_description_t *libvlc_video_filter_list_get( libvlc_instance_t *p_instance );
+./vlc-3.0.18/include/vlc/libvlc.h:typedef struct libvlc_module_description_t
+./vlc-3.0.18/include/vlc/libvlc.h:void libvlc_module_description_list_release( libvlc_module_description_t *p_list );
+./vlc-3.0.18/include/vlc/libvlc.h:} libvlc_module_description_t;
+./vlc-3.0.18/lib/core.c:            libvlc_module_description_list_release( p_list );
+./vlc-3.0.18/lib/core.c:        p_actual = ( libvlc_module_description_t * ) malloc( sizeof( libvlc_module_description_t ) );
+./vlc-3.0.18/lib/core.c:    libvlc_module_description_t *p_actual, *p_before;
+./vlc-3.0.18/lib/core.c:    libvlc_module_description_t *p_list = NULL,
+./vlc-3.0.18/lib/core.c:libvlc_module_description_t *libvlc_audio_filter_list_get( libvlc_instance_t *p_instance )
+./vlc-3.0.18/lib/core.c:libvlc_module_description_t *libvlc_video_filter_list_get( libvlc_instance_t *p_instance )
+./vlc-3.0.18/lib/core.c:static libvlc_module_description_t *module_description_list_get(
+./vlc-3.0.18/lib/core.c:void libvlc_module_description_list_release( libvlc_module_description_t *p_list )
+./vlc-3.0.18/test/libvlc/core.c:    libvlc_module_description_list_release (list);
+./vlc-3.0.18/test/libvlc/core.c:    libvlc_module_description_t *module = list;
+./vlc-3.0.18/test/libvlc/core.c:static void test_moduledescriptionlist (libvlc_module_description_t *list)
