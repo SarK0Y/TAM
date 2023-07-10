@@ -1,0 +1,149 @@
+grep -RE 'module_t' ./|grep -E "(c\:|p\:|h:)"|sort -k 1 | uniq -ui
+./vlc-3.0.18/extras/analyser/zsh.cpp:    module_t **max = &mod_list[modules];
+./vlc-3.0.18/extras/analyser/zsh.cpp:    module_t **mod_list;
+./vlc-3.0.18/extras/analyser/zsh.cpp:static void ParseModule(const module_t *mod)
+./vlc-3.0.18/extras/analyser/zsh.cpp:static void PrintModule(const module_t *mod)
+./vlc-3.0.18/include/vlc_common.h:typedef struct module_t module_t;
+./vlc-3.0.18/include/vlc_demux.h:    module_t    *p_module;
+./vlc-3.0.18/include/vlc_extensions.h:    module_t *p_module;                /**< Extensions manager module */
+./vlc-3.0.18/include/vlc_filter.h:    module_t *          p_module;
+./vlc-3.0.18/include/vlc_fingerprinter.h:    module_t *   p_module;
+./vlc-3.0.18/include/vlc_interface.h:    module_t *   p_module;
+./vlc-3.0.18/include/vlc_keystore.h:    module_t            *p_module;
+./vlc-3.0.18/include/vlc_modules.h:VLC_API bool module_provides( const module_t *m, const char *cap );
+./vlc-3.0.18/include/vlc_modules.h:VLC_API const char * module_get_capability( const module_t *m ) VLC_USED;
+./vlc-3.0.18/include/vlc_modules.h:VLC_API const char * module_get_help( const module_t *m ) VLC_USED;
+./vlc-3.0.18/include/vlc_modules.h:VLC_API const char * module_get_name( const module_t *m, bool long_name ) VLC_USED;
+./vlc-3.0.18/include/vlc_modules.h:VLC_API const char * module_get_object( const module_t *m ) VLC_USED;
+./vlc-3.0.18/include/vlc_modules.h:VLC_API const char * module_gettext( const module_t *, const char * ) VLC_USED;
+./vlc-3.0.18/include/vlc_modules.h:VLC_API int module_get_score( const module_t *m ) VLC_USED;
+./vlc-3.0.18/include/vlc_modules.h:VLC_API module_config_t * module_config_get( const module_t *, unsigned * ) VLC_USED;
+./vlc-3.0.18/include/vlc_modules.h:VLC_API module_t * module_find(const char *) VLC_USED;
+./vlc-3.0.18/include/vlc_modules.h:VLC_API module_t * module_need( vlc_object_t *, const char *, const char *, bool ) VLC_USED;
+./vlc-3.0.18/include/vlc_modules.h:VLC_API module_t * vlc_module_load( vlc_object_t *obj, const char *cap, const char *name, bool strict, vlc_activate_t probe, ... ) VLC_USED;
+./vlc-3.0.18/include/vlc_modules.h:VLC_API module_t ** module_list_get(size_t *n) VLC_USED;
+./vlc-3.0.18/include/vlc_modules.h:VLC_API void module_list_free(module_t **);
+./vlc-3.0.18/include/vlc_modules.h:VLC_API void module_unneed( vlc_object_t *, module_t * );
+./vlc-3.0.18/include/vlc_modules.h:VLC_API void vlc_module_unload( vlc_object_t *obj, module_t *,
+./vlc-3.0.18/include/vlc_modules.h:VLC_USED static inline bool module_is_main( const module_t * p_module )
+./vlc-3.0.18/include/vlc_modules.h:VLC_USED static inline module_t *module_get_main (void)
+./vlc-3.0.18/include/vlc_modules.h:int module_start(vlc_object_t *, const module_t *);
+./vlc-3.0.18/include/vlc_modules.h:void module_stop(vlc_object_t *, const module_t *);
+./vlc-3.0.18/include/vlc_opengl.h:    module_t *module;
+./vlc-3.0.18/include/vlc_plugin.h:    module_t *module; \
+./vlc-3.0.18/include/vlc_renderer_discovery.h:    module_t *          p_module;
+./vlc-3.0.18/include/vlc_services_discovery.h:    module_t *          p_module;             /**< Loaded module */
+./vlc-3.0.18/include/vlc_sout.h:    module_t                *p_module;
+./vlc-3.0.18/include/vlc_sout.h:    module_t            *p_module;
+./vlc-3.0.18/include/vlc_sout.h:    module_t          *p_module;
+./vlc-3.0.18/include/vlc_stream.h:    module_t    *p_module;
+./vlc-3.0.18/include/vlc_tls.h:    module_t *module;
+./vlc-3.0.18/include/vlc_video_splitter.h:    module_t        *p_module;
+./vlc-3.0.18/include/vlc_vod.h:    module_t  *p_module;
+./vlc-3.0.18/include/vlc_vout_display.h:    module_t *module;
+./vlc-3.0.18/include/vlc_xml.h:    module_t  *p_module;
+./vlc-3.0.18/include/vlc_xml.h:    module_t *p_module;
+./vlc-3.0.18/lib/audio.c:        module_t *module = module_list[i];
+./vlc-3.0.18/lib/audio.c:    module_t **module_list = module_list_get( &count );
+./vlc-3.0.18/lib/core.c:        module_t *p_module = module_list[i];
+./vlc-3.0.18/lib/core.c:    module_t **module_list = module_list_get( &count );
+./vlc-3.0.18/lib/video.c:    module_t *p_obj = module_find( psz_name );
+./vlc-3.0.18/modules/audio_filter/gain.c:    module_t *module;
+./vlc-3.0.18/modules/audio_output/mmdevice.c:    module_t *module;
+./vlc-3.0.18/modules/audio_output/winstore.c:    module_t *module;
+./vlc-3.0.18/modules/codec/avcodec/va.h:    module_t *module;
+./vlc-3.0.18/modules/demux/tta.c:    //module_t    *p_id3;
+./vlc-3.0.18/modules/gui/qt/components/complete_preferences.cpp:                      module_t **p_list, size_t count ) :
+./vlc-3.0.18/modules/gui/qt/components/complete_preferences.cpp:    module_t *p_module = module_get_main();
+./vlc-3.0.18/modules/gui/qt/components/complete_preferences.hpp:    PrefsTree( intf_thread_t *, QWidget *, module_t **, size_t );
+./vlc-3.0.18/modules/gui/qt/components/complete_preferences.hpp:    module_t *p_module;
+./vlc-3.0.18/modules/gui/qt/components/extended_panels.cpp:    module_t *p_obj = module_find( psz_name );
+./vlc-3.0.18/modules/gui/qt/components/extended_panels.cpp:    module_t *p_obj = module_find( qtu(name) );
+./vlc-3.0.18/modules/gui/qt/components/preferences_widgets.cpp:    module_t *p_main = module_get_main();
+./vlc-3.0.18/modules/gui/qt/components/preferences_widgets.cpp:void ModuleListConfigControl::checkbox_lists( module_t *p_parser )
+./vlc-3.0.18/modules/gui/qt/components/preferences_widgets.hpp:    void checkbox_lists(module_t*);
+./vlc-3.0.18/modules/gui/qt/components/sout/profile_selector.cpp:         module_t *p_module = p_all[i];
+./vlc-3.0.18/modules/gui/qt/components/sout/profile_selector.cpp:        module_t *p_module = p_all[i];
+./vlc-3.0.18/modules/gui/qt/dialogs/plugins.cpp:        module_t *p_module = p_list[i];
+./vlc-3.0.18/modules/gui/qt/dialogs/plugins.cpp:    module_t **p_list = module_list_get( &count );
+./vlc-3.0.18/modules/gui/qt/dialogs/preferences.hpp:    module_t **p_list;
+./vlc-3.0.18/modules/gui/skins2/src/dialogs.hpp:    module_t *m_pModule;
+./vlc-3.0.18/modules/misc/addons/fsstorage.c:    module_t *p_module = module_need( p_finder, "addons finder",
+./vlc-3.0.18/modules/video_output/opengl/converter.h:    module_t *p_module;
+./vlc-3.0.18/src/audio_output/aout_internal.h:    module_t *module; /**< Output plugin (or NULL if inactive) */
+./vlc-3.0.18/src/audio_output/volume.c:    module_t *module;
+./vlc-3.0.18/src/config/core.c:    module_t **list;
+./vlc-3.0.18/src/config/file.c:        module_t *p_parser = p->module;
+./vlc-3.0.18/src/config/help.c:        const module_t *m = p->module;
+./vlc-3.0.18/src/config/help.c:        module_t *p_parser = list[j];
+./vlc-3.0.18/src/config/help.c:    module_t **list = module_list_get (&count);
+./vlc-3.0.18/src/config/help.c:static bool module_match(const module_t *m, const char *pattern, bool strict)
+./vlc-3.0.18/src/config/help.c:static void print_item(const vlc_object_t *p_this, const module_t *m, const module_config_t *item,
+./vlc-3.0.18/src/config/help.c:static void print_section(const module_t *m, const module_config_t **sect,
+./vlc-3.0.18/src/input/input.c:    module_t *p_id3 = module_need( p_demux_meta, "meta reader", NULL, false );
+./vlc-3.0.18/src/input/meta.c:    module_t *p_mod = module_need( p_export, "meta writer", NULL, false );
+./vlc-3.0.18/src/input/stream_extractor.c:    module_t* module; /**< the stream-extractor module */
+./vlc-3.0.18/src/misc/addons.c:            module_t *p_module;
+./vlc-3.0.18/src/misc/addons.c:    module_t *p_module = module_need( p_finder, "addons finder",
+./vlc-3.0.18/src/misc/messages.c:    module_t *module = vlc_module_load(logger, "logger", NULL, false,
+./vlc-3.0.18/src/misc/probe.c:    module_t *mod = module_need (probe, capability, NULL, false);
+./vlc-3.0.18/src/modules/bank.c:        for (module_t *m = lib->module; m != NULL; m = m->next)
+./vlc-3.0.18/src/modules/bank.c:        module_t **nt = realloc(tab, (i + lib->modules_count) * sizeof (*tab));
+./vlc-3.0.18/src/modules/bank.c:    const module_t *const *ma = a, *const *mb = b;
+./vlc-3.0.18/src/modules/bank.c:    for (module_t *m = lib->module; m != NULL; m = m->next)
+./vlc-3.0.18/src/modules/bank.c:    module_t **list = module_list_get (&count);
+./vlc-3.0.18/src/modules/bank.c:    module_t **modv = realloc(cap->modv, sizeof (*modv) * (cap->modc + 1));
+./vlc-3.0.18/src/modules/bank.c:    module_t **modv;
+./vlc-3.0.18/src/modules/bank.c:    module_t **tab = NULL;
+./vlc-3.0.18/src/modules/bank.c:    module_t **tab = vlc_alloc (n, sizeof (*tab));
+./vlc-3.0.18/src/modules/bank.c:module_t **module_list_get (size_t *n)
+./vlc-3.0.18/src/modules/bank.c:ssize_t module_list_cap (module_t ***restrict list, const char *name)
+./vlc-3.0.18/src/modules/bank.c:static int vlc_module_store(module_t *mod)
+./vlc-3.0.18/src/modules/bank.c:void module_list_free (module_t **list)
+./vlc-3.0.18/src/modules/cache.c:        for (module_t *module = plugin->module;
+./vlc-3.0.18/src/modules/cache.c:    module_t *module = vlc_module_create(plugin);
+./vlc-3.0.18/src/modules/cache.c:static int CacheSaveModule(FILE *file, const module_t *module)
+./vlc-3.0.18/src/modules/entry.c:            *(va_arg (ap, module_t **)) = submodule;
+./vlc-3.0.18/src/modules/entry.c:            module_t *submodule = vlc_module_create(plugin);
+./vlc-3.0.18/src/modules/entry.c:            module_t *super = plugin->module;
+./vlc-3.0.18/src/modules/entry.c:        module_t *next = module->next;
+./vlc-3.0.18/src/modules/entry.c:    for (module_t *module = plugin->module;
+./vlc-3.0.18/src/modules/entry.c:    module_t *module = malloc (sizeof (*module));
+./vlc-3.0.18/src/modules/entry.c:    module_t *module = tgt;
+./vlc-3.0.18/src/modules/entry.c:    module_t *parent = plugin->module;
+./vlc-3.0.18/src/modules/entry.c:module_t *vlc_module_create(vlc_plugin_t *plugin)
+./vlc-3.0.18/src/modules/entry.c:void vlc_module_destroy (module_t *module)
+./vlc-3.0.18/src/modules/modules.c:        module_t *module = list[i];
+./vlc-3.0.18/src/modules/modules.c:    module_t **list = module_list_get (&count);
+./vlc-3.0.18/src/modules/modules.c:    module_t **mods;
+./vlc-3.0.18/src/modules/modules.c:    module_t *module = NULL;
+./vlc-3.0.18/src/modules/modules.c: * Get a pointer to a module_t given it's name.
+./vlc-3.0.18/src/modules/modules.c:bool module_provides (const module_t *m, const char *cap)
+./vlc-3.0.18/src/modules/modules.c:const char *module_get_capability (const module_t *m)
+./vlc-3.0.18/src/modules/modules.c:const char *module_get_help( const module_t *m )
+./vlc-3.0.18/src/modules/modules.c:const char *module_get_name( const module_t *m, bool long_name )
+./vlc-3.0.18/src/modules/modules.c:const char *module_get_object( const module_t *m )
+./vlc-3.0.18/src/modules/modules.c:const char *module_gettext (const module_t *m, const char *str)
+./vlc-3.0.18/src/modules/modules.c:int module_get_score( const module_t *m )
+./vlc-3.0.18/src/modules/modules.c:int module_start (vlc_object_t *obj, const module_t *m)
+./vlc-3.0.18/src/modules/modules.c:module_config_t *module_config_get( const module_t *module, unsigned *restrict psize )
+./vlc-3.0.18/src/modules/modules.c:module_t *module_find (const char *name)
+./vlc-3.0.18/src/modules/modules.c:module_t *module_need(vlc_object_t *obj, const char *cap, const char *name,
+./vlc-3.0.18/src/modules/modules.c:module_t *vlc_module_load(vlc_object_t *obj, const char *capability,
+./vlc-3.0.18/src/modules/modules.c:static bool module_match_name (const module_t *m, const char *name)
+./vlc-3.0.18/src/modules/modules.c:static int module_load (vlc_object_t *obj, module_t *m,
+./vlc-3.0.18/src/modules/modules.c:void module_stop (vlc_object_t *obj, const module_t *m)
+./vlc-3.0.18/src/modules/modules.c:void module_unneed(vlc_object_t *obj, module_t *module)
+./vlc-3.0.18/src/modules/modules.c:void vlc_module_unload(vlc_object_t *obj, module_t *module,
+./vlc-3.0.18/src/modules/modules.h:    module_t   *next;
+./vlc-3.0.18/src/modules/modules.h:    module_t *module;
+./vlc-3.0.18/src/modules/modules.h:module_t *vlc_module_create(vlc_plugin_t *);
+./vlc-3.0.18/src/modules/modules.h:ssize_t module_list_cap (module_t ***, const char *);
+./vlc-3.0.18/src/modules/modules.h:struct module_t
+./vlc-3.0.18/src/modules/modules.h:void vlc_module_destroy (module_t *);
+./vlc-3.0.18/src/playlist/fetcher.c:    module_t* mf_module = module_need( mf, type, NULL, false );
+./vlc-3.0.18/src/playlist/loadsave.c:    module_t *p_module;
+./vlc-3.0.18/src/video_output/inhibit.c:    module_t *module;
+./vlc-3.0.18/src/video_output/window.c:    module_t *module;
+./vlc-pause-click/vlc_interface-2.1.0-git.h:    module_t *   p_module;
+./vlc-pause-click/vlc_interface-2.2.0-git.h:    module_t *   p_module;
