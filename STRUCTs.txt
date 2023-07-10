@@ -1,0 +1,398 @@
+grep -RE '_t$' ./|grep -E "(c\:|p\:|h:)"|grep -Eo '\:[A-Za-z\_\ ]+\_t$'|sort -k 2 | uniq -ui
+:ChannelFormat_t
+:libvlc_media_parsed_status_t
+:ranges_t
+:vlc_action_id_t
+:    enum Align_t
+:    enum ButtonType_t
+:    enum CursorType_t
+:    enum Flag_t
+:    enum Ref_t
+:    enum Scrolling_t
+:    enum WindowType_t
+:    enum flags_t
+:    enum resize_t
+:    enum type_t
+:    struct Elem_t
+:    struct Glyph_t
+:    struct command_t
+:    struct esstreams_t
+:struct  demux_sys_t
+:struct  filter_sys_t
+:struct  sdp_t
+:struct  sout_mux_t
+: Add a new more extensible struct libvlc_media_track_t
+:dnl Check for max_align_t
+:dnl Check for socklen_t
+: Deletes an instance of xml_t
+: It will contain a pointer to the playlist_item_t
+: New image_Filter call to apply a filter on a picture_t
+: Tests for vlc_dictionary_t
+: Wrapper class for vlc_renderer_discovery_t
+: Wrapper class for vlc_renderer_item_t
+:struct acoustid_fingerprint_t
+:struct acoustid_mb_result_t
+:struct acoustid_result_t
+:struct acoustid_results_t
+: add a ip_version field to sap_address_t
+: add f_zoom in libvlc_video_viewpoint_t
+: add orientation in libvlc_video_track_t
+: add popup to libvlc_navigate_mode_t
+: add projection in libvlc_video_track_t
+:struct addon_entry_t
+:struct addons_finder_sys_t
+:struct addons_finder_t
+:struct addons_manager_private_t
+:struct addons_manager_t
+:struct addons_storage_t
+:struct attribute_t
+:struct audioReader_t
+:struct audio_buffer_t
+:struct audio_format_t
+:struct block_fifo_t
+:struct block_sys_t
+:struct block_t
+:struct cc_storage_t
+:struct chromaprint_fingerprint_t
+: compatibility define for Py_ssize_t
+:struct config_category_t
+:struct config_chain_t
+:static const struct supported_fmt_t
+:static const struct variable_ops_t
+:extern const struct visual_cb_t
+:struct csa_t
+:struct date_t
+:static dbus_bool_t
+:struct dcp_t
+:struct decoder_cc_desc_t
+:struct decoder_config_descriptor_t
+:struct decoder_synchro_t
+:struct decoder_t
+:class demux_sys_t
+:struct demux_t
+:struct dir_entry_t
+:struct diseqc_cmd_t
+:struct dshow_stream_t
+:struct dtsgen_t
+:struct dw_sys_t
+:struct enc_picture_free_t
+:struct encoder_t
+:typedef enum addon_flags_t
+:typedef enum addon_state_t
+:typedef enum addon_type_t
+:typedef enum audio_channel_type_t
+:typedef enum input_item_meta_request_option_t
+:typedef enum libvlc_media_parse_flag_t
+:typedef enum libvlc_media_parsed_status_t
+:typedef enum libvlc_media_slave_type_t
+:typedef enum libvlc_navigate_mode_t
+:typedef enum libvlc_playback_mode_t
+:typedef enum libvlc_state_t
+:typedef enum libvlc_track_type_t
+:typedef enum libvlc_video_orient_t
+:typedef enum libvlc_video_projection_t
+:typedef enum meta_fetcher_scope_t
+:typedef enum video_chroma_location_t
+:typedef enum video_color_primaries_t
+:typedef enum video_color_space_t
+:typedef enum video_multiview_mode_t
+:typedef enum video_orientation_t
+:typedef enum video_projection_mode_t
+:typedef enum video_transfer_func_t
+:typedef enum video_transform_t
+:typedef enum vlc_meta_type_t
+:struct es_format_t
+:struct es_out_t
+:class event_thread_t
+:struct event_thread_t
+:struct extension_dialog_t
+:struct extension_sys_t
+:struct extension_widget_t
+:struct extensions_manager_t
+:struct filter_chain_t
+:struct filter_t
+:struct fingerprint_request_t
+:struct fingerprinter_sys_t
+:struct fingerprinter_thread_t
+: fix unsafe copy of video_format_t
+:struct frontend_t
+:struct hevc_picture_parameter_set_t
+:struct hevc_sei_pic_timing_t
+:struct hevc_sequence_parameter_set_t
+:struct hevc_slice_segment_header_t
+:struct hevc_video_parameter_set_t
+:struct httpd_client_t
+:struct httpd_file_sys_t
+: httpd_file_t
+:struct httpd_file_t
+:struct httpd_handler_t
+:struct httpd_host_t
+: httpd_redirect_t
+:struct httpd_redirect_t
+: httpd_stream_t
+:struct httpd_stream_t
+:struct httpd_url_t
+:struct image_handler_t
+:struct info_category_t
+:struct info_t
+:static inline video_color_primaries_t
+:static inline video_color_space_t
+:static inline video_transfer_func_t
+:struct input_attachment_t
+:struct input_clock_t
+:struct input_item_node_t
+:struct input_item_t
+:struct input_resource_t
+:struct input_stats_t
+:struct input_thread_t
+: instead of manipulating vlc_object_t
+:enum internal_chroma_t
+:struct jpeg_sys_t
+:struct key_handler_t
+:struct libvlc_equalizer_t
+:struct libvlc_event_manager_t
+:struct libvlc_instance_t
+:struct libvlc_int_t
+:struct libvlc_media_discoverer_t
+:struct libvlc_media_library_t
+:struct libvlc_media_list_player_t
+:struct libvlc_media_list_t
+:LIBVLC_API libvlc_media_parsed_status_t
+:struct libvlc_media_player_t
+:struct libvlc_media_t
+:struct libvlc_renderer_discoverer_t
+:LIBVLC_API libvlc_state_t
+:LIBVLC_API libvlc_time_t
+:struct line_desc_t
+:struct luabatch_context_t
+:class mkv_track_t
+:struct module_config_t
+:struct module_t
+:struct motion_sensors_t
+: no need to store the MediaServerList in services_discovery_sys_t
+:struct ogg_skeleton_t
+:struct opengl_tex_converter_t
+:struct picture_free_t
+:struct picture_pts_t
+:struct picture_t
+:struct pl_item_t
+:struct playlist_item_t
+:struct playlist_preparser_t
+:struct playlist_t
+:struct png_sys_t
+:struct preset_t
+:struct private_sys_t
+:struct ps_psm_t
+:struct public_key_packet_t
+:struct public_key_t
+: remove session_descriptor_t and rename sap_session_t
+: retrieve the original framesize from the vobsub idx and store in es_format_t
+:struct rtcp_sender_t
+:struct rtp_pt_t
+:struct rtp_session_t
+:struct rtp_source_t
+:struct rtsp_session_t
+:struct rtsp_strack_t
+:struct rtsp_stream_id_t
+:struct rtsp_stream_t
+:struct sap_announce_t
+:struct scan_multiplex_t
+:struct scan_service_t
+:struct scan_t
+: schro_buffer callback to release the associated block_t
+:struct sdp_media_t
+:struct seekpoint_t
+:struct services_discovery_owner_t
+:struct services_discovery_t
+:struct session_descriptor_t
+:struct signature_packet_t
+:VLC_API size_t
+:struct skiptags_sys_t
+:struct sout_access_out_t
+:struct sout_input_t
+:struct sout_instance_t
+:struct sout_packetizer_input_t
+:struct sout_stream_t
+: specify how to free libvlc_track_description_t
+: split out and document vlc_va_t
+:struct spu_t
+:struct srtp_session_t
+: static size_t
+: store dts in date_t
+:struct stream_t
+:typedef struct addon_file_t
+:typedef struct asf_es_priorities_t
+:typedef struct asf_packet_t
+:typedef struct async_task_t
+:typedef struct audioscrobbler_song_t
+:typedef struct block_bytestream_t
+:typedef struct block_shm_t
+:typedef struct bluray_overlay_t
+:typedef struct bo_t
+:typedef struct buffer_t
+:typedef struct callback_entry_t
+:typedef struct callback_table_t
+:typedef struct chained_filter_t
+:typedef struct chapters_array_t
+:typedef struct command_t
+:typedef struct commanddesc_static_t
+:typedef struct commanddesc_t
+:typedef struct commandparams_t
+:typedef struct counter_sample_t
+:typedef struct counter_t
+:typedef struct decklink_sys_t
+:typedef struct demux_handle_t
+:typedef struct demux_meta_t
+:typedef struct demux_priv_t
+:typedef struct encoder_region_t
+:typedef struct extra_languages_t
+:typedef struct filter_owner_t
+:typedef struct frame_span_t
+:typedef struct ftp_features_t
+:typedef struct glyph_bitmaps_t
+:typedef struct hdsdi_audio_t
+:typedef struct http_cookie_t
+:typedef struct httpd_message_t
+:typedef struct in_sout_stream_sys_t
+:typedef struct input_thread_private_t
+:typedef struct input_title_t
+:typedef struct libvlc_audio_output_device_t
+:typedef struct libvlc_audio_output_t
+:typedef struct libvlc_audio_track_t
+:typedef struct libvlc_chapter_description_t
+:typedef struct libvlc_event_listener_t
+:typedef struct libvlc_event_t
+:typedef struct libvlc_log_message_t
+:typedef struct libvlc_media_slave_t
+:typedef struct libvlc_media_stats_t
+:typedef struct libvlc_media_track_info_t
+:typedef struct libvlc_media_track_t
+:typedef struct libvlc_module_description_t
+:typedef struct libvlc_priv_t
+:typedef struct libvlc_rd_description_t
+:typedef struct libvlc_subtitle_track_t
+:typedef struct libvlc_title_description_t
+:typedef struct libvlc_track_description_t
+:typedef struct libvlc_video_track_t
+:typedef struct libvlc_video_viewpoint_t
+:typedef struct libvlc_vlm_t
+:typedef struct list_t
+:typedef struct meta_export_t
+:typedef struct meta_fetcher_t
+:typedef struct out_sout_stream_sys_t
+:typedef struct overlay_t
+:typedef struct packet_table_t
+:typedef struct paragraph_t
+:typedef struct picture_context_t
+:typedef struct plane_t
+:typedef struct playlist_export_t
+:typedef struct playlist_private_t
+:typedef struct preparse_data_t
+:typedef struct ps_es_t
+:typedef struct qsv_frame_pool_t
+:typedef struct queue_t
+:typedef struct rss_feed_t
+:typedef struct rss_item_t
+:typedef struct rtp_format_t
+:typedef struct rtp_sink_t
+:typedef struct rtp_xiph_t
+:typedef struct run_desc_t
+:typedef struct sap_address_t
+:typedef struct scan_list_entry_t
+:typedef struct scan_parameter_t
+:typedef struct sdi_audio_t
+:typedef struct smf_track_t
+:typedef struct sout_access_out_sys_t
+:typedef struct sout_description_data_t
+:typedef struct srtp_proto_t
+:typedef struct stream_priv_t
+:typedef struct stream_sys_t
+:typedef struct variable_ops_t
+:typedef struct video_filter_event_info_t
+:typedef struct video_filter_region_info_t
+:typedef struct vlc_array_t
+:typedef struct vlc_dictionary_entry_t
+:typedef struct vlc_dictionary_t
+:typedef struct vlc_event_listener_t
+:typedef struct vlc_event_listeners_group_t
+:typedef struct vlc_event_manager_t
+:typedef struct vlc_event_t
+:typedef struct vlc_http_auth_t
+:typedef struct vlc_log_early_t
+:typedef struct vlc_log_t
+:typedef struct vlc_mouse_t
+:typedef struct vlc_plugin_t
+:typedef struct vout_window_mouse_event_t
+:typedef struct xa_header_t
+:struct subpicture_private_t
+:struct subpicture_region_t
+:struct subpicture_t
+:struct subpicture_updater_sys_region_t
+:struct subs_format_t
+: test cases for picture_poo_t
+:struct test_es_out_t
+:struct thread_context_t
+:struct thread_sys_t
+:struct ts_es_t
+:struct ts_pat_t
+:struct ts_pid_list_t
+:struct ts_pid_t
+:struct ts_pmt_t
+:struct ts_psip_context_t
+:struct ts_psip_t
+:struct ts_sections_processor_t
+:struct ts_si_t
+:struct ts_storage_t
+:struct ts_stream_processor_t
+:struct ts_stream_t
+:struct tt_basenode_t
+:struct tt_node_t
+:struct update_release_t
+:struct update_t
+: use size_t
+:struct variable_t
+:union videoReader_t
+:struct video_format_t
+:struct video_palette_t
+:struct video_splitter_t
+:struct visual_effect_t
+:VLC_API vlc_action_id_t
+:struct vlc_actions_t
+:struct vlc_cleanup_t
+:struct vlc_css_declaration_t
+:struct vlc_css_expr_t
+:struct vlc_css_parser_t
+:struct vlc_css_rule_t
+:struct vlc_css_selector_t
+:struct vlc_demux_chained_t
+:struct vlc_family_t
+:struct vlc_font_t
+:struct vlc_gl_priv_t
+:struct vlc_gl_t
+:struct vlc_http_cookie_jar_t
+:struct vlc_list_t
+:struct vlc_logger_t
+:struct vlc_meta_t
+:struct vlc_object_t
+:struct vlc_probe_t
+:struct vlc_renderer_discovery_t
+:struct vlc_renderer_item_t
+:struct vlc_sd_internal_t
+:struct vlc_static_cond_t
+:struct vlc_url_t
+:struct vlcrdp_context_t
+:struct vlm_message_t
+:struct vlm_t
+:struct vod_t
+:struct vout_thread_sys_t
+: we need to put i_profile inside audio_format_t
+:struct webvtt_dom_cue_t
+:struct webvtt_dom_node_t
+:struct webvtt_region_t
+:struct webvtt_text_parser_t
+:enum wrapper_output_t
+:struct xml_reader_sys_t
+:struct xml_reader_t
+:struct xml_t
+:struct yyguts_t
+:enum yysymbol_kind_t
