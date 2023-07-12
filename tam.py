@@ -104,6 +104,7 @@ class page_struct:
     col_width = 70
     num_rows: int = 11
     num_spaces: int = 4
+    news_bar = "T.ME/ALG0Z 2 know news & features ;D"
     c2r: childs2run
 def achtung(msg):
     os.system(f"wall '{msg}'")
@@ -168,6 +169,7 @@ def manage_pages(fileListMain: list, ps: page_struct):
     c2r = ps.c2r
     while True:
         clear_screen()
+        print(f"{Fore.RED}      NEWS: {ps.news_bar}\n{Style.RESET_ALL}")
         print(f"Viewers: \n{c2r.prnt}\n\nFull path to {c2r.full_path}")
         table, too_short_row = make_page_of_files(fileListMain, ps)
         if too_short_row == 0:
