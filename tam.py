@@ -14,17 +14,24 @@ from colorama import Back
 def signal_manager(sig, frame):
     print(f"sig = {sig}")
 #signal.signal(signal.SIGINT, signal_manager)
+class keys:
+    dirty_mode = False
 def SYS():
     no_SYS = os.path.exists("/tmp/no_SYS")
     no_SYS1 = get_arg_in_cmd("-SYS", sys.argv)
     if no_SYS == True or no_SYS1 == "1":
         os.system("rm -f /tmp/no_SYS")
         sys.exit(0)
-    print("\r\nSee You Soon\nBye.. bye 🙂")
+    print("\r\nSee You Soon\nBye.. bye, my Dear User 🙂")
     sys.exit(0)
 def SetDefaultKonsoleTitle():
     out = get_arg_in_cmd("-path0", sys.argv)
-    out += f" {put_in_name()}"
+    try:
+        out += f" {put_in_name()}"
+        out = out.replace("'", "")
+        print(f"konsole title = {out}")
+    except TypeError:
+        out = f"cmd is empty {put_in_name()}"
     os.system(f"echo -ne '\033]30;{out}\007'")
 def self_recursion():
     no_SYS = os.path.exists("/tmp/no_SYS")
@@ -66,11 +73,12 @@ def banner0(delay: int):
 def info():
     _, colsize = os.popen("stty size", 'r').read().split()
     print(" Project: Tiny Automation Manager. ".center(int(colsize), "◑"))
+    print(" TELEGRAM: T.ME/ALG0Z ".center(int(colsize), "◑"))
     print(" WWW: https://alg0z.blogspot.com ".center(int(colsize), "◑"))
     print(" E-MAIL: sark0y@protonmail.com ".center(int(colsize), "◑"))
-    print(" Supported platforms: so far, i've been tested TAM only for Linux. ".center(int(colsize), "◑"))
+    print(" Supported platforms: TAM  for Linux & alike; TAW for Windows. ".center(int(colsize), "◑"))
     print(" Version: 1. ".center(int(colsize), "◑"))
-    print(" Revision: 2. ".center(int(colsize), "◑"))
+    print(" Revision: 4. ".center(int(colsize), "◑"))
     print(f"\nlicense/Agreement:".title())
     print("Personal usage will cost You $0.00, but don't be shy to donate me.. or You could support me any other way You want - just call/mail me to discuss possible variants for mutual gains. 🙂")
     print("Commercial use takes $0.77 per month from You.. or just Your Soul 😇😜")
@@ -100,9 +108,11 @@ class page_struct:
 def achtung(msg):
     os.system(f"wall '{msg}'")
 def log(msg, num_line: int, funcName: str):
-    f = open("./it.log", mode="w")
+    f = open("/tmp/it.log", mode="w")
     print(f"{funcName} said cmd = {msg} at line: {str(num_line)}", file=f)
 def clear_screen():
+    if keys.dirty_mode:
+        return
     os.system('clear')
 def init_view(c2r: childs2run):
     i = 0
@@ -251,7 +261,6 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
     pipes.outNorm_r.flush()
     pipes.outNorm_r.seek(0)
     print(f"\nprobe write for _r {pipes.outNorm_r.read()} pipes.outNorm_r.fileno ={pipes.outNorm_r.fileno()} ")
-    print(f"tst: {pipes.outNorm_r.read()}")
     prev_pos = 0
     cur_pos = 1
     for path in iter(pipes.outNorm_r.readline, b''):
@@ -259,7 +268,6 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
             break
         if path !="":
           fileListMain.append(path)
-          print(f"{path}", end='', file=sys.stdout)
         prev_pos = cur_pos
         cur_pos = pipes.outNorm_r.tell()
     lapse.read_midway_data_from_pipes_stop = time.time_ns()
@@ -272,7 +280,7 @@ def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     if tmp_file is None:
         cmd = [f"find -L '{path}' -type f{in_name};echo '\n{pipes.stop}'"]
 
-    print(f"{cmd}")
+    print(f"{funcName} {cmd}")
     lapse.find_files_start = time.time_ns()
     proc = sp.Popen(
         cmd,
@@ -355,6 +363,13 @@ def time_samples(type0="time", num_of_samples=10):
 
 
 # search params in cmd line
+def checkArg(arg: str) -> bool:
+    cmd_len = len(sys.argv)
+    for i in range(1, cmd_len):
+        key0 = sys.argv[i]
+        if key0 == arg:
+            return True
+    return False
 def get_arg_in_cmd(key: str, argv):
     cmd_len = len(argv)
     for i in range(1, cmd_len):
@@ -363,17 +378,26 @@ def get_arg_in_cmd(key: str, argv):
             return argv[i + 1]
     return None
 def if_no_quotes(num0: int, cmd_len:int) -> str:
+    funcName = "if_no_quotes"
     grep0 = ''
+    grep_keys = ''
     i0: int
     print(f"num0 = {num0}, cmdLen = {cmd_len}, argv = {sys.argv}")
     for i0 in range(num0, cmd_len):
         if sys.argv[i0][0:1] != "-":
            grep0 += f" {sys.argv[i0]}"
         else:
-            grep0 = f"|grep -i '{grep0[1:len(grep0)]}'"
+            grep0 = grep0.replace("grep==", "pass==")
+            if grep0[1:7] == 'pass==':
+                grep0 = grep0[7:]
+                grep_keys, grep0 = grep0.split(" ", 2)
+            grep0 = f"|grep  {grep_keys} '{grep0[0:len(grep0)]}'"
+            if sys.argv[i0] == "-in_name":
+                i0 -=1
             return [grep0, i0]
     print(f"num0 from if_ = {sys.argv[num0]}")
 def put_in_name() -> str:
+    funcName = "put_in_name"
     cmd_len = len(sys.argv)
     final_grep = ""
     grep0 = ""
@@ -390,9 +414,13 @@ def put_in_name() -> str:
                 final_grep += f" {tmp[0]}"
                 i0 = tmp[1]
         i0 += 1
+        print(f"{funcName} i0 = {i0} final_grep = {final_grep}")
     return final_grep
 def cmd():
+    if checkArg("-dirty"):
+        keys.dirty_mode = True
     sys.argv.append("-!") # Stop code
+    print(f"argv = {sys.argv}")
     SetDefaultKonsoleTitle()
     print("start cmd")
     sys.argv[0] = str(sys.argv)
@@ -406,6 +434,9 @@ def cmd():
         cmd_key = sys.argv[i]
         if cmd_key == "-ver":
             info()
+        if "-argv0" == cmd_key:
+            print(f"argv = {sys.argv}")
+            sys.exit()
         if cmd_key == "-time_prec":
             i = i + 1
             cmd_val = sys.argv[i]
@@ -417,6 +448,9 @@ def cmd():
             else:
                 time_samples(cmd_val, int(num_of_samples))
         if cmd_key == "-find_files":
+            if checkArg("-argv0"):
+                print(f"argv = {sys.argv}")
+                sys.exit()
             base_path = get_arg_in_cmd("-path0", argv)
             filter_name = put_in_name()
             if filter_name is None:
