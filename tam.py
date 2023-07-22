@@ -14,6 +14,11 @@ from colorama import Back
 def signal_manager(sig, frame):
     print(f"sig = {sig}")
 #signal.signal(signal.SIGINT, signal_manager)
+class info_struct:
+    ver = 1
+    rev = 4
+    author = "Evgeney Knyazhev (SarK0Y)"
+    year = '2023'
 class keys:
     dirty_mode = False
 def SYS():
@@ -51,34 +56,36 @@ def self_recursion():
 def banner0(delay: int):
     _, colsize = os.popen("stty size", 'r').read().split()
     while True:
-        typeIt = "© SarK0Y 2023".center(int(colsize), "8")
+        typeIt = f"© SarK0Y {info_struct.year}".center(int(colsize), "8")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
-        typeIt = "© Knyazhev Evgeney 2023".center(int(colsize), "|")
+        typeIt = f"© Knyazhev Evgeney {info_struct.year}".center(int(colsize), "|")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
-        typeIt = "© Knyazhev Evgeney 2023".center(int(colsize), "/")
+        typeIt = f"© Knyazhev Evgeney {info_struct.year}".center(int(colsize), "/")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
-        typeIt = "© Knyazhev Evgeney 2023".center(int(colsize), "-")
+        typeIt = f"© Knyazhev Evgeney {info_struct.year}".center(int(colsize), "-")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
-        typeIt = "© Knyazhev Evgeney 2023".center(int(colsize), "+")
+        typeIt = f"© Knyazhev Evgeney {info_struct.year}".center(int(colsize), "+")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
-        typeIt = "© Knyazhev Evgeney 2023".center(int(colsize), "=")
-        typeIt = "© SarK0Y 2023".center(int(colsize), "∞")
+        typeIt = f"© Knyazhev Evgeney {info_struct.year}".center(int(colsize), "=")
+        typeIt = f"© SarK0Y {info_struct.year}".center(int(colsize), "∞")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
 def info():
+    os.system(f"echo -ne '\033]30;TAM {info_struct.ver}.{info_struct.rev}\007'") # set konsole title
+    clear_screen()
     _, colsize = os.popen("stty size", 'r').read().split()
     print(" Project: Tiny Automation Manager. ".center(int(colsize), "◑"))
     print(" TELEGRAM: T.ME/ALG0Z ".center(int(colsize), "◑"))
     print(" WWW: https://alg0z.blogspot.com ".center(int(colsize), "◑"))
     print(" E-MAIL: sark0y@protonmail.com ".center(int(colsize), "◑"))
     print(" Supported platforms: TAM  for Linux & alike; TAW for Windows. ".center(int(colsize), "◑"))
-    print(" Version: 1. ".center(int(colsize), "◑"))
-    print(" Revision: 4. ".center(int(colsize), "◑"))
+    print(f" Version: {info_struct.ver}. ".center(int(colsize), "◑"))
+    print(f" Revision: {info_struct.rev}. ".center(int(colsize), "◑"))
     print(f"\nlicense/Agreement:".title())
     print("Personal usage will cost You $0.00, but don't be shy to donate me.. or You could support me any other way You want - just call/mail me to discuss possible variants for mutual gains. 🙂")
     print("Commercial use takes $0.77 per month from You.. or just Your Soul 😇😜")
