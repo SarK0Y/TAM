@@ -8,6 +8,7 @@
 #define DOMAIN "vlc_tam"
 #define _(str) dgettext(DOMAIN, str)
 #define N_(str) (str)
+#define NOTIFICATION_MINIMIZED 1
 //#define MODULE_STRING "VLC_TAM"
 #include <stdlib.h>
 #include  <stdio.h>
@@ -15,9 +16,11 @@
 #include <unistd.h>
 /* VLC core API headers */
 #include <vlc_common.h>
+#include  <modules.h>
 #include <vlc_plugin.h>
 #include <vlc_messages.h>
 #include <vlc_interface.h>
+#include <vlc_access.h>
 #include <string.h>
 /* Internal state for an instance of the module */
 struct intf_sys_t
@@ -28,12 +31,13 @@ struct intf_sys_t
 /**
  * Starts our example interface.
  */
-static int Open(vlc_object_t *obj)
+int run0017(vlc_object_t *obj)
 {
+	vlc_plugin_cb tst;
     intf_thread_t *intf = (intf_thread_t *)obj;
 	//char *mod_name = new char[sizeof("VLC_TAM")];
 	//strncpy(mod_name, "VLC_TAM", sizeof("VLC_TAM"));
-	system("wall tst");
+	//system("wall tst");
 	printf("tsssssssssssssst");
 	FILE *fp = fopen("/tmp/vlc_tam.log", "w+");
 	fprintf(fp, "tssssssst");
@@ -64,7 +68,7 @@ error:
 /**
  * Stops the interface. 
  */
-static void Close(vlc_object_t *obj)
+static void stop0017(vlc_object_t *obj)
 {
     intf_thread_t *intf = (intf_thread_t *)obj;
     intf_sys_t *sys = intf->p_sys;
@@ -78,10 +82,18 @@ static void Close(vlc_object_t *obj)
 
 /* Module descriptor */
 vlc_module_begin()
-    set_shortname(N_("vlc_tam"))
-    set_description(N_("vlc_tam interface"))
+    set_shortname( "vlc_tam" )
+    set_description( N_( "vlc_tam control" ))
+	set_category(CAT_INTERFACE)
+	set_subcategory(SUBCAT_INTERFACE_MAIN)
     set_capability("interface", 209)
-    set_callbacks(Open, Close)
-    set_category(CAT_INTERFACE)
-    add_string("vlc_tam", "world", "Target", "Whom to say hello to.", false)
+	set_section( N_("Repeat settings"), NULL )
+	add_integer( "qt-notification", NOTIFICATION_MINIMIZED,
+                 "say hi",
+                 "say hi longer :)", false )
+	add_submodule(N_("qt"))
+	add_submodule(N_("Qt"))
+    set_callbacks(run0017, stop0017)
+	//set_subcategory(SUBCAT_INPUT_ACCESS)
+    add_string("vlc_tam0", "world", "Target", "Whom to say hello to.", false)
 vlc_module_end ()
