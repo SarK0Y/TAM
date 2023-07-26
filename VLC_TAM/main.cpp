@@ -1,4 +1,4 @@
-/**
+/**11
  * @file hello.c
  * @brief Hello world interface VLC module example
  */
