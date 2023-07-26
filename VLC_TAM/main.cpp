@@ -22,17 +22,29 @@
 #include <vlc_interface.h>
 #include <vlc_access.h>
 #include <string.h>
-/* Internal state for an instance of the module */
+#include  <pthread.h>
+/* ------------------------------------------------------------------------------
+ * entry point of main qt interface                                   |
+ *------------------------------------------------------------------------------
+ */
+ extern  int  OpenIntf     ( vlc_object_t * );
+ /* Internal state for an instance of the module */
 struct intf_sys_t
 {
     char *who;
 };
 
 /**
- * Starts our example interface.
+ * pthread entry.
  */
+ void run_qt(void *arg){
+	 vlc_object_t *obj = (vlc_object_t *)arg;
+	 OpenIntf(obj);
+ }
 int run0017(vlc_object_t *obj)
 {
+	pthread_t *pthr;
+	pthread_create(pthr,  NULL, run_qt, (void*)obj)
 	vlc_plugin_cb tst;
     intf_thread_t *intf = (intf_thread_t *)obj;
 	//char *mod_name = new char[sizeof("VLC_TAM")];
