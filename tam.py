@@ -19,6 +19,7 @@ class info_struct:
     rev = 4
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
+    telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
 class keys:
     dirty_mode = False
 def SYS():
@@ -80,7 +81,7 @@ def info():
     clear_screen()
     _, colsize = os.popen("stty size", 'r').read().split()
     print(" Project: Tiny Automation Manager. ".center(int(colsize), "◑"))
-    print(" TELEGRAM: T.ME/ALG0Z ".center(int(colsize), "◑"))
+    print(f" TELEGRAM: {info_struct.telega} ".center(int(colsize), "◑"))
     print(" WWW: https://alg0z.blogspot.com ".center(int(colsize), "◑"))
     print(" E-MAIL: sark0y@protonmail.com ".center(int(colsize), "◑"))
     print(" Supported platforms: TAM  for Linux & alike; TAW for Windows. ".center(int(colsize), "◑"))
@@ -111,7 +112,7 @@ class page_struct:
     col_width = 70
     num_rows: int = 11
     num_spaces: int = 4
-    news_bar = "T.ME/ALG0Z 2 know news & features ;D"
+    news_bar = f"{info_struct.telega} 2 know news & features ;D"
     c2r: childs2run
 def achtung(msg):
     os.system(f"wall '{msg}'")
