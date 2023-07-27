@@ -16,7 +16,7 @@ def signal_manager(sig, frame):
 #signal.signal(signal.SIGINT, signal_manager)
 class info_struct:
     ver = 1
-    rev = 4
+    rev = "4-1"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -30,7 +30,7 @@ def SYS():
         sys.exit(0)
     print("\r\nSee You Soon\nBye.. bye, my Dear User 🙂")
     sys.exit(0)
-def SetDefaultKonsoleTitle():
+def SetDefaultKonsoleTitle(addStr = ""):
     out = get_arg_in_cmd("-path0", sys.argv)
     try:
         out += f" {put_in_name()}"
@@ -38,7 +38,7 @@ def SetDefaultKonsoleTitle():
         print(f"konsole title = {out}")
     except TypeError:
         out = f"cmd is empty {put_in_name()}"
-    os.system(f"echo -ne '\033]30;{out}\007'")
+    os.system(f"echo -ne '\033]30;{out}{addStr}\007'")
 def self_recursion():
     no_SYS = os.path.exists("/tmp/no_SYS")
     no_SYS1 = get_arg_in_cmd("-SYS", sys.argv)
@@ -106,6 +106,8 @@ class childs2run:
     viewer: list = []
     prnt: str = ""
     full_path = ""
+    num_files = 0
+    count_pages = 0
 class page_struct:
     num_page: int = 0
     num_cols: int = 3
@@ -175,10 +177,14 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
 def manage_pages(fileListMain: list, ps: page_struct):
     cmd = ""
     c2r = ps.c2r
+    c2r.count_pages = len(fileListMain) // (ps.num_cols * ps.num_rows) + 1
+    c2r.num_files = len(fileListMain)
+    addStr = f" files/pages: {c2r.num_files}/{c2r.count_pages}"
+    SetDefaultKonsoleTitle(addStr)
     while True:
         clear_screen()
         print(f"{Fore.RED}      NEWS: {ps.news_bar}\n{Style.RESET_ALL}")
-        print(f"Viewers: \n{c2r.prnt}\n\nFull path to {c2r.full_path}")
+        print(f"Viewers: \n{c2r.prnt}\n\nNumber of files/pages: {c2r.num_files}/{c2r.count_pages}\nFull path to {c2r.full_path}")
         table, too_short_row = make_page_of_files(fileListMain, ps)
         if too_short_row == 0:
             ps.num_cols = 2
