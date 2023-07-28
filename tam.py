@@ -16,7 +16,7 @@ def signal_manager(sig, frame):
 #signal.signal(signal.SIGINT, signal_manager)
 class info_struct:
     ver = 1
-    rev = "4-1"
+    rev = "4-2"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -193,6 +193,8 @@ def manage_pages(fileListMain: list, ps: page_struct):
             print(tabulate(table, tablefmt="fancy_grid", maxcolwidths=[ps.col_width]))
         except IndexError:
             errMsg("Unfortunately, Nothing has been found.", "TAM")
+            SYS()
+            sys.exit(-2)
         print(cmd)
         try:
             cmd = input("Please, enter Your command: ")
