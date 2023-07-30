@@ -1,6 +1,8 @@
 import subprocess
 from tabulate import tabulate
 import sys, os, signal
+import click
+import keyboard as kbd
 import time
 from threading import Thread
 import fcntl
@@ -10,16 +12,46 @@ from colorama import init as colorama_init
 from colorama import Fore
 from colorama import Style
 from colorama import Back
-# Terminals
-def signal_manager(sig, frame):
-    print(f"sig = {sig}")
-#signal.signal(signal.SIGINT, signal_manager)
+#MAIN
 class info_struct:
     ver = 1
-    rev = "4-2"
+    rev = "5"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
+# Terminals
+def pressKey():
+    prnt = ""
+    ENTER = 13
+    while True:
+        Key = click.getchar()
+        if Key == "\x1b[A":
+            print("yes", end='')
+        if ENTER == ord(Key):
+            nop()
+        else:
+            prnt += f"{Key}"
+            print(f"{Key}", end='', flush=True)
+def hotKeys() -> str:
+    prnt = ""
+    ENTER = 13
+    while True:
+        Key = click.getchar()
+        if Key == "\x1b[A":
+            return "np"
+        if Key == "\x1b[B":
+            return "pp"
+        if ENTER == ord(Key):
+            return prnt
+        else:
+            prnt += f"{Key}"
+            print(f"{Key}", end='', flush=True)
+def custom_input(promt: str) -> str:
+    print(f"{promt}", end='', flush=True)
+    return hotKeys()
+def signal_manager(sig, frame):
+    print(f"sig = {sig}")
+#signal.signal(signal.CTRL_BREAK_EVENT, signal_manager)
 class keys:
     dirty_mode = False
 def SYS():
@@ -197,7 +229,7 @@ def manage_pages(fileListMain: list, ps: page_struct):
             sys.exit(-2)
         print(cmd)
         try:
-            cmd = input("Please, enter Your command: ")
+            cmd = custom_input("Please, enter Your command: ")
         except KeyboardInterrupt:
             SYS()
         if cmd == "help" or cmd == "" or cmd == "?":
@@ -505,4 +537,5 @@ def cmd():
             ps.c2r = init_view(ps.c2r)
             table = make_page_of_files(fileListMain, ps)
             manage_pages(fileListMain, ps)
+#pressKey()
 cmd()
