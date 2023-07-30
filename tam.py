@@ -15,7 +15,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "5"
+    rev = "5-1"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -186,7 +186,8 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
             ps.num_page = lp
         return
     if cmd == "pp":
-        ps.num_page -= 1
+        if ps.num_page > 0:
+            ps.num_page -= 1
         return
     if cmd == "0p":
         ps.num_page = 0
