@@ -15,10 +15,43 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "5-1"
+    rev = "5-2"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
+class childs2run:
+    running: list = []
+    viewer: list = []
+    prnt: str = ""
+    full_path = ""
+class page_struct:
+    KonsoleTitle: str
+    num_page: int = 0
+    num_cols: int = 3
+    col_width = 70
+    num_rows: int = 11
+    num_spaces: int = 4
+    num_files = 0
+    count_pages = 0
+    news_bar = f"{info_struct.telega} 2 know news & features ;D"
+    c2r: childs2run
+class keys:
+    dirty_mode = False
+class PIPES:
+    def __init__(self, outNorm, outErr):
+        self.outNorm_r = open(outNorm.name, mode="r", encoding="utf8")
+        self.outErr_r = open(outErr.name, encoding="utf8", mode="r")
+        self.outNorm_w = open(outNorm.name, encoding="utf8", mode="w+")
+        self.outErr_w = open(outErr.name,  encoding="utf8", mode="w+")
+        self.outNorm_name = outNorm.name
+        self.outErr_name = outErr.name
+        self.stdout = open(sys.stdin.name, mode="w+", encoding="utf8")
+        self.stop = globals()['stopCode']
+class lapse:
+    find_files_start = 0
+    find_files_stop = 0
+    read_midway_data_from_pipes_start = 0
+    read_midway_data_from_pipes_stop = 0
 # Terminals
 def pressKey():
     prnt = ""
@@ -52,8 +85,6 @@ def custom_input(promt: str) -> str:
 def signal_manager(sig, frame):
     print(f"sig = {sig}")
 #signal.signal(signal.CTRL_BREAK_EVENT, signal_manager)
-class keys:
-    dirty_mode = False
 def SYS():
     no_SYS = os.path.exists("/tmp/no_SYS")
     no_SYS1 = get_arg_in_cmd("-SYS", sys.argv)
@@ -70,7 +101,10 @@ def SetDefaultKonsoleTitle(addStr = ""):
         print(f"konsole title = {out}")
     except TypeError:
         out = f"cmd is empty {put_in_name()}"
+    page_struct.KonsoleTitle = out
     os.system(f"echo -ne '\033]30;{out}{addStr}\007'")
+def adjustKonsoleTitle(addStr: str, ps: page_struct):
+    os.system(f"echo -ne '\033]30;{ps.KonsoleTitle}{addStr}\007'")
 def self_recursion():
     no_SYS = os.path.exists("/tmp/no_SYS")
     no_SYS1 = get_arg_in_cmd("-SYS", sys.argv)
@@ -133,21 +167,6 @@ def info():
         SYS()
 def help():
     print("np - next page pp - previous page 0p - 1st page lp - last page go2 <number of page>", end='')
-class childs2run:
-    running: list = []
-    viewer: list = []
-    prnt: str = ""
-    full_path = ""
-    num_files = 0
-    count_pages = 0
-class page_struct:
-    num_page: int = 0
-    num_cols: int = 3
-    col_width = 70
-    num_rows: int = 11
-    num_spaces: int = 4
-    news_bar = f"{info_struct.telega} 2 know news & features ;D"
-    c2r: childs2run
 def achtung(msg):
     os.system(f"wall '{msg}'")
 def log(msg, num_line: int, funcName: str):
@@ -210,18 +229,18 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
 def manage_pages(fileListMain: list, ps: page_struct):
     cmd = ""
     c2r = ps.c2r
-    c2r.count_pages = len(fileListMain) // (ps.num_cols * ps.num_rows) + 1
-    c2r.num_files = len(fileListMain)
-    addStr = f" files/pages: {c2r.num_files}/{c2r.count_pages}"
-    SetDefaultKonsoleTitle(addStr)
+    ps.count_pages = len(fileListMain) // (ps.num_cols * ps.num_rows) + 1
+    ps.num_files = len(fileListMain)
     while True:
+        addStr = f" files/pages: {ps.num_files}/{ps.count_pages} p. {ps.num_page}"
+        adjustKonsoleTitle(addStr, ps)
         clear_screen()
         print(f"{Fore.RED}      NEWS: {ps.news_bar}\n{Style.RESET_ALL}")
-        print(f"Viewers: \n{c2r.prnt}\n\nNumber of files/pages: {c2r.num_files}/{c2r.count_pages}\nFull path to {c2r.full_path}")
-        table, too_short_row = make_page_of_files(fileListMain, ps)
+        print(f"Viewers: \n{c2r.prnt}\n\nNumber of files/pages: {ps.num_files}/{ps.count_pages} p. {ps.num_page}\nFull path to {c2r.full_path}")
+        table, too_short_row = make_page_of_files2(fileListMain, ps)
         if too_short_row == 0:
             ps.num_cols = 2
-            table, too_short_row = make_page_of_files(fileListMain, ps)
+            table, too_short_row = make_page_of_files2(fileListMain, ps)
         try:
             print(tabulate(table, tablefmt="fancy_grid", maxcolwidths=[ps.col_width]))
         except IndexError:
@@ -242,6 +261,28 @@ def manage_pages(fileListMain: list, ps: page_struct):
     return
 def nop():
     return
+def make_page_of_files2(fileListMain: list, ps: page_struct):
+    row: list =[]
+    item = ""
+    table: list = []
+    stop = False
+    num_page = ps.num_page * ps.num_cols * ps.num_rows
+    num_rows = ps.num_rows
+    for i in range(0, num_rows):
+        for j in range(0, ps.num_cols):
+            indx = j + ps.num_cols * i + num_page
+            try:
+                _, item = os.path.split(fileListMain[indx])
+                row.append(str(indx) + ":" + item + " " * ps.num_spaces)
+            except IndexError:
+                row.append(str(indx) + ":" + " " * ps.num_spaces)
+                num_rows = i
+        table.append(row)
+        if num_rows != ps.num_rows:
+            break
+        row = []
+    too_short_row = len(table)
+    return table, too_short_row
 def make_page_of_files(fileListMain: list, ps: page_struct):
     row: list =[]
     item = ""
@@ -267,21 +308,7 @@ def make_page_of_files(fileListMain: list, ps: page_struct):
 
 # Threads
 stopCode = "∇\n"
-class PIPES:
-    def __init__(self, outNorm, outErr):
-        self.outNorm_r = open(outNorm.name, mode="r", encoding="utf8")
-        self.outErr_r = open(outErr.name, encoding="utf8", mode="r")
-        self.outNorm_w = open(outNorm.name, encoding="utf8", mode="w+")
-        self.outErr_w = open(outErr.name,  encoding="utf8", mode="w+")
-        self.outNorm_name = outNorm.name
-        self.outErr_name = outErr.name
-        self.stdout = open(sys.stdin.name, mode="w+", encoding="utf8")
-        self.stop = globals()['stopCode']
-class lapse:
-    find_files_start = 0
-    find_files_stop = 0
-    read_midway_data_from_pipes_start = 0
-    read_midway_data_from_pipes_stop = 0
+
 #manage files
 def get_fd(fileName: str = ""):
     funcName = "get_fd"
