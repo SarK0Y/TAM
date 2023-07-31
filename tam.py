@@ -15,7 +15,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "5-2"
+    rev = "5-3"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -64,10 +64,12 @@ def pressKey():
             nop()
         else:
             prnt += f"{Key}"
-            print(f"{Key}", end='', flush=True)
-def hotKeys() -> str:
+            print(f"{Key} = {ord(Key)}", end='', flush=True)
+def hotKeys(promt: str) -> str:
     prnt = ""
     ENTER = 13
+    BACKSPACE = 127
+    promt_len = len(promt)
     while True:
         Key = click.getchar()
         if Key == "\x1b[A":
@@ -76,12 +78,17 @@ def hotKeys() -> str:
             return "pp"
         if ENTER == ord(Key):
             return prnt
+        if BACKSPACE == ord(Key):
+            prnt = prnt[:len(prnt) - 1]
+            blank = ' '*(promt_len + len(prnt) + 1)
+            print(f"\r{blank}", end='', flush=True)
+            print(f"\r{promt}{prnt}", end='', flush=True)
         else:
             prnt += f"{Key}"
             print(f"{Key}", end='', flush=True)
 def custom_input(promt: str) -> str:
     print(f"{promt}", end='', flush=True)
-    return hotKeys()
+    return hotKeys(promt)
 def signal_manager(sig, frame):
     print(f"sig = {sig}")
 #signal.signal(signal.CTRL_BREAK_EVENT, signal_manager)
@@ -192,7 +199,7 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
     file2run = file2run[0:len(file2run) - 1]
     file2run = file2run.replace("$", "\$")
     file2run = file2run.replace(";", "\;")
-    cmd = f'{c2r.viewer[viewer_indx]}' + ' ' + f'"{file2run}"'
+    cmd = f'{c2r.viewer[viewer_indx]}' + ' ' + f'"{file2run}" > /dev/null'
     cmd = [cmd,]
     t = sp.Popen(cmd, shell=True)
     c2r.running.append(t)
