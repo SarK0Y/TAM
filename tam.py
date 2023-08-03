@@ -15,7 +15,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "5-3"
+    rev = "5-4"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -57,18 +57,22 @@ def pressKey():
     prnt = ""
     ENTER = 13
     while True:
-        Key = click.getchar()
-        if Key == "\x1b[A":
-            print("yes", end='')
-        if ENTER == ord(Key):
-            nop()
-        else:
-            prnt += f"{Key}"
-            print(f"{Key} = {ord(Key)}", end='', flush=True)
+        try:
+            Key = click.getchar()
+            if Key == "\x1b[A":
+                print("yes", end='')
+            if ENTER == ord(Key):
+                nop()
+            else:
+                prnt += f"{Key}"
+                print(f"{Key} = {ord(Key)}", end='', flush=True)
+        except TypeError:
+             print(f"{Key} = {Key}", end='', flush=True)
 def hotKeys(promt: str) -> str:
     prnt = ""
     ENTER = 13
     BACKSPACE = 127
+    ESCAPE = 27
     promt_len = len(promt)
     while True:
         Key = click.getchar()
@@ -83,6 +87,7 @@ def hotKeys(promt: str) -> str:
             blank = ' '*(promt_len + len(prnt) + 1)
             print(f"\r{blank}", end='', flush=True)
             print(f"\r{promt}{prnt}", end='', flush=True)
+        if ESCAPE == ord(Key): SYS(), sys.exit(0)
         else:
             prnt += f"{Key}"
             print(f"{Key}", end='', flush=True)
@@ -272,7 +277,8 @@ def make_page_of_files2(fileListMain: list, ps: page_struct):
     row: list =[]
     item = ""
     table: list = []
-    stop = False
+    none_row = 0
+    len_item = 0
     num_page = ps.num_page * ps.num_cols * ps.num_rows
     num_rows = ps.num_rows
     for i in range(0, num_rows):
@@ -280,14 +286,22 @@ def make_page_of_files2(fileListMain: list, ps: page_struct):
             indx = j + ps.num_cols * i + num_page
             try:
                 _, item = os.path.split(fileListMain[indx])
+                if keys.dirty_mode: print(f"len item = {len(item)}")
+                len_item += len(item)
+                if len(item) == 1:
+                    raise IndexError
                 row.append(str(indx) + ":" + item + " " * ps.num_spaces)
             except IndexError:
-                row.append(str(indx) + ":" + " " * ps.num_spaces)
+                none_row += 1
+                if keys.dirty_mode: print(f"none row = {none_row}; i,j = {i},{j}")
+                row.append(f"{Back.BLACK}{str(indx)}:{' ' * ps.num_spaces}{Style.RESET_ALL}")
                 num_rows = i
-        table.append(row)
+        if none_row < 3 and len_item > 4:
+            table.append(row)
         if num_rows != ps.num_rows:
             break
         row = []
+        none_row = 0
     too_short_row = len(table)
     return table, too_short_row
 def make_page_of_files(fileListMain: list, ps: page_struct):
