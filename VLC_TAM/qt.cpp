@@ -28,9 +28,9 @@
 
 #define VLC_MODULE_LICENSE VLC_LICENSE_GPL_2_PLUS
 
-#include <QApplication>
-#include <QDate>
-#include <QMutex>
+#include <QtWidgets/QApplication>
+#include <QtCore/QDate>
+#include <QtCore/QMutex>
 
 #include "qt.hpp"
 

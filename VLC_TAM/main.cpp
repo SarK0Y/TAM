@@ -1,4 +1,4 @@
-/**11
+/**
  * @file hello.c
  * @brief Hello world interface VLC module example
  */
@@ -103,8 +103,8 @@ vlc_module_begin()
 	add_integer( "qt-notification", NOTIFICATION_MINIMIZED,
                  "say hi",
                  "say hi longer :)", false )
-	add_submodule(N_("qt"))
-	add_submodule(N_("Qt"))
+	//add_submodule(N_("qt"))
+//	add_submodule(N_("Qt"))
     set_callbacks(run0017, stop0017)
 	//set_subcategory(SUBCAT_INPUT_ACCESS)
     add_string("vlc_tam0", "world", "Target", "Whom to say hello to.", false)
