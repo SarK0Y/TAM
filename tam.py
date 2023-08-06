@@ -15,7 +15,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "5-4"
+    rev = "6"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -197,9 +197,16 @@ def init_view(c2r: childs2run):
             i += 1
     return c2r
 def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
-    viewer_indx, file_indx = cmd.split()
-    viewer_indx = int(viewer_indx)
-    file_indx = int(file_indx)
+    viewer_indx: int = 1
+    file_indx: int = 0
+    try:
+        viewer_indx, file_indx = cmd.split()
+        viewer_indx = int(viewer_indx)
+        file_indx = int(file_indx)
+    except ValueError:
+        file_indx = cmd.split()
+        file_indx = file_indx[0]
+        file_indx = int(file_indx)
     file2run: str = fileListMain[file_indx]
     file2run = file2run[0:len(file2run) - 1]
     file2run = file2run.replace("$", "\$")
