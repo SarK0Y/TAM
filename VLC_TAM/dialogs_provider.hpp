@@ -34,8 +34,8 @@
 #include "qt.hpp"
 
 #include "open.hpp"
-#include <QObject>
-#include <QStringList>
+#include <QtCore/QObject>
+#include <QtCore/QStringList>
 
 #define TITLE_EXTENSIONS_MEDIA qtr( "Media Files" )
 #define TITLE_EXTENSIONS_VIDEO qtr( "Video Files" )

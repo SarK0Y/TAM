@@ -33,7 +33,7 @@
 
 #include "qvlcframe.hpp"
 #include "ui/open.h"
-#include "components/open_panels.hpp"
+#include "open_panels.hpp"
 
 enum {
     OPEN_FILE_TAB,

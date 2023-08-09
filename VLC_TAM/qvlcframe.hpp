@@ -27,12 +27,12 @@
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QHBoxLayout>
-#include <QApplication>
-#include <QMainWindow>
-#include <QKeyEvent>
-#include <QDesktopWidget>
-#include <QSettings>
-#include <QStyle>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QMainWindow>
+#include <QtGui/QKeyEvent>
+#include <QtWidgets/QDesktopWidget>
+#include <QtCore/QSettings>
+#include <QtWidgets/QStyle>
 
 #include "qt.hpp"
 
