@@ -28,6 +28,7 @@ class childs2run:
     prnt: str = ""
     full_path = ""
 class page_struct:
+    cur_cur_pos = 0 # cursor's current position
     KonsoleTitle: str
     num_page: int = 0
     num_cols: int = 3
@@ -57,7 +58,8 @@ class lapse:
     read_midway_data_from_pipes_start = 0
     read_midway_data_from_pipes_stop = 0
 # Terminals
-def writeInput_str(promt: str, prnt: str) -> None:
+def writeInput_str(promt: str, prnt: str):
+    promt_len = len(promt)
     blank = ' ' * (promt_len + len(prnt) + 1)
     print(f"\r{blank}", end='', flush=True)
     print(f"\r{promt}{prnt}", end='', flush=True)
@@ -77,7 +79,11 @@ def pressKey():
         except TypeError:
              print(f"{Key} = {Key}", end='', flush=True)
 def hotKeys(promt: str) -> str:
+    full_length = 0
     prnt = ""
+    prnt0 = ''
+    prnt_short = ''
+    prnt_full = ''
     ptrn = ''
     fileIndx = 0
     fileName = ''
@@ -86,7 +92,6 @@ def hotKeys(promt: str) -> str:
     BACKSPACE = 127
     ESCAPE = 27
     TAB = 9
-    promt_len = len(promt)
     while True:
         Key = click.getchar()
         if Key == "\x1b[A":
@@ -94,29 +99,53 @@ def hotKeys(promt: str) -> str:
         if Key == "\x1b[B":
             return "pp"
         if Key == "\x1b[C":
+            page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
             print('\033[C', end='')
             continue
         if Key == "\x1b[D":
-            print('\033[D', end='', flush=True)
+            if page_struct.cur_cur_pos > 0:
+                page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
+                #print(f"'\033]30;{page_struct.cur_cur_pos}\007'", end='')
+                print('\033[D', end='')
             continue
         if ENTER == ord(Key):
             return prnt
         if BACKSPACE == ord(Key):
             prnt = prnt[:len(prnt) - 1]
-            writeInput_str(promt, prnt)
+            page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
+            prnt0 = prnt
+            full_length = len(prnt)
+            writeInput_str(promt, prnt0)
         if ESCAPE == ord(Key): SYS(), sys.exit(0)
         if TAB == ord(Key):
            ptrn = re.compile('ren\s+\d+', re.IGNORECASE|re.UNICODE)
            regex_result  = ptrn.search(prnt)
            if keys.dirty_mode: print(f"{regex_result.group(0)}, {len(regex_result.group(0))}, {prnt}")
            if regex_result:
-               fileName, fileIndx = regex_result.group(0).split()
-               fileName = globalLists.fileListMain[int(fileIndx)]
-               print(f"{fileName}")
+               if len(prnt_short) == 0:
+                   fileName, fileIndx = regex_result.group(0).split()
+                   fileName = globalLists.fileListMain[int(fileIndx)]
+                   _, prnt_short = os.path.split(fileName)
+                   prnt_short = prnt + f" {prnt_short}"
+                   prnt_full = prnt + f" {fileName}"
+               if len(prnt) < len(prnt_full):
+                   prnt = prnt_full
+                   page_struct.cur_cur_pos = len(prnt_full)
+               else:
+                   prnt = prnt_short
+                   page_struct.cur_cur_pos = len(prnt_short)
+               full_length = len(prnt)
+               writeInput_str(promt, prnt)
                continue
         else:
-            prnt += f"{Key}"
+            if page_struct.cur_cur_pos + 1 == full_length:
+                prnt += f"{Key}"
+            else:
+                prnt = prnt[:page_struct.cur_cur_pos] + f"{Key}" + prnt[page_struct.cur_cur_pos + 1:]
+            page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
+            prnt0 = prnt
             print(f"{Key}", end='', flush=True)
+            #print(f"'\033]30;{page_struct.cur_cur_pos}\007'", end='', flush=True)
 def custom_input(promt: str) -> str:
     print(f"{promt}", end='', flush=True)
     return hotKeys(promt)
