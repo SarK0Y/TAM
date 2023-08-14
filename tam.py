@@ -79,7 +79,7 @@ def writeInput_str(promt: str, prnt: str, blank_len = 0):
         blank = ' ' * (promt_len + blank_len + 1)
     print(f"\r{blank}", end='', flush=True)
     print(f"\r{promt}{prnt}", end='', flush=True)
-    print(f'\033[{page_struct.left_shift_4_cur}D', end='')
+    print(f'\033[{page_struct.left_shift_4_cur}D', end='', flush=True)
 def pressKey():
     prnt = ""
     ENTER = 13
