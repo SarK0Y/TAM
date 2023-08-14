@@ -28,6 +28,7 @@ class childs2run:
     prnt: str = ""
     full_path = ""
 class page_struct:
+    left_shift_4_cur = 0
     cur_cur_pos = 0 # cursor's current position
     KonsoleTitle: str
     num_page: int = 0
@@ -58,11 +59,27 @@ class lapse:
     read_midway_data_from_pipes_start = 0
     read_midway_data_from_pipes_stop = 0
 # Terminals
-def writeInput_str(promt: str, prnt: str):
+def renameFile(fileName: str, cmd: str):
+    cmd = cmd[4:]
+    old_name = fileName
+    _, cmd = cmd.split()
+    res = re.match('\/', cmd)
+    if not res:
+        fileName, _ = os.path.split(fileName)
+        fileName += f"{cnd}"
+    else:
+        fileName = f"{cnd}"
+    os.system(f"mv {old_name} {fileName}")
+    return
+def writeInput_str(promt: str, prnt: str, blank_len = 0):
     promt_len = len(promt)
-    blank = ' ' * (promt_len + len(prnt) + 1)
+    if blank_len == 0:
+        blank = ' ' * (promt_len + len(prnt) + 1)
+    else:
+        blank = ' ' * (promt_len + blank_len + 1)
     print(f"\r{blank}", end='', flush=True)
     print(f"\r{promt}{prnt}", end='', flush=True)
+    print(f'\033[{page_struct.left_shift_4_cur}D', end='')
 def pressKey():
     prnt = ""
     ENTER = 13
@@ -99,16 +116,22 @@ def hotKeys(promt: str) -> str:
         if Key == "\x1b[B":
             return "pp"
         if Key == "\x1b[C":
-            page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
-            print('\033[C', end='')
+            if page_struct.left_shift_4_cur > 0:
+                page_struct.left_shift_4_cur -= 1
+                page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
+                print('\033[C', end='')
             continue
         if Key == "\x1b[D":
             if page_struct.cur_cur_pos > 0:
+                page_struct.left_shift_4_cur += 1
                 page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
                 #print(f"'\033]30;{page_struct.cur_cur_pos}\007'", end='')
                 print('\033[D', end='')
             continue
         if ENTER == ord(Key):
+            if prnt_short != '':
+                renameFile(fileName, prnt)
+                return f"go2 {page_struct.num_page}"
             return prnt
         if BACKSPACE == ord(Key):
             prnt = prnt[:len(prnt) - 1]
@@ -125,6 +148,7 @@ def hotKeys(promt: str) -> str:
                if len(prnt_short) == 0:
                    fileName, fileIndx = regex_result.group(0).split()
                    fileName = globalLists.fileListMain[int(fileIndx)]
+                   fileName = fileName[:-1]
                    _, prnt_short = os.path.split(fileName)
                    prnt_short = prnt + f" {prnt_short}"
                    prnt_full = prnt + f" {fileName}"
@@ -135,17 +159,16 @@ def hotKeys(promt: str) -> str:
                    prnt = prnt_short
                    page_struct.cur_cur_pos = len(prnt_short)
                full_length = len(prnt)
-               writeInput_str(promt, prnt)
+               writeInput_str(promt, prnt, len(prnt_full))
                continue
         else:
             if page_struct.cur_cur_pos + 1 == full_length:
                 prnt += f"{Key}"
             else:
-                prnt = prnt[:page_struct.cur_cur_pos] + f"{Key}" + prnt[page_struct.cur_cur_pos + 1:]
+                prnt =f"{prnt[:page_struct.cur_cur_pos]}{Key}{prnt[page_struct.cur_cur_pos:]}"
             page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
             prnt0 = prnt
-            print(f"{Key}", end='', flush=True)
-            #print(f"'\033]30;{page_struct.cur_cur_pos}\007'", end='', flush=True)
+            writeInput_str(promt, prnt)
 def custom_input(promt: str) -> str:
     print(f"{promt}", end='', flush=True)
     return hotKeys(promt)
@@ -307,6 +330,7 @@ def manage_pages(fileListMain: list, ps: page_struct):
     ps.count_pages = len(fileListMain) // (ps.num_cols * ps.num_rows) + 1
     ps.num_files = len(fileListMain)
     while True:
+        page_struct.num_page = ps.num_page
         addStr = f" files/pages: {ps.num_files}/{ps.count_pages} p. {ps.num_page}"
         adjustKonsoleTitle(addStr, ps)
         clear_screen()
