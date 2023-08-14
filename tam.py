@@ -78,7 +78,7 @@ def writeInput_str(promt: str, prnt: str, blank_len = 0):
     else:
         blank = ' ' * (promt_len + blank_len + 1)
     print(f"\r{blank}", end='', flush=True)
-    print(f"\r{promt}{prnt}", end='', flush=True)
+    print(f"\r{promt}{prnt}", end=' ', flush=True)
     print(f'\033[{page_struct.left_shift_4_cur + 1}D', end='', flush=True)
 def pressKey():
     prnt = ""
@@ -88,13 +88,19 @@ def pressKey():
             Key = click.getchar()
             if Key == "\x1b[A":
                 print("yes", end='')
-            if ENTER == ord(Key):
+            if ENTER == ord0(Key):
                 nop()
             else:
                 prnt += f"{Key}"
-                print(f"{Key} = {ord(Key)}", end='', flush=True)
+                print(f"{Key} = {ord0(Key)}", end='', flush=True)
         except TypeError:
              print(f"{Key} = {Key}", end='', flush=True)
+def ord0(Key):
+    try:
+        Key = ord(Key)
+        return Key
+    except TypeError:
+        return -1
 def hotKeys(promt: str) -> str:
     full_length = 0
     prnt = ""
@@ -119,32 +125,33 @@ def hotKeys(promt: str) -> str:
             if page_struct.left_shift_4_cur > 0:
                 page_struct.left_shift_4_cur -= 1
                 page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
-                print('\033[C', end='')
+                print('\033[C', end='', flush=True)
             continue
         if Key == "\x1b[D":
             if page_struct.cur_cur_pos > 0:
                 page_struct.left_shift_4_cur += 1
                 page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
                 #print(f"'\033]30;{page_struct.cur_cur_pos}\007'", end='')
-                print('\033[D', end='')
+                print('\033[D', end='', flush=True)
             continue
-        if ENTER == ord(Key):
+        if ENTER == ord0(Key):
             if prnt_short != '':
                 renameFile(fileName, prnt)
                 return f"go2 {page_struct.num_page}"
             return prnt
-        if BACKSPACE == ord(Key):
+        if BACKSPACE == ord0(Key):
             if page_struct.left_shift_4_cur == 0:
                 prnt = prnt[:len(prnt) - 1]
             else:
-                prnt = prnt[:len(prnt) - page_struct.left_shift_4_cur] + prnt[len(prnt) - page_struct.left_shift_4_cur + 1:]
-            page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
+                prnt = prnt[:len(prnt) - page_struct.left_shift_4_cur - 1] + prnt[len(prnt) - page_struct.left_shift_4_cur:]
+            if page_struct.cur_cur_pos > 0:
+                page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
             prnt0 = prnt
             full_length = len(prnt)
             writeInput_str(promt, prnt0)
             continue
-        if ESCAPE == ord(Key): SYS(), sys.exit(0)
-        if TAB == ord(Key):
+        if ESCAPE == ord0(Key): SYS(), sys.exit(0)
+        if TAB == ord0(Key):
            ptrn = re.compile('ren\s+\d+', re.IGNORECASE|re.UNICODE)
            regex_result  = ptrn.search(prnt)
            if keys.dirty_mode: print(f"{regex_result.group(0)}, {len(regex_result.group(0))}, {prnt}")
