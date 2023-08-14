@@ -79,7 +79,7 @@ def writeInput_str(promt: str, prnt: str, blank_len = 0):
         blank = ' ' * (promt_len + blank_len + 1)
     print(f"\r{blank}", end='', flush=True)
     print(f"\r{promt}{prnt}", end='', flush=True)
-    print(f'\033[{page_struct.left_shift_4_cur}D', end='', flush=True)
+    print(f'\033[{page_struct.left_shift_4_cur + 1}D', end='', flush=True)
 def pressKey():
     prnt = ""
     ENTER = 13
@@ -134,11 +134,15 @@ def hotKeys(promt: str) -> str:
                 return f"go2 {page_struct.num_page}"
             return prnt
         if BACKSPACE == ord(Key):
-            prnt = prnt[:len(prnt) - 1]
+            if page_struct.left_shift_4_cur == 0:
+                prnt = prnt[:len(prnt) - 1]
+            else:
+                prnt = prnt[:len(prnt) - page_struct.left_shift_4_cur] + prnt[len(prnt) - page_struct.left_shift_4_cur + 1:]
             page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
             prnt0 = prnt
             full_length = len(prnt)
             writeInput_str(promt, prnt0)
+            continue
         if ESCAPE == ord(Key): SYS(), sys.exit(0)
         if TAB == ord(Key):
            ptrn = re.compile('ren\s+\d+', re.IGNORECASE|re.UNICODE)
@@ -155,7 +159,9 @@ def hotKeys(promt: str) -> str:
                if len(prnt) < len(prnt_full):
                    prnt = prnt_full
                    page_struct.cur_cur_pos = len(prnt_full)
+                   page_struct.left_shift_4_cur = 0
                else:
+                   page_struct.left_shift_4_cur = 0
                    prnt = prnt_short
                    page_struct.cur_cur_pos = len(prnt_short)
                full_length = len(prnt)
