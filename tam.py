@@ -59,17 +59,30 @@ class lapse:
     read_midway_data_from_pipes_start = 0
     read_midway_data_from_pipes_stop = 0
 # Terminals
+def escapeSymbols(name: str):
+    name = name.replace(" ", "\ ")
+    name = name.replace("$", "\$")
+    if name[len(name) - 1] == "\n":
+        name = name[:len(name) - 1]
+    return name
 def renameFile(fileName: str, cmd: str):
     cmd = cmd[4:]
-    old_name = fileName
-    _, cmd = cmd.split()
+    getFileIndx = re.compile('\d+\s+')
+    fileIndx = getFileIndx.match(cmd)
+    cmd = cmd.replace(fileIndx.group(0), '')
+    old_name = globalLists.fileListMain[int(fileIndx.group(0))]
     res = re.match('\/', cmd)
     if not res:
+        fileName = old_name
         fileName, _ = os.path.split(fileName)
-        fileName += f"{cnd}"
+        fileName += f"/{cmd}"
     else:
-        fileName = f"{cnd}"
-    os.system(f"mv {old_name} {fileName}")
+        fileName = f"{cmd}"
+    globalLists.fileListMain[int(fileIndx.group(0))] = cmd
+    fileName = escapeSymbols(fileName)
+    old_name = escapeSymbols(old_name)
+    cmd = "mv " + f"{old_name}" + " " + f"{fileName}"
+    os.system(cmd)
     return
 def writeInput_str(promt: str, prnt: str, blank_len = 0):
     promt_len = len(promt)
@@ -115,6 +128,7 @@ def hotKeys(promt: str) -> str:
     BACKSPACE = 127
     ESCAPE = 27
     TAB = 9
+    DELETE = "\x1b[3~"
     while True:
         Key = click.getchar()
         if Key == "\x1b[A":
