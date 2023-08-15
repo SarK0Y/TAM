@@ -1,6 +1,9 @@
+import re
 import subprocess
 from tabulate import tabulate
 import sys, os, signal
+import click
+import keyboard as kbd
 import time
 from threading import Thread
 import fcntl
@@ -10,12 +13,207 @@ from colorama import init as colorama_init
 from colorama import Fore
 from colorama import Style
 from colorama import Back
-# Terminals
-def signal_manager(sig, frame):
-    print(f"sig = {sig}")
-#signal.signal(signal.SIGINT, signal_manager)
+#MAIN
+class info_struct:
+    ver = 1
+    rev = "7-17"
+    author = "Evgeney Knyazhev (SarK0Y)"
+    year = '2023'
+    telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
+class globalLists:
+    fileListMain = None
+class childs2run:
+    running: list = []
+    viewer: list = []
+    prnt: str = ""
+    full_path = ""
+class page_struct:
+    left_shift_4_cur = 0
+    cur_cur_pos = 0 # cursor's current position
+    KonsoleTitle: str
+    num_page: int = 0
+    num_cols: int = 3
+    col_width = 70
+    num_rows: int = 11
+    num_spaces: int = 4
+    num_files = 0
+    count_pages = 0
+    news_bar = f"{info_struct.telega} 2 know news & features ;D"
+    c2r: childs2run
 class keys:
     dirty_mode = False
+    rename_file_mode = 0
+class PIPES:
+    def __init__(self, outNorm, outErr):
+        self.outNorm_r = open(outNorm.name, mode="r", encoding="utf8")
+        self.outErr_r = open(outErr.name, encoding="utf8", mode="r")
+        self.outNorm_w = open(outNorm.name, encoding="utf8", mode="w+")
+        self.outErr_w = open(outErr.name,  encoding="utf8", mode="w+")
+        self.outNorm_name = outNorm.name
+        self.outErr_name = outErr.name
+        self.stdout = open(sys.stdin.name, mode="w+", encoding="utf8")
+        self.stop = globals()['stopCode']
+class lapse:
+    find_files_start = 0
+    find_files_stop = 0
+    read_midway_data_from_pipes_start = 0
+    read_midway_data_from_pipes_stop = 0
+# Terminals
+def flushInputBuffer():
+    page_struct.left_shift_4_cur = 0
+    page_struct.cur_cur_pos = 0
+    return ""
+def escapeSymbols(name: str):
+    name = name.replace(" ", "\ ")
+    name = name.replace("$", "\$")
+    if name[-1] == "\n":
+        name = name[:-1]
+    return name
+def renameFile(fileName: str, cmd: str):
+    cmd = cmd[4:]
+    getFileIndx = re.compile('\d+\s+')
+    fileIndx = getFileIndx.match(cmd)
+    cmd = cmd.replace(fileIndx.group(0), '')
+    old_name = globalLists.fileListMain[int(fileIndx.group(0))]
+    res = re.match('\/', cmd)
+    if not res:
+        fileName = old_name
+        fileName, _ = os.path.split(fileName)
+        fileName += f"/{cmd}"
+    else:
+        fileName = f"{cmd}"
+    globalLists.fileListMain[int(fileIndx.group(0))] = cmd
+    fileName = escapeSymbols(fileName)
+    old_name = escapeSymbols(old_name)
+    cmd = "mv " + f"{old_name}" + " " + f"{fileName}"
+    os.system(cmd)
+    return
+def writeInput_str(promt: str, prnt: str, blank_len = 0):
+    promt_len = len(promt)
+    if blank_len == 0:
+        blank = ' ' * (promt_len + len(prnt) + 1)
+    else:
+        blank = ' ' * (promt_len + blank_len + 1)
+    print(f"\r{blank}", end='', flush=True)
+    print(f"\r{promt}{prnt}", end=' ', flush=True)
+    print(f'\033[{page_struct.left_shift_4_cur + 1}D', end='', flush=True)
+def pressKey():
+    prnt = ""
+    ENTER = 13
+    while True:
+        try:
+            Key = click.getchar()
+            if Key == "\x1b[A":
+                print("yes", end='')
+            if ENTER == ord0(Key):
+                nop()
+            else:
+                prnt += f"{Key}"
+                print(f"{Key} = {ord0(Key)}", end='', flush=True)
+        except TypeError:
+             print(f"{Key} = {Key}", end='', flush=True)
+def ord0(Key):
+    try:
+        Key = ord(Key)
+        return Key
+    except TypeError:
+        return -1
+def hotKeys(promt: str) -> str:
+    full_length = 0
+    prnt = ""
+    prnt0 = ''
+    prnt_short = ''
+    prnt_full = ''
+    ptrn = ''
+    fileIndx = 0
+    fileName = ''
+    regex_result = ''
+    ENTER = 13
+    BACKSPACE = 127
+    ESCAPE = 27
+    TAB = 9
+    DELETE = "\x1b[3~"
+    F12 = "\x1b[24~"
+    LEFT_ARROW = "\x1b[D"
+    RIGHT_ARROW = "\x1b[C"
+    while True:
+        Key = click.getchar()
+        if F12 == Key:
+            full_length = len(prnt)
+            prnt = flushInputBuffer()
+            writeInput_str(promt, prnt, full_length)
+            continue
+        if Key == "\x1b[A":
+            return "np"
+        if Key == "\x1b[B":
+            return "pp"
+        if Key == RIGHT_ARROW:
+            if page_struct.left_shift_4_cur > 0:
+                page_struct.left_shift_4_cur -= 1
+                page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
+                print('\033[C', end='', flush=True)
+            continue
+        if Key == LEFT_ARROW:
+            if page_struct.cur_cur_pos > 0:
+                page_struct.left_shift_4_cur += 1
+                page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
+                #print(f"'\033]30;{page_struct.cur_cur_pos}\007'", end='')
+                print('\033[D', end='', flush=True)
+            continue
+        if ENTER == ord0(Key):
+            if prnt_short != '':
+                renameFile(fileName, prnt)
+                return f"go2 {page_struct.num_page}"
+            return prnt
+        if BACKSPACE == ord0(Key):
+            if page_struct.left_shift_4_cur == 0:
+                prnt = prnt[:len(prnt) - 1]
+            else:
+                prnt = prnt[:len(prnt) - page_struct.left_shift_4_cur - 1] + prnt[len(prnt) - page_struct.left_shift_4_cur:]
+            if page_struct.cur_cur_pos > 0:
+                page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
+            prnt0 = prnt
+            full_length = len(prnt)
+            writeInput_str(promt, prnt0)
+            continue
+        if ESCAPE == ord0(Key): SYS(), sys.exit(0)
+        if TAB == ord0(Key):
+           ptrn = re.compile('ren\s+\d+', re.IGNORECASE|re.UNICODE)
+           regex_result  = ptrn.search(prnt)
+           if keys.dirty_mode: print(f"{regex_result.group(0)}, {len(regex_result.group(0))}, {prnt}")
+           if regex_result:
+               if len(prnt_short) == 0:
+                   fileName, fileIndx = regex_result.group(0).split()
+                   fileName = globalLists.fileListMain[int(fileIndx)]
+                   fileName = fileName[:-1]
+                   _, prnt_short = os.path.split(fileName)
+                   prnt_short = prnt + f" {prnt_short}"
+                   prnt_full = prnt + f" {fileName}"
+               if len(prnt) < len(prnt_full):
+                   prnt = prnt_full
+                   page_struct.cur_cur_pos = len(prnt_full)
+                   page_struct.left_shift_4_cur = 0
+               else:
+                   page_struct.left_shift_4_cur = 0
+                   prnt = prnt_short
+                   page_struct.cur_cur_pos = len(prnt_short)
+               full_length = len(prnt)
+               writeInput_str(promt, prnt, len(prnt_full))
+               continue
+        else:
+            if page_struct.cur_cur_pos + 1 == full_length and page_struct.left_shift_4_cur == 0:
+                prnt += f"{Key}"
+            else:
+                prnt =f"{prnt[:page_struct.cur_cur_pos]}{Key}{prnt[page_struct.cur_cur_pos:]}"
+            page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
+            prnt0 = prnt
+            writeInput_str(promt, prnt)
+def custom_input(promt: str) -> str:
+    print(f"{promt}", end='', flush=True)
+    return hotKeys(promt)
+def signal_manager(sig, frame):
+    print(f"sig = {sig}")
+#signal.signal(signal.CTRL_BREAK_EVENT, signal_manager)
 def SYS():
     no_SYS = os.path.exists("/tmp/no_SYS")
     no_SYS1 = get_arg_in_cmd("-SYS", sys.argv)
@@ -24,7 +222,7 @@ def SYS():
         sys.exit(0)
     print("\r\nSee You Soon\nBye.. bye, my Dear User 🙂")
     sys.exit(0)
-def SetDefaultKonsoleTitle():
+def SetDefaultKonsoleTitle(addStr = ""):
     out = get_arg_in_cmd("-path0", sys.argv)
     try:
         out += f" {put_in_name()}"
@@ -32,7 +230,10 @@ def SetDefaultKonsoleTitle():
         print(f"konsole title = {out}")
     except TypeError:
         out = f"cmd is empty {put_in_name()}"
-    os.system(f"echo -ne '\033]30;{out}\007'")
+    page_struct.KonsoleTitle = out
+    os.system(f"echo -ne '\033]30;{out}{addStr}\007'")
+def adjustKonsoleTitle(addStr: str, ps: page_struct):
+    os.system(f"echo -ne '\033]30;{ps.KonsoleTitle}{addStr}\007'")
 def self_recursion():
     no_SYS = os.path.exists("/tmp/no_SYS")
     no_SYS1 = get_arg_in_cmd("-SYS", sys.argv)
@@ -51,34 +252,36 @@ def self_recursion():
 def banner0(delay: int):
     _, colsize = os.popen("stty size", 'r').read().split()
     while True:
-        typeIt = "© SarK0Y 2023".center(int(colsize), "8")
+        typeIt = f"© SarK0Y {info_struct.year}".center(int(colsize), "8")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
-        typeIt = "© Knyazhev Evgeney 2023".center(int(colsize), "|")
+        typeIt = f"© Knyazhev Evgeney {info_struct.year}".center(int(colsize), "|")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
-        typeIt = "© Knyazhev Evgeney 2023".center(int(colsize), "/")
+        typeIt = f"© Knyazhev Evgeney {info_struct.year}".center(int(colsize), "/")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
-        typeIt = "© Knyazhev Evgeney 2023".center(int(colsize), "-")
+        typeIt = f"© Knyazhev Evgeney {info_struct.year}".center(int(colsize), "-")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
-        typeIt = "© Knyazhev Evgeney 2023".center(int(colsize), "+")
+        typeIt = f"© Knyazhev Evgeney {info_struct.year}".center(int(colsize), "+")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
-        typeIt = "© Knyazhev Evgeney 2023".center(int(colsize), "=")
-        typeIt = "© SarK0Y 2023".center(int(colsize), "∞")
+        typeIt = f"© Knyazhev Evgeney {info_struct.year}".center(int(colsize), "=")
+        typeIt = f"© SarK0Y {info_struct.year}".center(int(colsize), "∞")
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
 def info():
+    os.system(f"echo -ne '\033]30;TAM {info_struct.ver}.{info_struct.rev}\007'") # set konsole title
+    clear_screen()
     _, colsize = os.popen("stty size", 'r').read().split()
     print(" Project: Tiny Automation Manager. ".center(int(colsize), "◑"))
-    print(" TELEGRAM: T.ME/ALG0Z ".center(int(colsize), "◑"))
+    print(f" TELEGRAM: {info_struct.telega} ".center(int(colsize), "◑"))
     print(" WWW: https://alg0z.blogspot.com ".center(int(colsize), "◑"))
     print(" E-MAIL: sark0y@protonmail.com ".center(int(colsize), "◑"))
     print(" Supported platforms: TAM  for Linux & alike; TAW for Windows. ".center(int(colsize), "◑"))
-    print(" Version: 1. ".center(int(colsize), "◑"))
-    print(" Revision: 4. ".center(int(colsize), "◑"))
+    print(f" Version: {info_struct.ver}. ".center(int(colsize), "◑"))
+    print(f" Revision: {info_struct.rev}. ".center(int(colsize), "◑"))
     print(f"\nlicense/Agreement:".title())
     print("Personal usage will cost You $0.00, but don't be shy to donate me.. or You could support me any other way You want - just call/mail me to discuss possible variants for mutual gains. 🙂")
     print("Commercial use takes $0.77 per month from You.. or just Your Soul 😇😜")
@@ -93,18 +296,6 @@ def info():
         SYS()
 def help():
     print("np - next page pp - previous page 0p - 1st page lp - last page go2 <number of page>", end='')
-class childs2run:
-    running: list = []
-    viewer: list = []
-    prnt: str = ""
-    full_path = ""
-class page_struct:
-    num_page: int = 0
-    num_cols: int = 3
-    col_width = 70
-    num_rows: int = 11
-    num_spaces: int = 4
-    c2r: childs2run
 def achtung(msg):
     os.system(f"wall '{msg}'")
 def log(msg, num_line: int, funcName: str):
@@ -123,14 +314,21 @@ def init_view(c2r: childs2run):
             i += 1
     return c2r
 def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
-    viewer_indx, file_indx = cmd.split()
-    viewer_indx = int(viewer_indx)
-    file_indx = int(file_indx)
+    viewer_indx: int = 1
+    file_indx: int = 0
+    try:
+        viewer_indx, file_indx = cmd.split()
+        viewer_indx = int(viewer_indx)
+        file_indx = int(file_indx)
+    except ValueError:
+        file_indx = cmd.split()
+        file_indx = file_indx[0]
+        file_indx = int(file_indx)
     file2run: str = fileListMain[file_indx]
     file2run = file2run[0:len(file2run) - 1]
     file2run = file2run.replace("$", "\$")
     file2run = file2run.replace(";", "\;")
-    cmd = f'{c2r.viewer[viewer_indx]}' + ' ' + f'"{file2run}"'
+    cmd = f'{c2r.viewer[viewer_indx]}' + ' ' + f'"{file2run}" > /dev/null'
     cmd = [cmd,]
     t = sp.Popen(cmd, shell=True)
     c2r.running.append(t)
@@ -143,7 +341,8 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
             ps.num_page = lp
         return
     if cmd == "pp":
-        ps.num_page -= 1
+        if ps.num_page > 0:
+            ps.num_page -= 1
         return
     if cmd == "0p":
         ps.num_page = 0
@@ -165,21 +364,30 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
     run_viewers(ps.c2r, fileListMain, cmd)
 def manage_pages(fileListMain: list, ps: page_struct):
     cmd = ""
+    globalLists.fileListMain = fileListMain
     c2r = ps.c2r
+    ps.count_pages = len(fileListMain) // (ps.num_cols * ps.num_rows) + 1
+    ps.num_files = len(fileListMain)
     while True:
+        page_struct.num_page = ps.num_page
+        addStr = f" files/pages: {ps.num_files}/{ps.count_pages} p. {ps.num_page}"
+        adjustKonsoleTitle(addStr, ps)
         clear_screen()
-        print(f"Viewers: \n{c2r.prnt}\n\nFull path to {c2r.full_path}")
-        table, too_short_row = make_page_of_files(fileListMain, ps)
+        print(f"{Fore.RED}      NEWS: {ps.news_bar}\n{Style.RESET_ALL}")
+        print(f"Viewers: \n{c2r.prnt}\n\nNumber of files/pages: {ps.num_files}/{ps.count_pages} p. {ps.num_page}\nFull path to {c2r.full_path}")
+        table, too_short_row = make_page_of_files2(fileListMain, ps)
         if too_short_row == 0:
             ps.num_cols = 2
-            table, too_short_row = make_page_of_files(fileListMain, ps)
+            table, too_short_row = make_page_of_files2(fileListMain, ps)
         try:
             print(tabulate(table, tablefmt="fancy_grid", maxcolwidths=[ps.col_width]))
         except IndexError:
             errMsg("Unfortunately, Nothing has been found.", "TAM")
+            SYS()
+            sys.exit(-2)
         print(cmd)
         try:
-            cmd = input("Please, enter Your command: ")
+            cmd = custom_input("Please, enter Your command: ")
         except KeyboardInterrupt:
             SYS()
         if cmd == "help" or cmd == "" or cmd == "?":
@@ -191,6 +399,37 @@ def manage_pages(fileListMain: list, ps: page_struct):
     return
 def nop():
     return
+def make_page_of_files2(fileListMain: list, ps: page_struct):
+    row: list =[]
+    item = ""
+    table: list = []
+    none_row = 0
+    len_item = 0
+    num_page = ps.num_page * ps.num_cols * ps.num_rows
+    num_rows = ps.num_rows
+    for i in range(0, num_rows):
+        for j in range(0, ps.num_cols):
+            indx = j + ps.num_cols * i + num_page
+            try:
+                _, item = os.path.split(fileListMain[indx])
+                if keys.dirty_mode: print(f"len item = {len(item)}")
+                len_item += len(item)
+                if len(item) == 1:
+                    raise IndexError
+                row.append(str(indx) + ":" + item + " " * ps.num_spaces)
+            except IndexError:
+                none_row += 1
+                if keys.dirty_mode: print(f"none row = {none_row}; i,j = {i},{j}")
+                row.append(f"{Back.BLACK}{str(indx)}:{' ' * ps.num_spaces}{Style.RESET_ALL}")
+                num_rows = i
+        if none_row < 3 and len_item > 4:
+            table.append(row)
+        if num_rows != ps.num_rows:
+            break
+        row = []
+        none_row = 0
+    too_short_row = len(table)
+    return table, too_short_row
 def make_page_of_files(fileListMain: list, ps: page_struct):
     row: list =[]
     item = ""
@@ -216,21 +455,7 @@ def make_page_of_files(fileListMain: list, ps: page_struct):
 
 # Threads
 stopCode = "∇\n"
-class PIPES:
-    def __init__(self, outNorm, outErr):
-        self.outNorm_r = open(outNorm.name, mode="r", encoding="utf8")
-        self.outErr_r = open(outErr.name, encoding="utf8", mode="r")
-        self.outNorm_w = open(outNorm.name, encoding="utf8", mode="w+")
-        self.outErr_w = open(outErr.name,  encoding="utf8", mode="w+")
-        self.outNorm_name = outNorm.name
-        self.outErr_name = outErr.name
-        self.stdout = open(sys.stdin.name, mode="w+", encoding="utf8")
-        self.stop = globals()['stopCode']
-class lapse:
-    find_files_start = 0
-    find_files_stop = 0
-    read_midway_data_from_pipes_start = 0
-    read_midway_data_from_pipes_stop = 0
+
 #manage files
 def get_fd(fileName: str = ""):
     funcName = "get_fd"
@@ -487,4 +712,5 @@ def cmd():
             ps.c2r = init_view(ps.c2r)
             table = make_page_of_files(fileListMain, ps)
             manage_pages(fileListMain, ps)
+#pressKey()
 cmd()
