@@ -59,6 +59,10 @@ class lapse:
     read_midway_data_from_pipes_start = 0
     read_midway_data_from_pipes_stop = 0
 # Terminals
+def flushInputBuffer():
+    page_struct.left_shift_4_cur = 0
+    page_struct.cur_cur_pos = 0
+    return ""
 def escapeSymbols(name: str):
     name = name.replace(" ", "\ ")
     name = name.replace("$", "\$")
@@ -129,8 +133,14 @@ def hotKeys(promt: str) -> str:
     ESCAPE = 27
     TAB = 9
     DELETE = "\x1b[3~"
+    F12 = "\x1b[24~"
     while True:
         Key = click.getchar()
+        if F12 == Key:
+            full_length = len(prnt)
+            prnt = flushInputBuffer()
+            writeInput_str(promt, prnt, full_length)
+            continue
         if Key == "\x1b[A":
             return "np"
         if Key == "\x1b[B":
