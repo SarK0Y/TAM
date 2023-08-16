@@ -16,7 +16,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "7-17"
+    rev = "7-18"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -136,6 +136,8 @@ def hotKeys(promt: str) -> str:
     F12 = "\x1b[24~"
     LEFT_ARROW = "\x1b[D"
     RIGHT_ARROW = "\x1b[C"
+    UP_ARROW = "\x1b[A"
+    DOWN_ARROW = "\x1b[B"
     while True:
         Key = click.getchar()
         if F12 == Key:
@@ -143,9 +145,9 @@ def hotKeys(promt: str) -> str:
             prnt = flushInputBuffer()
             writeInput_str(promt, prnt, full_length)
             continue
-        if Key == "\x1b[A":
+        if Key == UP_ARROW:
             return "np"
-        if Key == "\x1b[B":
+        if Key == DOWN_ARROW:
             return "pp"
         if Key == RIGHT_ARROW:
             if page_struct.left_shift_4_cur > 0:
@@ -165,6 +167,17 @@ def hotKeys(promt: str) -> str:
                 renameFile(fileName, prnt)
                 return f"go2 {page_struct.num_page}"
             return prnt
+        if DELETE == Key:
+            if page_struct.left_shift_4_cur == 0:
+                continue
+            else:
+                prnt = prnt[:len(prnt) - page_struct.left_shift_4_cur + 1] + prnt[len(prnt) - page_struct.left_shift_4_cur + 2:]
+            if page_struct.left_shift_4_cur > 0:
+                page_struct.left_shift_4_cur -= 1
+            prnt0 = prnt
+            full_length = len(prnt)
+            writeInput_str(promt, prnt0)
+            continue
         if BACKSPACE == ord0(Key):
             if page_struct.left_shift_4_cur == 0:
                 prnt = prnt[:len(prnt) - 1]
