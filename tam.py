@@ -16,7 +16,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "7-18"
+    rev = "7-19"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -66,6 +66,7 @@ def flushInputBuffer():
 def escapeSymbols(name: str):
     name = name.replace(" ", "\ ")
     name = name.replace("$", "\$")
+    name = name.replace(";", "\;")
     if name[-1] == "\n":
         name = name[:-1]
     return name
@@ -82,7 +83,7 @@ def renameFile(fileName: str, cmd: str):
         fileName += f"/{cmd}"
     else:
         fileName = f"{cmd}"
-    globalLists.fileListMain[int(fileIndx.group(0))] = cmd
+    globalLists.fileListMain[int(fileIndx.group(0))] = fileName
     fileName = escapeSymbols(fileName)
     old_name = escapeSymbols(old_name)
     cmd = "mv " + f"{old_name}" + " " + f"{fileName}"
@@ -159,7 +160,6 @@ def hotKeys(promt: str) -> str:
             if page_struct.cur_cur_pos > 0:
                 page_struct.left_shift_4_cur += 1
                 page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
-                #print(f"'\033]30;{page_struct.cur_cur_pos}\007'", end='')
                 print('\033[D', end='', flush=True)
             continue
         if ENTER == ord0(Key):
@@ -198,7 +198,8 @@ def hotKeys(promt: str) -> str:
                if len(prnt_short) == 0:
                    fileName, fileIndx = regex_result.group(0).split()
                    fileName = globalLists.fileListMain[int(fileIndx)]
-                   fileName = fileName[:-1]
+                   if fileName[-1] == '\n':
+                       fileName = fileName[:-1]
                    _, prnt_short = os.path.split(fileName)
                    prnt_short = prnt + f" {prnt_short}"
                    prnt_full = prnt + f" {fileName}"
@@ -338,9 +339,7 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
         file_indx = file_indx[0]
         file_indx = int(file_indx)
     file2run: str = fileListMain[file_indx]
-    file2run = file2run[0:len(file2run) - 1]
-    file2run = file2run.replace("$", "\$")
-    file2run = file2run.replace(";", "\;")
+    file2run = escapeSymbols(file2run)
     cmd = f'{c2r.viewer[viewer_indx]}' + ' ' + f'"{file2run}" > /dev/null'
     cmd = [cmd,]
     t = sp.Popen(cmd, shell=True)
