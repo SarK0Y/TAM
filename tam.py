@@ -16,7 +16,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "7-19"
+    rev = "7-21"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -86,6 +86,9 @@ def renameFile(fileName: str, cmd: str):
     globalLists.fileListMain[int(fileIndx.group(0))] = fileName
     fileName = escapeSymbols(fileName)
     old_name = escapeSymbols(old_name)
+    if_path_not_existed, _ = os.path.split(fileName)
+    cmd = f"mkdir -p {if_path_not_existed}"
+    os.system(cmd)
     cmd = "mv " + f"{old_name}" + " " + f"{fileName}"
     os.system(cmd)
     return
