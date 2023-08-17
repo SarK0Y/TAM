@@ -62,31 +62,33 @@ class var_4_hotKeys:
     prnt: str
     prnt_short: str
     prnt_full: str
+    fileName: str
+    fileIndx: int
     full_length: int
 # Terminals
-def handleTAB():
-    ptrn = re.compile('ren\s+\d+', re.IGNORECASE | re.UNICODE)
-    regex_result = ptrn.search(prnt)
-    if keys.dirty_mode: print(f"{regex_result.group(0)}, {len(regex_result.group(0))}, {prnt}")
+def handleTAB(promt: str):
+    ptrn = re.compile('ren\s+\d+|cp\s+\d+', re.IGNORECASE | re.UNICODE)
+    regex_result = ptrn.search(var_4_hotKeys.prnt)
+    if keys.dirty_mode: print(f"{regex_result.group(0)}, {len(regex_result.group(0))}, {var_4_hotKeys.prnt}")
     if regex_result:
-        if len(prnt_short) == 0:
-            fileName, fileIndx = regex_result.group(0).split()
-            fileName = globalLists.fileListMain[int(fileIndx)]
-            if fileName[-1] == '\n':
-                fileName = fileName[:-1]
-            _, prnt_short = os.path.split(fileName)
-            prnt_short = prnt + f" {prnt_short}"
-            prnt_full = prnt + f" {fileName}"
-        if len(prnt) < len(prnt_full):
-            prnt = prnt_full
-            page_struct.cur_cur_pos = len(prnt_full)
+        if len(var_4_hotKeys.prnt_short) == 0:
+            var_4_hotKeys.fileName, var_4_hotKeys.fileIndx = regex_result.group(0).split()
+            var_4_hotKeys.fileName = globalLists.fileListMain[int(var_4_hotKeys.fileIndx)]
+            if var_4_hotKeys.fileName[-1] == '\n':
+                var_4_hotKeys.fileName = var_4_hotKeys.fileName[:-1]
+            _, var_4_hotKeys.prnt_short = os.path.split(var_4_hotKeys.fileName)
+            var_4_hotKeys.prnt_short = var_4_hotKeys.prnt + f" {var_4_hotKeys.prnt_short}"
+            var_4_hotKeys.prnt_full = var_4_hotKeys.prnt + f" {var_4_hotKeys.fileName}"
+        if len(var_4_hotKeys.prnt) < len(var_4_hotKeys.prnt_full):
+            var_4_hotKeys.prnt = var_4_hotKeys.prnt_full
+            page_struct.cur_cur_pos = len(var_4_hotKeys.prnt_full)
             page_struct.left_shift_4_cur = 0
         else:
             page_struct.left_shift_4_cur = 0
-            prnt = prnt_short
-            page_struct.cur_cur_pos = len(prnt_short)
-        full_length = len(prnt)
-        writeInput_str(promt, prnt, len(prnt_full))
+            var_4_hotKeys.prnt = var_4_hotKeys.prnt_short
+            page_struct.cur_cur_pos = len(var_4_hotKeys.prnt_short)
+        var_4_hotKeys.full_length = len(var_4_hotKeys.prnt)
+        writeInput_str(promt, var_4_hotKeys.prnt, len(var_4_hotKeys.prnt_full))
 def flushInputBuffer():
     page_struct.left_shift_4_cur = 0
     page_struct.cur_cur_pos = 0
