@@ -224,7 +224,19 @@ def hotKeys(promt: str) -> str:
             continue
         if ESCAPE == ord0(Key): SYS(), sys.exit(0)
         if TAB == ord0(Key):
-            handleTAB()
+            var_4_hotKeys.prnt = prnt
+            var_4_hotKeys.prnt_full = prnt_full
+            var_4_hotKeys.fileName = fileName
+            var_4_hotKeys.fileIndx = fileIndx
+            var_4_hotKeys.prnt_short = prnt_short
+            var_4_hotKeys.full_length = full_length
+            handleTAB(promt)
+            prnt = var_4_hotKeys.prnt
+            prnt_full = var_4_hotKeys.prnt_full
+            fileName = var_4_hotKeys.fileName
+            fileIndx = var_4_hotKeys.fileIndx
+            prnt_short = var_4_hotKeys.prnt_short
+            full_length = var_4_hotKeys.full_length
             continue
         else:
             if page_struct.cur_cur_pos + 1 == full_length and page_struct.left_shift_4_cur == 0:
