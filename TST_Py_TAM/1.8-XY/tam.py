@@ -135,7 +135,7 @@ def getFileNameFromCMD(cmd: str):
         fileName += f"/{cmd}"
     else:
         fileName = f"{cmd}"
-    return escapeSymbols(fileName)
+    return fileName
 def copyFile(fileName: str, cmd: str):
     cmd = cmd[3:]
     getFileIndx = re.compile('\d+\s+')
@@ -238,7 +238,6 @@ def hotKeys(promt: str) -> str:
                 renameFile(fileName, prnt)
                 return f"go2 {page_struct.num_page}"
             if prnt[:2] == "cp":
-                achtung(os.path.isfile(getFileNameFromCMD(prnt)))
                 if os.path.isfile(getFileNameFromCMD(prnt)):
                     copy_file_msg = f"Do You really want to overwrite {fileName}??? Type 'Yeah I do' if You {Fore.RED}{Back.BLACK}REALLY{Style.RESET_ALL} do.. Otherwise just 'no'."
                     if save_prnt_to_copy_file == '':
@@ -248,17 +247,17 @@ def hotKeys(promt: str) -> str:
                         promt = copy_file_msg
                         writeInput_str(copy_file_msg, prnt)
                         continue
-                    if prnt == "Yeah I do":
-                        prnt = save_prnt_to_copy_file
-                        promt = save_promt_to_copy_file
-                        save_promt_to_copy_file = save_prnt_to_copy_file = ''
-                        copyFile(fileName, prnt)
-                    if prnt == "no":
-                        prnt = save_prnt_to_copy_file
-                        promt = save_promt_to_copy_file
-                        save_promt_to_copy_file = ''
-                        save_prnt_to_copy_file = ''
-                        writeInput_str(promt, prnt)
+            if prnt == "Yeah I do":
+                prnt = save_prnt_to_copy_file
+                promt = save_promt_to_copy_file
+                save_promt_to_copy_file = save_prnt_to_copy_file = ''
+                copyFile(fileName, prnt)
+            if prnt == "no":
+                prnt = save_prnt_to_copy_file
+                promt = save_promt_to_copy_file
+                save_promt_to_copy_file = ''
+                save_prnt_to_copy_file = ''
+                writeInput_str(promt, prnt)
                 return f"go2 {page_struct.num_page}"
             return prnt
         if DELETE == Key:
