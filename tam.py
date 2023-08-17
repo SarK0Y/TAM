@@ -16,7 +16,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "7-19"
+    rev = "7-23"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -58,7 +58,37 @@ class lapse:
     find_files_stop = 0
     read_midway_data_from_pipes_start = 0
     read_midway_data_from_pipes_stop = 0
+class var_4_hotKeys:
+    prnt: str
+    prnt_short: str
+    prnt_full: str
+    fileName: str
+    fileIndx: int
+    full_length: int
 # Terminals
+def handleTAB(promt: str):
+    ptrn = re.compile('ren\s+\d+|cp\s+\d+', re.IGNORECASE | re.UNICODE)
+    regex_result = ptrn.search(var_4_hotKeys.prnt)
+    if keys.dirty_mode: print(f"{regex_result.group(0)}, {len(regex_result.group(0))}, {var_4_hotKeys.prnt}")
+    if regex_result:
+        if len(var_4_hotKeys.prnt_short) == 0:
+            var_4_hotKeys.fileName, var_4_hotKeys.fileIndx = regex_result.group(0).split()
+            var_4_hotKeys.fileName = globalLists.fileListMain[int(var_4_hotKeys.fileIndx)]
+            if var_4_hotKeys.fileName[-1] == '\n':
+                var_4_hotKeys.fileName = var_4_hotKeys.fileName[:-1]
+            _, var_4_hotKeys.prnt_short = os.path.split(var_4_hotKeys.fileName)
+            var_4_hotKeys.prnt_short = var_4_hotKeys.prnt + f" {var_4_hotKeys.prnt_short}"
+            var_4_hotKeys.prnt_full = var_4_hotKeys.prnt + f" {var_4_hotKeys.fileName}"
+        if len(var_4_hotKeys.prnt) < len(var_4_hotKeys.prnt_full):
+            var_4_hotKeys.prnt = var_4_hotKeys.prnt_full
+            page_struct.cur_cur_pos = len(var_4_hotKeys.prnt_full)
+            page_struct.left_shift_4_cur = 0
+        else:
+            page_struct.left_shift_4_cur = 0
+            var_4_hotKeys.prnt = var_4_hotKeys.prnt_short
+            page_struct.cur_cur_pos = len(var_4_hotKeys.prnt_short)
+        var_4_hotKeys.full_length = len(var_4_hotKeys.prnt)
+        writeInput_str(promt, var_4_hotKeys.prnt, len(var_4_hotKeys.prnt_full))
 def flushInputBuffer():
     page_struct.left_shift_4_cur = 0
     page_struct.cur_cur_pos = 0
@@ -86,7 +116,32 @@ def renameFile(fileName: str, cmd: str):
     globalLists.fileListMain[int(fileIndx.group(0))] = fileName
     fileName = escapeSymbols(fileName)
     old_name = escapeSymbols(old_name)
+    if_path_not_existed, _ = os.path.split(fileName)
+    cmd = f"mkdir -p {if_path_not_existed}"
+    os.system(cmd)
     cmd = "mv " + f"{old_name}" + " " + f"{fileName}"
+    os.system(cmd)
+    return
+def copyFile(fileName: str, cmd: str):
+    cmd = cmd[3:]
+    getFileIndx = re.compile('\d+\s+')
+    fileIndx = getFileIndx.match(cmd)
+    cmd = cmd.replace(fileIndx.group(0), '')
+    old_name = globalLists.fileListMain[int(fileIndx.group(0))]
+    res = re.match('\/', cmd)
+    if not res:
+        fileName = old_name
+        fileName, _ = os.path.split(fileName)
+        fileName += f"/{cmd}"
+    else:
+        fileName = f"{cmd}"
+    globalLists.fileListMain.insert(int(fileIndx.group(0)), fileName)
+    fileName = escapeSymbols(fileName)
+    old_name = escapeSymbols(old_name)
+    if_path_not_existed, _ = os.path.split(fileName)
+    cmd = f"mkdir -p {if_path_not_existed}"
+    os.system(cmd)
+    cmd = "cp -f " + f"{old_name}" + " " + f"{fileName}"
     os.system(cmd)
     return
 def writeInput_str(promt: str, prnt: str, blank_len = 0):
@@ -163,8 +218,11 @@ def hotKeys(promt: str) -> str:
                 print('\033[D', end='', flush=True)
             continue
         if ENTER == ord0(Key):
-            if prnt_short != '':
+            if prnt[:3] == 'ren':
                 renameFile(fileName, prnt)
+                return f"go2 {page_struct.num_page}"
+            if prnt[:2] == "cp":
+                copyFile(fileName, prnt)
                 return f"go2 {page_struct.num_page}"
             return prnt
         if DELETE == Key:
@@ -191,29 +249,18 @@ def hotKeys(promt: str) -> str:
             continue
         if ESCAPE == ord0(Key): SYS(), sys.exit(0)
         if TAB == ord0(Key):
-           ptrn = re.compile('ren\s+\d+', re.IGNORECASE|re.UNICODE)
-           regex_result  = ptrn.search(prnt)
-           if keys.dirty_mode: print(f"{regex_result.group(0)}, {len(regex_result.group(0))}, {prnt}")
-           if regex_result:
-               if len(prnt_short) == 0:
-                   fileName, fileIndx = regex_result.group(0).split()
-                   fileName = globalLists.fileListMain[int(fileIndx)]
-                   if fileName[-1] == '\n':
-                       fileName = fileName[:-1]
-                   _, prnt_short = os.path.split(fileName)
-                   prnt_short = prnt + f" {prnt_short}"
-                   prnt_full = prnt + f" {fileName}"
-               if len(prnt) < len(prnt_full):
-                   prnt = prnt_full
-                   page_struct.cur_cur_pos = len(prnt_full)
-                   page_struct.left_shift_4_cur = 0
-               else:
-                   page_struct.left_shift_4_cur = 0
-                   prnt = prnt_short
-                   page_struct.cur_cur_pos = len(prnt_short)
-               full_length = len(prnt)
-               writeInput_str(promt, prnt, len(prnt_full))
-               continue
+            var_4_hotKeys.prnt = prnt
+            var_4_hotKeys.prnt_full = prnt_full
+            var_4_hotKeys.fileIndx = fileIndx
+            var_4_hotKeys.prnt_short = prnt_short
+            var_4_hotKeys.full_length = full_length
+            handleTAB(promt)
+            prnt = var_4_hotKeys.prnt
+            prnt_full = var_4_hotKeys.prnt_full
+            fileIndx = var_4_hotKeys.fileIndx
+            prnt_short = var_4_hotKeys.prnt_short
+            full_length = var_4_hotKeys.full_length
+            continue
         else:
             if page_struct.cur_cur_pos + 1 == full_length and page_struct.left_shift_4_cur == 0:
                 prnt += f"{Key}"
@@ -340,7 +387,7 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
         file_indx = int(file_indx)
     file2run: str = fileListMain[file_indx]
     file2run = escapeSymbols(file2run)
-    cmd = f'{c2r.viewer[viewer_indx]}' + ' ' + f'"{file2run}" > /dev/null'
+    cmd = f'{c2r.viewer[viewer_indx]}' + ' ' + f'{file2run} > /dev/null'
     cmd = [cmd,]
     t = sp.Popen(cmd, shell=True)
     c2r.running.append(t)
