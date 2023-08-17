@@ -343,7 +343,7 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
         file_indx = int(file_indx)
     file2run: str = fileListMain[file_indx]
     file2run = escapeSymbols(file2run)
-    cmd = f'{c2r.viewer[viewer_indx]}' + ' ' + f'"{file2run}" > /dev/null'
+    cmd = f'{c2r.viewer[viewer_indx]}' + ' ' + f'{file2run} > /dev/null'
     cmd = [cmd,]
     t = sp.Popen(cmd, shell=True)
     c2r.running.append(t)
