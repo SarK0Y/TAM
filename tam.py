@@ -136,7 +136,7 @@ def getFileNameFromCMD(cmd: str):
     else:
         fileName = f"{cmd}"
     return fileName
-def copyFile(fileName: str, cmd: str):
+def copyFile(fileName: str, cmd: str, dontInsert = False):
     cmd = cmd[3:]
     getFileIndx = re.compile('\d+\s+')
     fileIndx = getFileIndx.match(cmd)
@@ -149,7 +149,8 @@ def copyFile(fileName: str, cmd: str):
         fileName += f"/{cmd}"
     else:
         fileName = f"{cmd}"
-    globalLists.fileListMain.insert(int(fileIndx.group(0)), fileName)
+        if not dontInsert:
+            globalLists.fileListMain.insert(int(fileIndx.group(0)), fileName)
     fileName = escapeSymbols(fileName)
     old_name = escapeSymbols(old_name)
     if_path_not_existed, _ = os.path.split(fileName)
@@ -251,6 +252,9 @@ def hotKeys(promt: str) -> str:
                         page_struct.cur_cur_pos = full_length
                         writeInput_str(copy_file_msg, prnt, full_length)
                         continue
+                else:
+                    copyFile(fileName, prnt)
+                    return f"go2 {page_struct.num_page}"
             if prnt == "Yeah I do":
                 promt = ' ' * len(promt)
                 prnt = ' ' * len(prnt)
@@ -258,7 +262,7 @@ def hotKeys(promt: str) -> str:
                 prnt = save_prnt_to_copy_file
                 promt = save_promt_to_copy_file
                 save_promt_to_copy_file = save_prnt_to_copy_file = ''
-                copyFile(fileName, prnt)
+                copyFile(fileName, prnt, dontInsert=True)
                 writeInput_str(promt, prnt)
                 continue
             if prnt == "no":
