@@ -16,7 +16,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "7-23"
+    rev = "7-29"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -122,6 +122,20 @@ def renameFile(fileName: str, cmd: str):
     cmd = "mv " + f"{old_name}" + " " + f"{fileName}"
     os.system(cmd)
     return
+def getFileNameFromCMD(cmd: str):
+    cmd = cmd[3:]
+    getFileIndx = re.compile('\d+\s+')
+    fileIndx = getFileIndx.match(cmd)
+    cmd = cmd.replace(fileIndx.group(0), '')
+    old_name = globalLists.fileListMain[int(fileIndx.group(0))]
+    res = re.match('\/', cmd)
+    if not res:
+        fileName = old_name
+        fileName, _ = os.path.split(fileName)
+        fileName += f"/{cmd}"
+    else:
+        fileName = f"{cmd}"
+    return fileName
 def copyFile(fileName: str, cmd: str):
     cmd = cmd[3:]
     getFileIndx = re.compile('\d+\s+')
@@ -177,6 +191,9 @@ def ord0(Key):
 def hotKeys(promt: str) -> str:
     full_length = 0
     prnt = ""
+    save_prnt_to_copy_file = ''
+    save_promt_to_copy_file = ''
+    save_cur_cur_pos = page_struct.cur_cur_pos
     prnt0 = ''
     prnt_short = ''
     prnt_full = ''
@@ -222,7 +239,34 @@ def hotKeys(promt: str) -> str:
                 renameFile(fileName, prnt)
                 return f"go2 {page_struct.num_page}"
             if prnt[:2] == "cp":
+                if os.path.isfile(getFileNameFromCMD(prnt)):
+                    copy_file_msg = f"Do You really want to overwrite {fileName}??? Type 'Yeah I do' if You {Fore.RED}{Back.BLACK}REALLY{Style.RESET_ALL} do.. Otherwise just 'no'. "
+                    if save_prnt_to_copy_file == '':
+                        save_prnt_to_copy_file = prnt
+                        prnt = ""
+                        save_promt_to_copy_file = promt
+                        promt = copy_file_msg
+                        full_length = len(copy_file_msg) + len(prnt)
+                        page_struct.left_shift_4_cur = 0
+                        page_struct.cur_cur_pos = full_length
+                        writeInput_str(copy_file_msg, prnt, full_length)
+                        continue
+            if prnt == "Yeah I do":
+                promt = ' ' * len(promt)
+                prnt = ' ' * len(prnt)
+                writeInput_str(promt, prnt)
+                prnt = save_prnt_to_copy_file
+                promt = save_promt_to_copy_file
+                save_promt_to_copy_file = save_prnt_to_copy_file = ''
                 copyFile(fileName, prnt)
+                writeInput_str(promt, prnt)
+                continue
+            if prnt == "no":
+                prnt = save_prnt_to_copy_file
+                promt = save_promt_to_copy_file
+                save_promt_to_copy_file = ''
+                save_prnt_to_copy_file = ''
+                writeInput_str(promt, prnt)
                 return f"go2 {page_struct.num_page}"
             return prnt
         if DELETE == Key:
