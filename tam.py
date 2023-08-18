@@ -240,7 +240,7 @@ def hotKeys(promt: str) -> str:
                 return f"go2 {page_struct.num_page}"
             if prnt[:2] == "cp":
                 if os.path.isfile(getFileNameFromCMD(prnt)):
-                    copy_file_msg = f"Do You really want to overwrite {fileName}??? Type 'Yeah I do' if You {Fore.RED}{Back.BLACK}REALLY{Style.RESET_ALL} do.. Otherwise just 'no'. "
+                    copy_file_msg = f"Do You really want to overwrite {getFileNameFromCMD(prnt)} ??? Type 'Yeah I do' if You {Fore.RED}{Back.BLACK}REALLY{Style.RESET_ALL} do.. Otherwise just 'no'. "
                     if save_prnt_to_copy_file == '':
                         save_prnt_to_copy_file = prnt
                         prnt = ""
