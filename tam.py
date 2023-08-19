@@ -104,9 +104,7 @@ def apostrophe_split(str0: str, delim: str) -> str:
 
 def escapeSymbols(name: str, symbIndx = -1):
     quote = ''
-    achtung(f"\{name[0]}")
     if (name[0] == "\'" or name[0] == "\`") and name[0] == name[-1]:
-        achtung("quote")
         quote = name[0]
         name = name[1:-1]
     if symbIndx == -1:
