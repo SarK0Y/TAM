@@ -1,3 +1,4 @@
+import random
 import re
 import subprocess
 from tabulate import tabulate
@@ -16,7 +17,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "7-29"
+    rev = "7-31"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -93,12 +94,45 @@ def flushInputBuffer():
     page_struct.left_shift_4_cur = 0
     page_struct.cur_cur_pos = 0
     return ""
-def escapeSymbols(name: str):
-    name = name.replace(" ", "\ ")
-    name = name.replace("$", "\$")
-    name = name.replace(";", "\;")
+def apostrophe_split(str0: str, delim: str) -> str:
+    bulks = str0.split(delim)
+    strLoc = ''
+    for i in range(0, len(bulks)):
+        strLoc += f"{bulks[i]}\{delim}"
+    strLoc = strLoc[:-2]
+    return strLoc
+
+def escapeSymbols(name: str, symbIndx = -1):
+    quote = ''
+    achtung(f"\{name[0]}")
+    if (name[0] == "\'" or name[0] == "\`") and name[0] == name[-1]:
+        achtung("quote")
+        quote = name[0]
+        name = name[1:-1]
+    if symbIndx == -1:
+        name = name.replace(" ", "\ ")
+        name = name.replace("$", "\$")
+        # name = name.replace(";", "\;")
+        name = name.replace('`', '\`')
+        name = apostrophe_split(name, "'")
+        # name = name.replace("&", "\&")
+    if symbIndx == 0:
+        name = name.replace(" ", "\ ")
+    if symbIndx == 1:
+        name = name.replace("$", "\$")
+    if symbIndx == 2:
+        name = name.replace(";", "\;")
+    if symbIndx == 3:
+        name = name.replace('`', '\`')
+    if symbIndx == 4:
+        name = name.replace("'", "\'")
+    if symbIndx == 5:
+        name = name.replace("&", "\&")
+    name = name.replace("\n", "")
     if name[-1] == "\n":
         name = name[:-1]
+    if quote != '':
+        name = quote + name + quote
     return name
 def renameFile(fileName: str, cmd: str):
     cmd = cmd[4:]
@@ -119,8 +153,10 @@ def renameFile(fileName: str, cmd: str):
     if_path_not_existed, _ = os.path.split(fileName)
     cmd = f"mkdir -p {if_path_not_existed}"
     os.system(cmd)
-    cmd = "mv " + f"{old_name}" + " " + f"{fileName}"
-    os.system(cmd)
+    cmd = "mv -f --backup " + f'{old_name}' + " " + f'{fileName}'
+    if os.path.exists(fileName):
+        achtung(f"{fileName} doesnt exist\n cmd ={cmd}")
+    sp.Popen([cmd,], shell=True)
     return
 def getFileNameFromCMD(cmd: str):
     cmd = cmd[3:]
@@ -435,9 +471,16 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
         file_indx = int(file_indx)
     file2run: str = fileListMain[file_indx]
     file2run = escapeSymbols(file2run)
-    cmd = f'{c2r.viewer[viewer_indx]}' + ' ' + f'{file2run} > /dev/null'
-    cmd = [cmd,]
-    t = sp.Popen(cmd, shell=True)
+    cmd = f'{c2r.viewer[viewer_indx]}'
+    cmd_line = f'{c2r.viewer[viewer_indx]}' + ' ' + f"{file2run} > /dev/null 2>&1"
+    cmd = [cmd_line,]
+    stderr0 = f"/tmp/run_viewers{str(random.random())}"
+    stderr0 = open(stderr0, "w+")
+    t = sp.Popen(cmd, shell=True, stderr=stderr0)
+    if t.stderr is not None:
+        os.system(cmd_line)
+    if keys.dirty_mode:
+        os.system(f"echo '{t.stderr} {t.stdout}' > /tmp/wrong_cmd")
     c2r.running.append(t)
 
 def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
