@@ -110,10 +110,14 @@ def escapeSymbols(name: str, symbIndx = -1):
     if symbIndx == -1:
         name = name.replace(" ", "\ ")
         name = name.replace("$", "\$")
-        # name = name.replace(";", "\;")
+        name = name.replace(";", "\;")
         name = name.replace('`', '\`')
         name = apostrophe_split(name, "'")
-        # name = name.replace("&", "\&")
+        name = name.replace("&", "\&")
+        name = name.replace("{", "\{")
+        name = name.replace("}", "\}")
+        name = name.replace("(", "\(")
+        name = name.replace(")", "\)")
     if symbIndx == 0:
         name = name.replace(" ", "\ ")
     if symbIndx == 1:
