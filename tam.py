@@ -17,7 +17,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "7-29"
+    rev = "7-31"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -67,6 +67,43 @@ class var_4_hotKeys:
     fileIndx: int
     full_length: int
 # Terminals
+def handleENTER(fileName: str) -> str:
+    if var_4_hotKeys.prnt[:3] == 'ren':
+        renameFile(fileName, var_4_hotKeys.prnt)
+        return f"go2 {page_struct.num_page}"
+    if var_4_hotKeys.prnt[:2] == "cp":
+        if os.path.isfile(getFileNameFromCMD(var_4_hotKeys.prnt)):
+            copy_file_msg = f"Do You really want to overwrite {getFileNameFromCMD(var_4_hotKeys.prnt)} ??? Type 'Yeah I do' if You {Fore.RED}{Back.BLACK}REALLY{Style.RESET_ALL} do.. Otherwise just 'no'. "
+            if var_4_hotKeys.save_prnt_to_copy_file == '':
+                var_4_hotKeys.save_prnt_to_copy_file = var_4_hotKeys.prnt
+                var_4_hotKeys.prnt = ""
+                var_4_hotKeys.save_promt_to_copy_file = var_4_hotKeys.promt
+                var_4_hotKeys.promt = var_4_hotKeys.copyFile_msg
+                full_length = len(var_4_hotKeys.copyFile_msg) + len(var_4_hotKeys.prnt)
+                page_struct.left_shift_4_cur = 0
+                page_struct.cur_cur_pos = full_length
+                writeInput_str(var_4_hotKeys.copyFile_msg, var_4_hotKeys.prnt, full_length)
+                return "cont"
+        else:
+            copyFile(fileName, prnt)
+            return f"go2 {page_struct.num_page}"
+    if var_4_hotKeys.prnt == "Yeah I do":
+        var_4_hotKeys.promt = ' ' * len(var_4_hotKeys.promt)
+        prnt = ' ' * len(prnt)
+        writeInput_str(promt, prnt)
+        prnt = save_prnt_to_copy_file
+        promt = save_promt_to_copy_file
+        save_promt_to_copy_file = save_prnt_to_copy_file = ''
+        copyFile(fileName, prnt, dontInsert=True)
+        writeInput_str(promt, prnt)
+        continue
+    if prnt == "no":
+        prnt = save_prnt_to_copy_file
+        promt = save_promt_to_copy_file
+        save_promt_to_copy_file = ''
+        save_prnt_to_copy_file = ''
+        writeInput_str(promt, prnt)
+        return f"go2 {page_struct.num_page}"
 def handleTAB(promt: str):
     ptrn = re.compile('ren\s+\d+|cp\s+\d+', re.IGNORECASE | re.UNICODE)
     regex_result = ptrn.search(var_4_hotKeys.prnt)
@@ -94,16 +131,47 @@ def flushInputBuffer():
     page_struct.left_shift_4_cur = 0
     page_struct.cur_cur_pos = 0
     return ""
-def escapeSymbols(name: str):
-    name = name.replace(" ", "\ ")
-    name = name.replace("$", "\$")
-    #name = name.replace(";", "\;")
-    name = name.replace("n`t", "n\`t")
-    name = name.replace("n't", "n\'t")
-    #name = name.replace("&", "\&")
+def apostrophe_split(str0: str, delim: str) -> str:
+    bulks = str0.split(delim)
+    strLoc = ''
+    for i in range(0, len(bulks)):
+        strLoc += f"{bulks[i]}\{delim}"
+    strLoc = strLoc[:-2]
+    return strLoc
+
+def escapeSymbols(name: str, symbIndx = -1):
+    quote = ''
+    if (name[0] == "\'" or name[0] == "\`") and name[0] == name[-1]:
+        quote = name[0]
+        name = name[1:-1]
+    if symbIndx == -1:
+        name = name.replace(" ", "\ ")
+        name = name.replace("$", "\$")
+        name = name.replace(";", "\;")
+        name = name.replace('`', '\`')
+        name = apostrophe_split(name, "'")
+        name = name.replace("&", "\&")
+        name = name.replace("{", "\{")
+        name = name.replace("}", "\}")
+        name = name.replace("(", "\(")
+        name = name.replace(")", "\)")
+    if symbIndx == 0:
+        name = name.replace(" ", "\ ")
+    if symbIndx == 1:
+        name = name.replace("$", "\$")
+    if symbIndx == 2:
+        name = name.replace(";", "\;")
+    if symbIndx == 3:
+        name = name.replace('`', '\`')
+    if symbIndx == 4:
+        name = name.replace("'", "\'")
+    if symbIndx == 5:
+        name = name.replace("&", "\&")
     name = name.replace("\n", "")
     if name[-1] == "\n":
         name = name[:-1]
+    if quote != '':
+        name = quote + name + quote
     return name
 def renameFile(fileName: str, cmd: str):
     cmd = cmd[4:]
@@ -124,7 +192,7 @@ def renameFile(fileName: str, cmd: str):
     if_path_not_existed, _ = os.path.split(fileName)
     cmd = f"mkdir -p {if_path_not_existed}"
     os.system(cmd)
-    cmd = "mv -f --backup " + f"{old_name}" + " " + f"{fileName}"
+    cmd = "mv -f --backup " + f'{old_name}' + " " + f'{fileName}'
     if os.path.exists(fileName):
         achtung(f"{fileName} doesnt exist\n cmd ={cmd}")
     sp.Popen([cmd,], shell=True)
@@ -445,7 +513,6 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
     cmd = f'{c2r.viewer[viewer_indx]}'
     cmd_line = f'{c2r.viewer[viewer_indx]}' + ' ' + f"{file2run} > /dev/null 2>&1"
     cmd = [cmd_line,]
-    achtung(f"{cmd}")
     stderr0 = f"/tmp/run_viewers{str(random.random())}"
     stderr0 = open(stderr0, "w+")
     t = sp.Popen(cmd, shell=True, stderr=stderr0)
