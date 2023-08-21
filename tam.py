@@ -17,7 +17,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "7-31"
+    rev = "7-33"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -61,13 +61,67 @@ class lapse:
     read_midway_data_from_pipes_stop = 0
 class var_4_hotKeys:
     prnt: str
+    prompt: str
+    save_prompt_to_copy_file: str
+    save_prnt_to_copy_file: str
     prnt_short: str
     prnt_full: str
+    copyfile_msg: str
     fileName: str
     fileIndx: int
     full_length: int
+    ENTER_MODE = False
 # Terminals
-def handleTAB(promt: str):
+def handleENTER(fileName: str) -> str:
+    var_4_hotKeys.ENTER_MODE = True
+    if var_4_hotKeys.prnt[:3] == 'ren':
+        var_4_hotKeys.save_prnt_to_copy_file = var_4_hotKeys.prnt
+        var_4_hotKeys.save_prompt_to_copy_file = var_4_hotKeys.prompt
+        renameFile(fileName, var_4_hotKeys.prnt)
+        var_4_hotKeys.prnt = var_4_hotKeys.save_prnt_to_copy_file
+        var_4_hotKeys.prompt = var_4_hotKeys.save_prompt_to_copy_file
+        var_4_hotKeys.ENTER_MODE = False
+        return f"go2 {page_struct.num_page}"
+    if var_4_hotKeys.prnt[:2] == "cp":
+        if os.path.isfile(getFileNameFromCMD(var_4_hotKeys.prnt)):
+            var_4_hotKeys.copyfile_msg = f"Do You really want to overwrite {getFileNameFromCMD(var_4_hotKeys.prnt)} ??? Type 'Yeah I do' if You {Fore.RED}{Back.BLACK}REALLY{Style.RESET_ALL} do.. Otherwise just 'no'. "
+            if var_4_hotKeys.save_prnt_to_copy_file == '':
+                var_4_hotKeys.save_prnt_to_copy_file = var_4_hotKeys.prnt
+                var_4_hotKeys.prnt = ""
+                var_4_hotKeys.save_prompt_to_copy_file = var_4_hotKeys.prompt
+                var_4_hotKeys.prompt = var_4_hotKeys.copyfile_msg
+                full_length = len(var_4_hotKeys.copyfile_msg) + len(var_4_hotKeys.prnt)
+                page_struct.left_shift_4_cur = 0
+                page_struct.cur_cur_pos = full_length
+                writeInput_str(var_4_hotKeys.copyfile_msg, var_4_hotKeys.prnt, full_length)
+                return "cont"
+        else:
+            copyFile(fileName, var_4_hotKeys.prnt)
+            var_4_hotKeys.prnt = var_4_hotKeys.save_prnt_to_copy_file
+            var_4_hotKeys.prompt = var_4_hotKeys.save_prompt_to_copy_file
+            var_4_hotKeys.ENTER_MODE = False
+            return f"go2 {page_struct.num_page}"
+    if var_4_hotKeys.prnt == "Yeah I do":
+        var_4_hotKeys.prompt = ' ' * len(var_4_hotKeys.prompt)
+        prnt = ' ' * len(var_4_hotKeys.prnt)
+        writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
+        var_4_hotKeys.prnt = var_4_hotKeys.save_prnt_to_copy_file
+        var_4_hotKeys.prompt = var_4_hotKeys.save_prompt_to_copy_file
+        var_4_hotKeys.save_prompt_to_copy_file = var_4_hotKeys.save_prnt_to_copy_file = ''
+        copyFile(fileName, var_4_hotKeys.prnt, dontInsert=True)
+        writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
+        var_4_hotKeys.ENTER_MODE = False
+        return f"go2 {page_struct.num_page}"
+    if var_4_hotKeys.prnt == "no":
+        var_4_hotKeys.prnt = var_4_hotKeys.save_prnt_to_copy_file
+        var_4_hotKeys.prompt = var_4_hotKeys.save_prompt_to_copy_file
+        var_4_hotKeys.save_prompt_to_copy_file = ''
+        var_4_hotKeys.save_prnt_to_copy_file = ''
+        writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
+        var_4_hotKeys.ENTER_MODE = False
+        return f"go2 {page_struct.num_page}"
+    return var_4_hotKeys.prnt
+def handleTAB(prompt: str):
     ptrn = re.compile('ren\s+\d+|cp\s+\d+', re.IGNORECASE | re.UNICODE)
     regex_result = ptrn.search(var_4_hotKeys.prnt)
     if keys.dirty_mode: print(f"{regex_result.group(0)}, {len(regex_result.group(0))}, {var_4_hotKeys.prnt}")
@@ -89,7 +143,7 @@ def handleTAB(promt: str):
             var_4_hotKeys.prnt = var_4_hotKeys.prnt_short
             page_struct.cur_cur_pos = len(var_4_hotKeys.prnt_short)
         var_4_hotKeys.full_length = len(var_4_hotKeys.prnt)
-        writeInput_str(promt, var_4_hotKeys.prnt, len(var_4_hotKeys.prnt_full))
+        writeInput_str(prompt, var_4_hotKeys.prnt, len(var_4_hotKeys.prnt_full))
 def flushInputBuffer():
     page_struct.left_shift_4_cur = 0
     page_struct.cur_cur_pos = 0
@@ -197,14 +251,14 @@ def copyFile(fileName: str, cmd: str, dontInsert = False):
     cmd = "cp -f " + f"{old_name}" + " " + f"{fileName}"
     os.system(cmd)
     return
-def writeInput_str(promt: str, prnt: str, blank_len = 0):
-    promt_len = len(promt)
+def writeInput_str(prompt: str, prnt: str, blank_len = 0):
+    prompt_len = len(prompt)
     if blank_len == 0:
-        blank = ' ' * (promt_len + len(prnt) + 1)
+        blank = ' ' * (prompt_len + len(prnt) + 1)
     else:
-        blank = ' ' * (promt_len + blank_len + 1)
+        blank = ' ' * (prompt_len + blank_len + 1)
     print(f"\r{blank}", end='', flush=True)
-    print(f"\r{promt}{prnt}", end=' ', flush=True)
+    print(f"\r{prompt}{prnt}", end=' ', flush=True)
     print(f'\033[{page_struct.left_shift_4_cur + 1}D', end='', flush=True)
 def pressKey():
     prnt = ""
@@ -227,12 +281,12 @@ def ord0(Key):
         return Key
     except TypeError:
         return -1
-def hotKeys(promt: str) -> str:
+def hotKeys(prompt: str) -> str:
     full_length = 0
     prnt = ""
-    save_prnt_to_copy_file = ''
-    save_promt_to_copy_file = ''
-    save_cur_cur_pos = page_struct.cur_cur_pos
+    var_4_hotKeys.save_prnt_to_copy_file = ''
+    var_4_hotKeys.save_prompt_to_copy_file = ''
+    var_4_hotKeys.save_cur_cur_pos = page_struct.cur_cur_pos
     prnt0 = ''
     prnt_short = ''
     prnt_full = ''
@@ -255,7 +309,7 @@ def hotKeys(promt: str) -> str:
         if F12 == Key:
             full_length = len(prnt)
             prnt = flushInputBuffer()
-            writeInput_str(promt, prnt, full_length)
+            writeInput_str(prompt, prnt, full_length)
             continue
         if Key == UP_ARROW:
             return "np"
@@ -274,42 +328,26 @@ def hotKeys(promt: str) -> str:
                 print('\033[D', end='', flush=True)
             continue
         if ENTER == ord0(Key):
-            if prnt[:3] == 'ren':
-                renameFile(fileName, prnt)
-                return f"go2 {page_struct.num_page}"
-            if prnt[:2] == "cp":
-                if os.path.isfile(getFileNameFromCMD(prnt)):
-                    copy_file_msg = f"Do You really want to overwrite {getFileNameFromCMD(prnt)} ??? Type 'Yeah I do' if You {Fore.RED}{Back.BLACK}REALLY{Style.RESET_ALL} do.. Otherwise just 'no'. "
-                    if save_prnt_to_copy_file == '':
-                        save_prnt_to_copy_file = prnt
-                        prnt = ""
-                        save_promt_to_copy_file = promt
-                        promt = copy_file_msg
-                        full_length = len(copy_file_msg) + len(prnt)
-                        page_struct.left_shift_4_cur = 0
-                        page_struct.cur_cur_pos = full_length
-                        writeInput_str(copy_file_msg, prnt, full_length)
-                        continue
-                else:
-                    copyFile(fileName, prnt)
-                    return f"go2 {page_struct.num_page}"
-            if prnt == "Yeah I do":
-                promt = ' ' * len(promt)
-                prnt = ' ' * len(prnt)
-                writeInput_str(promt, prnt)
-                prnt = save_prnt_to_copy_file
-                promt = save_promt_to_copy_file
-                save_promt_to_copy_file = save_prnt_to_copy_file = ''
-                copyFile(fileName, prnt, dontInsert=True)
-                writeInput_str(promt, prnt)
+            ret = prnt
+            #var_4_hotKeys.save_prompt_to_copy_file = prompt
+            if not var_4_hotKeys.ENTER_MODE:
+                var_4_hotKeys.prnt = prnt
+                var_4_hotKeys.prompt = prompt
+                ret = handleENTER(fileName)
+                try:
+                    prompt = var_4_hotKeys.copyfile_msg
+                    prnt = ""
+                    page_struct.left_shift_4_cur = 0
+                    page_struct.cur_cur_pos = 0
+                except AttributeError:
+                    var_4_hotKeys.ENTER_MODE = False
+            else:
+                var_4_hotKeys.prnt = prnt
+                ret = handleENTER(fileName)
+            if "cont" == ret or var_4_hotKeys.ENTER_MODE:
                 continue
-            if prnt == "no":
-                prnt = save_prnt_to_copy_file
-                promt = save_promt_to_copy_file
-                save_promt_to_copy_file = ''
-                save_prnt_to_copy_file = ''
-                writeInput_str(promt, prnt)
-                return f"go2 {page_struct.num_page}"
+            prompt = var_4_hotKeys.save_prompt_to_copy_file
+            prnt = ret
             return prnt
         if DELETE == Key:
             if page_struct.left_shift_4_cur == 0:
@@ -320,7 +358,7 @@ def hotKeys(promt: str) -> str:
                 page_struct.left_shift_4_cur -= 1
             prnt0 = prnt
             full_length = len(prnt)
-            writeInput_str(promt, prnt0)
+            writeInput_str(prompt, prnt0)
             continue
         if BACKSPACE == ord0(Key):
             if page_struct.left_shift_4_cur == 0:
@@ -331,7 +369,7 @@ def hotKeys(promt: str) -> str:
                 page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
             prnt0 = prnt
             full_length = len(prnt)
-            writeInput_str(promt, prnt0)
+            writeInput_str(prompt, prnt0)
             continue
         if ESCAPE == ord0(Key): SYS(), sys.exit(0)
         if TAB == ord0(Key):
@@ -340,7 +378,7 @@ def hotKeys(promt: str) -> str:
             var_4_hotKeys.fileIndx = fileIndx
             var_4_hotKeys.prnt_short = prnt_short
             var_4_hotKeys.full_length = full_length
-            handleTAB(promt)
+            handleTAB(prompt)
             prnt = var_4_hotKeys.prnt
             prnt_full = var_4_hotKeys.prnt_full
             fileIndx = var_4_hotKeys.fileIndx
@@ -354,10 +392,10 @@ def hotKeys(promt: str) -> str:
                 prnt =f"{prnt[:page_struct.cur_cur_pos]}{Key}{prnt[page_struct.cur_cur_pos:]}"
             page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
             prnt0 = prnt
-            writeInput_str(promt, prnt)
-def custom_input(promt: str) -> str:
-    print(f"{promt}", end='', flush=True)
-    return hotKeys(promt)
+            writeInput_str(prompt, prnt)
+def custom_input(prompt: str) -> str:
+    print(f"{prompt}", end='', flush=True)
+    return hotKeys(prompt)
 def signal_manager(sig, frame):
     print(f"sig = {sig}")
 #signal.signal(signal.CTRL_BREAK_EVENT, signal_manager)
