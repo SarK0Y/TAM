@@ -22,7 +22,7 @@ class info_struct:
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
 class globalLists:
-    fileListMain = None
+    fileListMain: list
 class childs2run:
     running: list = []
     viewer: list = []
@@ -32,7 +32,7 @@ class page_struct:
     left_shift_4_cur = 0
     cur_cur_pos = 0 # cursor's current position
     KonsoleTitle: str
-    dontDelFromTableJustMark: bool = True
+    dontDelFromTableJustMark = True
     num_page: int = 0
     num_cols: int = 3
     col_width = 70
@@ -42,7 +42,13 @@ class page_struct:
     count_pages = 0
     news_bar = f"{info_struct.telega} 2 know news & features ;D"
     c2r: childs2run
+class tst:
+    class subtst:
+        h = 1
+        class lvl2:
+            h = 0
 class keys:
+    tst.subtst.h = tst.subtst.lvl2.h
     dirty_mode = False
     rename_file_mode = 0
 class PIPES:
@@ -96,28 +102,27 @@ def handleENTER(fileName: str) -> str:
                 page_struct.cur_cur_pos = full_length
                 writeInput_str(var_4_hotKeys.copyfile_msg, var_4_hotKeys.prnt, full_length)
                 return "cont"
-        if var_4_hotKeys.prnt[:2] == "rm":
-            if os.path.isfile(getFileNameFromCMD(var_4_hotKeys.prnt)):
-                var_4_hotKeys.copyfile_msg = f"Do You really want to delete {getFileNameFromCMD(var_4_hotKeys.prnt)} ??? Type 'Yeah, kill this file' if You {Fore.RED}{Back.BLACK}REALLY{Style.RESET_ALL} do.. Otherwise just 'no'. "
-                if var_4_hotKeys.save_prnt_to_copy_file == '':
-                    var_4_hotKeys.save_prnt_to_copy_file = var_4_hotKeys.prnt
-                    var_4_hotKeys.prnt = ""
-                    var_4_hotKeys.save_prompt_to_copy_file = var_4_hotKeys.prompt
-                    var_4_hotKeys.prompt = var_4_hotKeys.copyfile_msg
-                    full_length = len(var_4_hotKeys.copyfile_msg) + len(var_4_hotKeys.prnt)
-                    page_struct.left_shift_4_cur = 0
-                    page_struct.cur_cur_pos = full_length
-                    writeInput_str(var_4_hotKeys.copyfile_msg, var_4_hotKeys.prnt, full_length)
-                    return "cont"
         else:
             copyFile(fileName, var_4_hotKeys.prnt)
             var_4_hotKeys.prnt = var_4_hotKeys.save_prnt_to_copy_file
             var_4_hotKeys.prompt = var_4_hotKeys.save_prompt_to_copy_file
             var_4_hotKeys.ENTER_MODE = False
             return f"go2 {page_struct.num_page}"
+    if var_4_hotKeys.prnt[:2] == "rm":
+        var_4_hotKeys.copyfile_msg = f"Do You really want to delete {getFileNameFromCMD_byIndx(var_4_hotKeys.prnt)} ??? Type 'Yeah, kill this file' if You {Fore.RED}{Back.BLACK}REALLY{Style.RESET_ALL} do.. Otherwise just 'no'. "
+        if var_4_hotKeys.save_prnt_to_copy_file == '':
+            var_4_hotKeys.save_prnt_to_copy_file = var_4_hotKeys.prnt
+            var_4_hotKeys.prnt = ""
+            var_4_hotKeys.save_prompt_to_copy_file = var_4_hotKeys.prompt
+            var_4_hotKeys.prompt = var_4_hotKeys.copyfile_msg
+            full_length = len(var_4_hotKeys.copyfile_msg) + len(var_4_hotKeys.prnt)
+            page_struct.left_shift_4_cur = 0
+            page_struct.cur_cur_pos = full_length
+            writeInput_str(var_4_hotKeys.copyfile_msg, var_4_hotKeys.prnt, full_length)
+            return "cont"
     if var_4_hotKeys.prnt == "Yeah I do":
         var_4_hotKeys.prompt = ' ' * len(var_4_hotKeys.prompt)
-        prnt = ' ' * len(var_4_hotKeys.prnt)
+        var_4_hotKeys.prnt = ' ' * len(var_4_hotKeys.prnt)
         writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
         var_4_hotKeys.prnt = var_4_hotKeys.save_prnt_to_copy_file
         var_4_hotKeys.prompt = var_4_hotKeys.save_prompt_to_copy_file
@@ -128,7 +133,7 @@ def handleENTER(fileName: str) -> str:
         return f"go2 {page_struct.num_page}"
     if var_4_hotKeys.prnt == "Yeah, kill this file":
         var_4_hotKeys.prompt = ' ' * len(var_4_hotKeys.prompt)
-        prnt = ' ' * len(var_4_hotKeys.prnt)
+        var_4_hotKeys.prnt = ' ' * len(var_4_hotKeys.prnt)
         writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
         var_4_hotKeys.prnt = var_4_hotKeys.save_prnt_to_copy_file
         var_4_hotKeys.prompt = var_4_hotKeys.save_prompt_to_copy_file
@@ -239,6 +244,14 @@ def renameFile(fileName: str, cmd: str):
         achtung(f"{fileName} doesnt exist\n cmd ={cmd}")
     sp.Popen([cmd,], shell=True)
     return
+def getFileNameFromCMD_byIndx(cmd: str):
+    cmd = cmd[3:]
+    getFileIndx = re.compile('\d+')
+    fileIndx = getFileIndx.match(cmd)
+    fileName = globalLists.fileListMain[int(fileIndx.group(0))]
+    if fileName[-1] == "\n":
+        fileName = fileName[:-1]
+    return fileName
 def getFileNameFromCMD(cmd: str):
     cmd = cmd[3:]
     getFileIndx = re.compile('\d+\s+')
@@ -255,16 +268,17 @@ def getFileNameFromCMD(cmd: str):
     return fileName
 def delFile(fileName: str, cmd: str, dontDelFromTableJustMark = True):
     cmd = cmd[3:]
-    getFileIndx = re.compile('\d+\s+')
+    getFileIndx = re.compile('\d+')
     fileIndx = getFileIndx.match(cmd)
     fileName = globalLists.fileListMain[int(fileIndx.group(0))]
     fileName = escapeSymbols(fileName)
     cmd = "rm -f " + f"{fileName}"
     os.system(cmd)
-    if not os.path.exists(fileName) and not dontDelFromTableJustMark:
+    heyFile = os.path.exists(fileName)
+    if False == heyFile and dontDelFromTableJustMark == False:
         globalLists.fileListMain.remove(int(fileIndx.group(0)))
-    if not os.path.exists(fileName) and dontDelFromTableJustMark:
-        globalLists.fileListMain[int(fileIndx.group(0))] = "D:: " + globalLists.fileListMain[int(fileIndx.group(0))]
+    if not heyFile and dontDelFromTableJustMark:
+        globalLists.fileListMain[int(fileIndx.group(0))] = f"{globalLists.fileListMain[int(fileIndx.group(0))]}::D"
     return
 def copyFile(fileName: str, cmd: str, dontInsert = False):
     cmd = cmd[3:]
@@ -367,7 +381,7 @@ def hotKeys(prompt: str) -> str:
             continue
         if ENTER == ord0(Key):
             ret = prnt
-            #var_4_hotKeys.save_prompt_to_copy_file = prompt
+            achtung(prnt)
             if not var_4_hotKeys.ENTER_MODE:
                 var_4_hotKeys.prnt = prnt
                 var_4_hotKeys.prompt = prompt
@@ -382,10 +396,13 @@ def hotKeys(prompt: str) -> str:
             else:
                 var_4_hotKeys.prnt = prnt
                 ret = handleENTER(fileName)
+            achtung(prnt
+                    )
             if "cont" == ret or var_4_hotKeys.ENTER_MODE:
                 continue
             prompt = var_4_hotKeys.save_prompt_to_copy_file
             prnt = ret
+            achtung(prnt)
             return prnt
         if DELETE == Key:
             if page_struct.left_shift_4_cur == 0:
@@ -547,7 +564,7 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
         file_indx = cmd.split()
         file_indx = file_indx[0]
         file_indx = int(file_indx)
-    file2run: str = fileListMain[file_indx]
+    file2run: str = globalLists.fileListMain[file_indx]
     file2run = escapeSymbols(file2run)
     cmd = f'{c2r.viewer[viewer_indx]}'
     cmd_line = f'{c2r.viewer[viewer_indx]}' + ' ' + f"{file2run} > /dev/null 2>&1"
@@ -592,10 +609,9 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
     run_viewers(ps.c2r, fileListMain, cmd)
 def manage_pages(fileListMain: list, ps: page_struct):
     cmd = ""
-    globalLists.fileListMain = fileListMain
     c2r = ps.c2r
-    ps.count_pages = len(fileListMain) // (ps.num_cols * ps.num_rows) + 1
-    ps.num_files = len(fileListMain)
+    ps.count_pages = len(globalLists.fileListMain) // (ps.num_cols * ps.num_rows) + 1
+    ps.num_files = len(globalLists.fileListMain)
     while True:
         page_struct.num_page = ps.num_page
         addStr = f" files/pages: {ps.num_files}/{ps.count_pages} p. {ps.num_page}"
@@ -910,7 +926,7 @@ def cmd():
                 filter_name = "*"
             if base_path is None:
                 base_path = "./"
-            fileListMain = []
+            globalLists.fileListMain = []
             tmp_file = get_arg_in_cmd("-tmp_file", argv)
             outNorm, outErr = get_fd(tmp_file)
             tmp_file = None
@@ -918,14 +934,14 @@ def cmd():
             pipes = PIPES(outNorm, outErr)
             thr_find_files: Thread = thr.Thread(target=find_files, args=(base_path, pipes, filter_name, tmp_file))
             thr_find_files.start()
-            thr_read_midway_data_from_pipes: Thread = thr.Thread(target=read_midway_data_from_pipes, args=(pipes, fileListMain))
+            thr_read_midway_data_from_pipes: Thread = thr.Thread(target=read_midway_data_from_pipes, args=(pipes, globalLists.fileListMain))
             thr_read_midway_data_from_pipes.start()
             thr_find_files.join()
             thr_read_midway_data_from_pipes.join()
             delta_4_entries = f"Δt for entry points of find_files() & read_midway_data_from_pipes(): {lapse.find_files_start - lapse.read_midway_data_from_pipes_start} ns"
             вар = 5
             print(delta_4_entries)
-            print(f"len of list = {len(fileListMain)}")
+            print(f"len of list = {len(globalLists.fileListMain)}")
             ps = page_struct()
             cols = get_arg_in_cmd("-cols", argv)
             rows = get_arg_in_cmd("-rows", argv)
@@ -938,7 +954,7 @@ def cmd():
                 ps.col_width = int(col_w)
             ps.c2r = childs2run()
             ps.c2r = init_view(ps.c2r)
-            table = make_page_of_files(fileListMain, ps)
-            manage_pages(fileListMain, ps)
+            table = make_page_of_files(globalLists.fileListMain, ps)
+            manage_pages(globalLists.fileListMain, ps)
 #pressKey()
 cmd()
