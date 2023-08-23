@@ -417,7 +417,7 @@ def hotKeys(prompt: str) -> str:
             if page_struct.left_shift_4_cur == 0:
                 var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - 1]
             else:
-                var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur - 1] + prnt[len(prnt) - page_struct.left_shift_4_cur:]
+                var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur - 1] + var_4_hotKeys.prnt[len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur:]
             if page_struct.cur_cur_pos > 0:
                 page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
             prnt0 = var_4_hotKeys.prnt
