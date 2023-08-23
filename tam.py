@@ -67,14 +67,14 @@ class lapse:
     read_midway_data_from_pipes_start = 0
     read_midway_data_from_pipes_stop = 0
 class var_4_hotKeys:
-    prnt: str
-    prompt: str
-    save_prompt_to_copy_file: str
-    save_prnt_to_copy_file: str
-    prnt_short: str
-    prnt_full: str
-    copyfile_msg: str
-    fileName: str
+    prnt: str = ""
+    prompt: str = "Please, enter Your command: "
+    save_prompt_to_copy_file: str = ""
+    save_prnt_to_copy_file: str = ""
+    prnt_short: str = ""
+    prnt_full: str = ""
+    copyfile_msg: str = ""
+    fileName: str = ""
     fileIndx: int
     full_length: int
     ENTER_MODE = False
@@ -335,7 +335,7 @@ def ord0(Key):
         return -1
 def hotKeys(prompt: str) -> str:
     full_length = 0
-    prnt = ""
+    var_4_hotKeys.prnt = ""
     var_4_hotKeys.save_prnt_to_copy_file = ''
     var_4_hotKeys.save_prompt_to_copy_file = ''
     var_4_hotKeys.save_cur_cur_pos = page_struct.cur_cur_pos
@@ -359,9 +359,9 @@ def hotKeys(prompt: str) -> str:
     while True:
         Key = click.getchar()
         if F12 == Key:
-            full_length = len(prnt)
-            prnt = flushInputBuffer()
-            writeInput_str(prompt, prnt, full_length)
+            full_length = len(var_4_hotKeys.prnt)
+            var_4_hotKeys.prnt = flushInputBuffer()
+            writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
             continue
         if Key == UP_ARROW:
             return "np"
@@ -380,57 +380,55 @@ def hotKeys(prompt: str) -> str:
                 print('\033[D', end='', flush=True)
             continue
         if ENTER == ord0(Key):
-            ret = prnt
+            ret = var_4_hotKeys.prnt
             if not var_4_hotKeys.ENTER_MODE:
-                var_4_hotKeys.prnt = prnt
-                var_4_hotKeys.prompt = prompt
+                var_4_hotKeys.save_prnt = var_4_hotKeys.prnt
+                var_4_hotKeys.save_prompt = var_4_hotKeys.prompt
                 ret = handleENTER(fileName)
                 try:
-                    prompt = var_4_hotKeys.copyfile_msg
-                    prnt = ""
+                    var_4_hotKeys.prompt = var_4_hotKeys.copyfile_msg
+                    var_4_hotKeys.prnt = ""
                     page_struct.left_shift_4_cur = 0
                     page_struct.cur_cur_pos = 0
                 except AttributeError:
                     var_4_hotKeys.ENTER_MODE = False
             else:
-                var_4_hotKeys.prnt = prnt
+                var_4_hotKeys.prnt = var_4_hotKeys.prnt
                 ret = handleENTER(fileName)
             if "cont" == ret:
                 continue
-            prompt = var_4_hotKeys.save_prompt_to_copy_file
-            prnt = ret
-            return prnt
+            var_4_hotKeys.prompt = var_4_hotKeys.save_prompt
+            var_4_hotKeys.prnt = ret
+            return var_4_hotKeys.prnt
         if DELETE == Key:
             if page_struct.left_shift_4_cur == 0:
                 continue
             else:
-                prnt = prnt[:len(prnt) - page_struct.left_shift_4_cur + 1] + prnt[len(prnt) - page_struct.left_shift_4_cur + 2:]
+                var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur + 1] + prnt[len(prnt) - page_struct.left_shift_4_cur + 2:]
             if page_struct.left_shift_4_cur > 0:
                 page_struct.left_shift_4_cur -= 1
-            prnt0 = prnt
-            full_length = len(prnt)
-            writeInput_str(prompt, prnt0)
+            prnt0 = var_4_hotKeys.prnt
+            full_length = len(var_4_hotKeys.prnt)
+            writeInput_str(var_4_hotKeys.prompt, prnt0)
             continue
         if BACKSPACE == ord0(Key):
             if page_struct.left_shift_4_cur == 0:
-                prnt = prnt[:len(prnt) - 1]
+                var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - 1]
             else:
-                prnt = prnt[:len(prnt) - page_struct.left_shift_4_cur - 1] + prnt[len(prnt) - page_struct.left_shift_4_cur:]
+                var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur - 1] + prnt[len(prnt) - page_struct.left_shift_4_cur:]
             if page_struct.cur_cur_pos > 0:
                 page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
-            prnt0 = prnt
-            full_length = len(prnt)
-            writeInput_str(prompt, prnt0)
+            prnt0 = var_4_hotKeys.prnt
+            full_length = len(var_4_hotKeys.prnt)
+            writeInput_str(var_4_hotKeys.prompt, prnt0)
             continue
         if ESCAPE == ord0(Key): SYS(), sys.exit(0)
         if TAB == ord0(Key):
-            var_4_hotKeys.prnt = prnt
             var_4_hotKeys.prnt_full = prnt_full
             var_4_hotKeys.fileIndx = fileIndx
             var_4_hotKeys.prnt_short = prnt_short
             var_4_hotKeys.full_length = full_length
             handleTAB(prompt)
-            prnt = var_4_hotKeys.prnt
             prnt_full = var_4_hotKeys.prnt_full
             fileIndx = var_4_hotKeys.fileIndx
             prnt_short = var_4_hotKeys.prnt_short
@@ -438,12 +436,11 @@ def hotKeys(prompt: str) -> str:
             continue
         else:
             if page_struct.cur_cur_pos + 1 == full_length and page_struct.left_shift_4_cur == 0:
-                prnt += f"{Key}"
+                var_4_hotKeys.prnt += f"{Key}"
             else:
-                prnt =f"{prnt[:page_struct.cur_cur_pos]}{Key}{prnt[page_struct.cur_cur_pos:]}"
+                var_4_hotKeys.prnt =f"{var_4_hotKeys.prnt[:page_struct.cur_cur_pos]}{Key}{var_4_hotKeys.prnt[page_struct.cur_cur_pos:]}"
             page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
-            prnt0 = prnt
-            writeInput_str(prompt, prnt)
+            writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
 def custom_input(prompt: str) -> str:
     print(f"{prompt}", end='', flush=True)
     return hotKeys(prompt)
@@ -627,7 +624,7 @@ def manage_pages(fileListMain: list, ps: page_struct):
             sys.exit(-2)
         print(cmd)
         try:
-            cmd = custom_input("Please, enter Your command: ")
+            cmd = custom_input(var_4_hotKeys.prompt)
         except KeyboardInterrupt:
             SYS()
         if cmd == "help" or cmd == "" or cmd == "?":
