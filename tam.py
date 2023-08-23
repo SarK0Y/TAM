@@ -618,10 +618,10 @@ def manage_pages(fileListMain: list, ps: page_struct):
         clear_screen()
         print(f"{Fore.RED}      NEWS: {ps.news_bar}\n{Style.RESET_ALL}")
         print(f"Viewers: \n{c2r.prnt}\n\nNumber of files/pages: {ps.num_files}/{ps.count_pages} p. {ps.num_page}\nFull path to {c2r.full_path}")
-        table, too_short_row = make_page_of_files2(fileListMain, ps)
+        table, too_short_row = make_page_of_files2(globalLists.fileListMain, ps)
         if too_short_row == 0:
             ps.num_cols = 2
-            table, too_short_row = make_page_of_files2(fileListMain, ps)
+            table, too_short_row = make_page_of_files2(globalLists.fileListMain, ps)
         try:
             print(tabulate(table, tablefmt="fancy_grid", maxcolwidths=[ps.col_width]))
         except IndexError:
