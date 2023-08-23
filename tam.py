@@ -17,11 +17,13 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "7-35"
+    rev = "7-36"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
+stopCode = "∇\n"
 class globalLists:
+    stopCode = globals()["stopCode"]
     fileListMain: list
 class childs2run:
     running: list = []
@@ -603,9 +605,13 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
 def manage_pages(fileListMain: list, ps: page_struct):
     cmd = ""
     c2r = ps.c2r
-    ps.count_pages = len(globalLists.fileListMain) // (ps.num_cols * ps.num_rows) + 1
-    ps.num_files = len(globalLists.fileListMain)
     while True:
+        try:
+            if globalLists.stopCode != globalLists.fileListMain[-1]:
+                ps.count_pages = len(globalLists.fileListMain) // (ps.num_cols * ps.num_rows) + 1
+                ps.num_files = len(globalLists.fileListMain)
+        except IndexError:
+            continue
         page_struct.num_page = ps.num_page
         addStr = f" files/pages: {ps.num_files}/{ps.count_pages} p. {ps.num_page}"
         adjustKonsoleTitle(addStr, ps)
@@ -691,8 +697,6 @@ def make_page_of_files(fileListMain: list, ps: page_struct):
 
 
 # Threads
-stopCode = "∇\n"
-
 #manage files
 def get_fd(fileName: str = ""):
     funcName = "get_fd"
@@ -733,9 +737,10 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
         prev_pos = cur_pos
         cur_pos = pipes.outNorm_r.tell()
     lapse.read_midway_data_from_pipes_stop = time.time_ns()
-    print(f"prev_pos = {prev_pos}, {cur_pos}")
-    fileListMain = set(fileListMain)
-    print(f"{funcName} exited")
+    globalLists.fileListMain = set(globalLists.fileListMain)
+    globalLists.fileListMain = list(fileListMain)
+    if keys.dirty_mode:
+        print(f"{funcName} exited")
 def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     funcName = "find_files"
     cmd = [f"find -L '{path}' -type f{in_name} > {pipes.outNorm_w.name};echo '\n{pipes.stop}'"]
@@ -929,8 +934,9 @@ def cmd():
             thr_find_files.start()
             thr_read_midway_data_from_pipes: Thread = thr.Thread(target=read_midway_data_from_pipes, args=(pipes, globalLists.fileListMain))
             thr_read_midway_data_from_pipes.start()
-            thr_find_files.join()
-            thr_read_midway_data_from_pipes.join()
+            #time.sleep(3)
+            #thr_find_files.join()
+            #thr_read_midway_data_from_pipes.join()
             delta_4_entries = f"Δt for entry points of find_files() & read_midway_data_from_pipes(): {lapse.find_files_start - lapse.read_midway_data_from_pipes_start} ns"
             вар = 5
             print(delta_4_entries)
