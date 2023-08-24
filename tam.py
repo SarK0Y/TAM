@@ -17,7 +17,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "7-36"
+    rev = "7-39"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -43,6 +43,7 @@ class page_struct:
     num_files = 0
     count_pages = 0
     news_bar = f"{info_struct.telega} 2 know news & features ;D"
+    question_to_User: str = ""
     c2r: childs2run
 class tst:
     class subtst:
@@ -82,27 +83,40 @@ class var_4_hotKeys:
     ENTER_MODE = False
 # Terminals
 def handleENTER(fileName: str) -> str:
+    funcName = "handleENTER"
     var_4_hotKeys.ENTER_MODE = True
     if var_4_hotKeys.prnt[:3] == 'ren':
         var_4_hotKeys.save_prnt_to_copy_file = var_4_hotKeys.prnt
         var_4_hotKeys.save_prompt_to_copy_file = var_4_hotKeys.prompt
-        renameFile(fileName, var_4_hotKeys.prnt)
+        try:
+            renameFile(fileName, var_4_hotKeys.prnt)
+        except AttributeError or ValueError:
+            errMsg("Command was typed wrong", funcName, 2)
+            return "cont"
         var_4_hotKeys.prnt = var_4_hotKeys.save_prnt_to_copy_file
         var_4_hotKeys.prompt = var_4_hotKeys.save_prompt_to_copy_file
         var_4_hotKeys.ENTER_MODE = False
         return f"go2 {page_struct.num_page}"
     if var_4_hotKeys.prnt[:2] == "cp":
-        if os.path.isfile(getFileNameFromCMD(var_4_hotKeys.prnt)):
+        IsFile = None
+        try:
+            IsFile = os.path.isfile(getFileNameFromCMD(var_4_hotKeys.prnt))
+        except AttributeError or ValueError:
+            errMsg("Command was typed wrong", funcName, 2)
+            return "cont"
+        if IsFile:
             var_4_hotKeys.copyfile_msg = f"Do You really want to overwrite {getFileNameFromCMD(var_4_hotKeys.prnt)} ??? Type 'Yeah I do' if You {Fore.RED}{Back.BLACK}REALLY{Style.RESET_ALL} do.. Otherwise just 'no'. "
             if var_4_hotKeys.save_prnt_to_copy_file == '':
                 var_4_hotKeys.save_prnt_to_copy_file = var_4_hotKeys.prnt
                 var_4_hotKeys.prnt = ""
                 var_4_hotKeys.save_prompt_to_copy_file = var_4_hotKeys.prompt
-                var_4_hotKeys.prompt = var_4_hotKeys.copyfile_msg
-                full_length = len(var_4_hotKeys.copyfile_msg) + len(var_4_hotKeys.prnt)
+                page_struct.question_to_User = var_4_hotKeys.copyfile_msg
+                full_length = len(var_4_hotKeys.prompt) + len(var_4_hotKeys.prnt)
                 page_struct.left_shift_4_cur = 0
                 page_struct.cur_cur_pos = full_length
-                writeInput_str(var_4_hotKeys.copyfile_msg, var_4_hotKeys.prnt, full_length)
+                clear_cmd_line(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
+                print(f"{page_struct.question_to_User}")
+                writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
                 return "cont"
         else:
             copyFile(fileName, var_4_hotKeys.prnt)
@@ -111,16 +125,22 @@ def handleENTER(fileName: str) -> str:
             var_4_hotKeys.ENTER_MODE = False
             return f"go2 {page_struct.num_page}"
     if var_4_hotKeys.prnt[:2] == "rm":
-        var_4_hotKeys.copyfile_msg = f"Do You really want to delete {getFileNameFromCMD_byIndx(var_4_hotKeys.prnt)} ??? Type 'Yeah, kill this file' if You {Fore.RED}{Back.BLACK}REALLY{Style.RESET_ALL} do.. Otherwise just 'no'. "
+        try:
+            var_4_hotKeys.copyfile_msg = f"Do You really want to delete {getFileNameFromCMD_byIndx(var_4_hotKeys.prnt)} ??? Type 'Yeah, kill this file' if You {Fore.RED}{Back.BLACK}REALLY{Style.RESET_ALL} do.. Otherwise just 'no'. "
+        except AttributeError or ValueError or IndexError:
+            errMsg("Command was typed wrong", funcName, 2)
+            return "cont"
         if var_4_hotKeys.save_prnt_to_copy_file == '':
             var_4_hotKeys.save_prnt_to_copy_file = var_4_hotKeys.prnt
             var_4_hotKeys.prnt = ""
             var_4_hotKeys.save_prompt_to_copy_file = var_4_hotKeys.prompt
-            var_4_hotKeys.prompt = var_4_hotKeys.copyfile_msg
-            full_length = len(var_4_hotKeys.copyfile_msg) + len(var_4_hotKeys.prnt)
+            page_struct.question_to_User = var_4_hotKeys.copyfile_msg
+            full_length = len(var_4_hotKeys.prompt) + len(var_4_hotKeys.prnt)
             page_struct.left_shift_4_cur = 0
             page_struct.cur_cur_pos = full_length
-            writeInput_str(var_4_hotKeys.copyfile_msg, var_4_hotKeys.prnt, full_length)
+            clear_cmd_line(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
+            print(f"{page_struct.question_to_User}")
+            writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
             return "cont"
     if var_4_hotKeys.prnt == "Yeah I do":
         var_4_hotKeys.prompt = ' ' * len(var_4_hotKeys.prompt)
@@ -314,6 +334,14 @@ def writeInput_str(prompt: str, prnt: str, blank_len = 0):
     print(f"\r{blank}", end='', flush=True)
     print(f"\r{prompt}{prnt}", end=' ', flush=True)
     print(f'\033[{page_struct.left_shift_4_cur + 1}D', end='', flush=True)
+def clear_cmd_line(prompt: str, prnt: str, blank_len = 0):
+    prompt_len = len(prompt)
+    if blank_len == 0:
+        blank = ' ' * (prompt_len + len(prnt) + 1)
+    else:
+        blank = ' ' * (prompt_len + blank_len + 1)
+    print(f"\r{blank}", end='', flush=True)
+    print(f"\r", end='', flush=True)
 def pressKey():
     prnt = ""
     ENTER = 13
@@ -388,7 +416,6 @@ def hotKeys(prompt: str) -> str:
                 var_4_hotKeys.save_prompt = var_4_hotKeys.prompt
                 ret = handleENTER(fileName)
                 try:
-                    var_4_hotKeys.prompt = var_4_hotKeys.copyfile_msg
                     var_4_hotKeys.prnt = ""
                     page_struct.left_shift_4_cur = 0
                     page_struct.cur_cur_pos = 0
@@ -558,7 +585,10 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
     except ValueError:
         file_indx = cmd.split()
         file_indx = file_indx[0]
-        file_indx = int(file_indx)
+        try:
+            file_indx = int(file_indx)
+        except ValueError:
+            return
     file2run: str = globalLists.fileListMain[file_indx]
     file2run = escapeSymbols(file2run)
     cmd = f'{c2r.viewer[viewer_indx]}'
@@ -574,6 +604,7 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
     c2r.running.append(t)
 
 def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
+    funcName = "cmd_page"
     lp = len(fileListMain) // (ps.num_cols * ps.num_rows)
     if cmd == "np":
         ps.num_page += 1
@@ -597,9 +628,14 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
             ps.num_page = lp
         return
     if cmd[0:2] == "fp":
-        _, file_indx = cmd.split()
-        #achtung(fileListMain[int(file_indx)])
-        ps.c2r.full_path = f"file {file_indx}\n{str(fileListMain[int(file_indx)])}"
+        try:
+            _, file_indx = cmd.split()
+            ps.c2r.full_path = f"file {file_indx}\n{str(globalLists.fileListMain[int(file_indx)])}"
+        except ValueError:
+            errMsg("Type fp <file index>", funcName, 2)
+        except IndexError:
+            top = len(globalLists.fileListMain) - 2
+            errMsg(f"You gave index out of range, acceptable values [0, {top}]", funcName, 2)
         return
     run_viewers(ps.c2r, fileListMain, cmd)
 def manage_pages(fileListMain: list, ps: page_struct):
@@ -712,8 +748,24 @@ def get_fd(fileName: str = ""):
         errMsg(f"can't open files {fileName}", funcName)
     finally:
         return norm_out, err_out
-def errMsg(msg: str, funcName: str):
-    print(f"{Fore.RED}{funcName} said: {msg}{Style.RESET_ALL}")
+def checkInt(i) -> bool:
+    if str(i)[0] in ('-'):
+        return str(i)[1:].isdigit()
+    return str(i).isdigit()
+def errMsg(msg: str, funcName: str, delay: int = -1):
+    if not checkInt(delay):
+        achtung(f"delay has to be int in errMsg(), {str(type(delay))}")
+        return
+    if delay == -1:
+        print(f"{Fore.RED}{funcName} said: {msg}{Style.RESET_ALL}")
+    else:
+        full_length = len(var_4_hotKeys.prnt) + len(var_4_hotKeys.prompt)
+        msg = f"{Fore.RED}{funcName} said: {msg}{Style.RESET_ALL}"
+        clear_cmd_line("", "", full_length)
+        writeInput_str(msg, "")
+        time.sleep(delay)
+        writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
+
 def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
     funcName="read_midway_data_from_pipes"
     try:
