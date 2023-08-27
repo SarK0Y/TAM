@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sark0y_tam"
 version = "1.7-39"
+readme = { file = "README.md", content-type = "text/markdown" }
 authors = [
     { name = "Evgeney Knyazhev (SarK0Y)", email = "sark0y@protonmail.com" },
 ]
-description = ""
-readme = { file = "README.md", content-type = "text/markdown" }
+description = "python3 -m sark0y_tam -ver and https://t.me/+N_TdOq7Ui2ZiOTM6 to know more ;D"
 license = { file = "LICENSE.TXT", content-type = "text" }
 requires-python = ">=3.9"
 dependencies = [
@@ -27,7 +27,6 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://t.me/+N_TdOq7Ui2ZiOTM6"
-
+Homepage = "https://t.me/+N_TdOq7Ui2ZiOTM6"
 [tool.setuptools.packages]
 find = { namespaces = false }

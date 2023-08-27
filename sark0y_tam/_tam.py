@@ -1008,4 +1008,5 @@ def cmd():
             table = make_page_of_files(globalLists.fileListMain, ps)
             manage_pages(globalLists.fileListMain, ps)
 #pressKey()
-cmd()
+if __name__ == "__main__":
+    cmd()
