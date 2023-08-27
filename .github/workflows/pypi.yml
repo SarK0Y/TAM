@@ -5,6 +5,7 @@
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
+# template: https://github.com/actions/starter-workflows/blob/main/ci/python-publish.yml
 
 name: Upload Python Package
 
