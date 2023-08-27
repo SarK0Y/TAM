@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "Tiny_Automation_Manager"
+name = "sark0y_tam"
 version = "1.7-39"
 authors = [
     { name = "Evgeney Knyazhev (SarK0Y)", email = "sark0y@protonmail.com" },
@@ -13,18 +13,10 @@ readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE.TXT", content-type = "text" }
 requires-python = ">=3.9"
 dependencies = [
-    "random",
-    "re",
-    "subprocess",
+    "keyboard",
+    "numpy",
     "tabulate",
     "click",
-    "sys",
-    "os",
-    "signal",
-    "time",
-    "threading",
-    "fcntl",
-    "copy",
     "colorama",
     "setuptools"
 ]
