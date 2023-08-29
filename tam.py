@@ -22,6 +22,7 @@ class info_struct:
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
 stopCode = "∇\n"
+class false = False
 class modes:
     class path_autocomplete:
         state = False
@@ -214,13 +215,18 @@ def switch_global_list():
     if slash0:
         if not modes.path_autocomplete.state and not modes.path_autocomplete.fst_hit:
             modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = true
-           globalLists.bkp = copy.copy(globalLists.fileListMain)
+            globalLists.bkp = copy.copy(globalLists.fileListMain)
+            slash0 = var_4_hotKeys.prnt[slash0.start(0):]
+            if os.path.isdir(slash0):
+                globalLists.ls = createDirList(slash0, "-lah")
+            else:
+                modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = false
 
-        slash0 = ": " + var_4_hotKeys.prnt[slash0.start(0):]
     var_4_hotKeys.prnt = str(slash0)
     return
 def createDirList(dirname: str, opts: str) -> list:
-    
+    opts += f" {dirname}"
+    list0 = run_cmd("ls", opts)
     return list0
 def run_cmd(cmd: str, opts: str, timeout0: float = 100) -> list:
     cmd = [f"{str(cmd)} {str(opts)}", ]
