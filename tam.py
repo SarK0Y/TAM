@@ -1,3 +1,4 @@
+import random
 import re
 import subprocess
 from tabulate import tabulate
@@ -16,12 +17,20 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "6"
+    rev = "7-39"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
+stopCode = "∇\n"
+class modes:
+    class path_autocomplete:
+        state = False
+        fst_hit = False
 class globalLists:
-    fileListMain = None
+    stopCode = globals()["stopCode"]
+    fileListMain: list
+    ls:  list
+    bkp: list
 class childs2run:
     running: list = []
     viewer: list = []
@@ -31,6 +40,7 @@ class page_struct:
     left_shift_4_cur = 0
     cur_cur_pos = 0 # cursor's current position
     KonsoleTitle: str
+    dontDelFromTableJustMark = True
     num_page: int = 0
     num_cols: int = 3
     col_width = 70
@@ -39,8 +49,15 @@ class page_struct:
     num_files = 0
     count_pages = 0
     news_bar = f"{info_struct.telega} 2 know news & features ;D"
+    question_to_User: str = ""
     c2r: childs2run
+class tst:
+    class subtst:
+        h = 1
+        class lvl2:
+            h = 0
 class keys:
+    tst.subtst.h = tst.subtst.lvl2.h
     dirty_mode = False
     rename_file_mode = 0
 class PIPES:
@@ -58,16 +75,202 @@ class lapse:
     find_files_stop = 0
     read_midway_data_from_pipes_start = 0
     read_midway_data_from_pipes_stop = 0
+class var_4_hotKeys:
+    prnt: str = ""
+    prompt: str = "Please, enter Your command: "
+    save_prompt_to_copy_file: str = ""
+    save_prnt_to_copy_file: str = ""
+    prnt_short: str = ""
+    prnt_full: str = ""
+    copyfile_msg: str = ""
+    fileName: str = ""
+    fileIndx: int
+    full_length: int
+    ENTER_MODE = False
 # Terminals
+def handleENTER(fileName: str) -> str:
+    funcName = "handleENTER"
+    var_4_hotKeys.ENTER_MODE = True
+    if var_4_hotKeys.prnt[:3] == 'ren':
+        var_4_hotKeys.save_prnt_to_copy_file = var_4_hotKeys.prnt
+        var_4_hotKeys.save_prompt_to_copy_file = var_4_hotKeys.prompt
+        try:
+            renameFile(fileName, var_4_hotKeys.prnt)
+        except AttributeError or ValueError:
+            errMsg("Command was typed wrong", funcName, 2)
+            return "cont"
+        var_4_hotKeys.prnt = var_4_hotKeys.save_prnt_to_copy_file
+        var_4_hotKeys.prompt = var_4_hotKeys.save_prompt_to_copy_file
+        var_4_hotKeys.ENTER_MODE = False
+        return f"go2 {page_struct.num_page}"
+    if var_4_hotKeys.prnt[:2] == "cp":
+        IsFile = None
+        try:
+            file = getFileNameFromCMD(var_4_hotKeys.prnt)
+            IsFile = os.path.exists(file) and os.path.isfile(file)
+        except AttributeError or ValueError:
+            errMsg("Command was typed wrong", funcName, 2)
+            return "cont"
+        if IsFile:
+            var_4_hotKeys.copyfile_msg = f"Do You really want to overwrite {getFileNameFromCMD(var_4_hotKeys.prnt)} ??? Type 'Yeah I do' if You {Fore.RED}{Back.BLACK}REALLY{Style.RESET_ALL} do.. Otherwise just 'no'. "
+            if var_4_hotKeys.save_prnt_to_copy_file == '':
+                var_4_hotKeys.save_prnt_to_copy_file = var_4_hotKeys.prnt
+                var_4_hotKeys.prnt = ""
+                var_4_hotKeys.save_prompt_to_copy_file = var_4_hotKeys.prompt
+                page_struct.question_to_User = var_4_hotKeys.copyfile_msg
+                full_length = len(var_4_hotKeys.prompt) + len(var_4_hotKeys.prnt)
+                page_struct.left_shift_4_cur = 0
+                page_struct.cur_cur_pos = full_length
+                clear_cmd_line(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
+                print(f"{page_struct.question_to_User}")
+                writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
+                return "cont"
+        else:
+            copyFile(fileName, var_4_hotKeys.prnt)
+            var_4_hotKeys.prnt = var_4_hotKeys.save_prnt_to_copy_file
+            var_4_hotKeys.prompt = var_4_hotKeys.save_prompt_to_copy_file
+            var_4_hotKeys.ENTER_MODE = False
+            return f"go2 {page_struct.num_page}"
+    if var_4_hotKeys.prnt[:2] == "rm":
+        try:
+            var_4_hotKeys.copyfile_msg = f"Do You really want to delete {getFileNameFromCMD_byIndx(var_4_hotKeys.prnt)} ??? Type 'Yeah, kill this file' if You {Fore.RED}{Back.BLACK}REALLY{Style.RESET_ALL} do.. Otherwise just 'no'. "
+        except AttributeError or ValueError or IndexError:
+            errMsg("Command was typed wrong", funcName, 2)
+            return "cont"
+        if var_4_hotKeys.save_prnt_to_copy_file == '':
+            var_4_hotKeys.save_prnt_to_copy_file = var_4_hotKeys.prnt
+            var_4_hotKeys.prnt = ""
+            var_4_hotKeys.save_prompt_to_copy_file = var_4_hotKeys.prompt
+            page_struct.question_to_User = var_4_hotKeys.copyfile_msg
+            full_length = len(var_4_hotKeys.prompt) + len(var_4_hotKeys.prnt)
+            page_struct.left_shift_4_cur = 0
+            page_struct.cur_cur_pos = full_length
+            clear_cmd_line(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
+            print(f"{page_struct.question_to_User}")
+            writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
+            return "cont"
+    if var_4_hotKeys.prnt == "Yeah I do":
+        var_4_hotKeys.prompt = ' ' * len(var_4_hotKeys.prompt)
+        var_4_hotKeys.prnt = ' ' * len(var_4_hotKeys.prnt)
+        writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
+        var_4_hotKeys.prnt = var_4_hotKeys.save_prnt_to_copy_file
+        var_4_hotKeys.prompt = var_4_hotKeys.save_prompt_to_copy_file
+        var_4_hotKeys.save_prompt_to_copy_file = var_4_hotKeys.save_prnt_to_copy_file = ''
+        copyFile(fileName, var_4_hotKeys.prnt, dontInsert=True)
+        writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
+        var_4_hotKeys.ENTER_MODE = False
+        return f"go2 {page_struct.num_page}"
+    if var_4_hotKeys.prnt == "Yeah, kill this file":
+        var_4_hotKeys.prompt = ' ' * len(var_4_hotKeys.prompt)
+        var_4_hotKeys.prnt = ' ' * len(var_4_hotKeys.prnt)
+        writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
+        var_4_hotKeys.prnt = var_4_hotKeys.save_prnt_to_copy_file
+        var_4_hotKeys.prompt = var_4_hotKeys.save_prompt_to_copy_file
+        var_4_hotKeys.save_prompt_to_copy_file = var_4_hotKeys.save_prnt_to_copy_file = ''
+        delFile(fileName, var_4_hotKeys.prnt, dontDelFromTableJustMark=page_struct.dontDelFromTableJustMark)
+        writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
+        var_4_hotKeys.ENTER_MODE = False
+        return f"go2 {page_struct.num_page}"
+    if var_4_hotKeys.prnt == "no":
+        var_4_hotKeys.prnt = var_4_hotKeys.save_prnt_to_copy_file
+        var_4_hotKeys.prompt = var_4_hotKeys.save_prompt_to_copy_file
+        var_4_hotKeys.save_prompt_to_copy_file = ''
+        var_4_hotKeys.save_prnt_to_copy_file = ''
+        writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
+        var_4_hotKeys.ENTER_MODE = False
+        return f"go2 {page_struct.num_page}"
+    return var_4_hotKeys.prnt
+def handleTAB(prompt: str):
+    ptrn = re.compile('ren\s+\d+|cp\s+\d+', re.IGNORECASE | re.UNICODE)
+    regex_result = ptrn.search(var_4_hotKeys.prnt)
+    if keys.dirty_mode: print(f"{regex_result.group(0)}, {len(regex_result.group(0))}, {var_4_hotKeys.prnt}")
+    if regex_result:
+        if len(var_4_hotKeys.prnt_short) == 0:
+            var_4_hotKeys.fileName, var_4_hotKeys.fileIndx = regex_result.group(0).split()
+            var_4_hotKeys.fileName = globalLists.fileListMain[int(var_4_hotKeys.fileIndx)]
+            if var_4_hotKeys.fileName[-1] == '\n':
+                var_4_hotKeys.fileName = var_4_hotKeys.fileName[:-1]
+            _, var_4_hotKeys.prnt_short = os.path.split(var_4_hotKeys.fileName)
+            var_4_hotKeys.prnt_short = var_4_hotKeys.prnt + f" {var_4_hotKeys.prnt_short}"
+            var_4_hotKeys.prnt_full = var_4_hotKeys.prnt + f" {var_4_hotKeys.fileName}"
+        if len(var_4_hotKeys.prnt) < len(var_4_hotKeys.prnt_full):
+            var_4_hotKeys.prnt = var_4_hotKeys.prnt_full
+            page_struct.cur_cur_pos = len(var_4_hotKeys.prnt_full)
+            page_struct.left_shift_4_cur = 0
+        else:
+            page_struct.left_shift_4_cur = 0
+            var_4_hotKeys.prnt = var_4_hotKeys.prnt_short
+            page_struct.cur_cur_pos = len(var_4_hotKeys.prnt_short)
+        var_4_hotKeys.full_length = len(var_4_hotKeys.prnt)
+        writeInput_str(prompt, var_4_hotKeys.prnt, len(var_4_hotKeys.prnt_full))
+def switch_global_list():
+    true = True
+    false = False
+    slash = None
+    slash0 = None
+    if not modes.path_autocomplete.fst_hit:
+        slash = re.compile('/')
+        slash0 = slash.search(var_4_hotKeys.prnt)
+    if slash0:
+        if not modes.path_autocomplete.state and not modes.path_autocomplete.fst_hit:
+            modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = true
+           globalLists.bkp = copy.copy(globalLists.fileListMain)
+
+        slash0 = ": " + var_4_hotKeys.prnt[slash0.start(0):]
+    var_4_hotKeys.prnt = str(slash0)
+    return
+def createDirList(dirname: str, opts: str) -> list:
+    
+    return list0
+def run_cmd(cmd: str, opts: str, timeout0: float = 100) -> list:
+    cmd = [f"{str(cmd)} {str(opts)}", ]
+    p = sp.Popen(cmd, shell=True, stderr=sp.PIPE, stdout=sp.PIPE)
+    return p.communicate(timeout=timeout0)
 def flushInputBuffer():
     page_struct.left_shift_4_cur = 0
     page_struct.cur_cur_pos = 0
     return ""
-def escapeSymbols(name: str):
-    name = name.replace(" ", "\ ")
-    name = name.replace("$", "\$")
-    if name[len(name) - 1] == "\n":
-        name = name[:len(name) - 1]
+def apostrophe_split(str0: str, delim: str) -> str:
+    bulks = str0.split(delim)
+    strLoc = ''
+    for i in range(0, len(bulks)):
+        strLoc += f"{bulks[i]}\{delim}"
+    strLoc = strLoc[:-2]
+    return strLoc
+
+def escapeSymbols(name: str, symbIndx = -1):
+    quote = ''
+    if (name[0] == "\'" or name[0] == "\`") and name[0] == name[-1]:
+        quote = name[0]
+        name = name[1:-1]
+    if symbIndx == -1:
+        name = name.replace(" ", "\ ")
+        name = name.replace("$", "\$")
+        name = name.replace(";", "\;")
+        name = name.replace('`', '\`')
+        name = apostrophe_split(name, "'")
+        name = name.replace("&", "\&")
+        name = name.replace("{", "\{")
+        name = name.replace("}", "\}")
+        name = name.replace("(", "\(")
+        name = name.replace(")", "\)")
+    if symbIndx == 0:
+        name = name.replace(" ", "\ ")
+    if symbIndx == 1:
+        name = name.replace("$", "\$")
+    if symbIndx == 2:
+        name = name.replace(";", "\;")
+    if symbIndx == 3:
+        name = name.replace('`', '\`')
+    if symbIndx == 4:
+        name = name.replace("'", "\'")
+    if symbIndx == 5:
+        name = name.replace("&", "\&")
+    name = name.replace("\n", "")
+    if name[-1] == "\n":
+        name = name[:-1]
+    if quote != '':
+        name = quote + name + quote
     return name
 def renameFile(fileName: str, cmd: str):
     cmd = cmd[4:]
@@ -82,21 +285,93 @@ def renameFile(fileName: str, cmd: str):
         fileName += f"/{cmd}"
     else:
         fileName = f"{cmd}"
-    globalLists.fileListMain[int(fileIndx.group(0))] = cmd
+    globalLists.fileListMain[int(fileIndx.group(0))] = fileName
     fileName = escapeSymbols(fileName)
     old_name = escapeSymbols(old_name)
-    cmd = "mv " + f"{old_name}" + " " + f"{fileName}"
+    if_path_not_existed, _ = os.path.split(fileName)
+    cmd = f"mkdir -p {if_path_not_existed}"
+    os.system(cmd)
+    cmd = "mv -f --backup " + f'{old_name}' + " " + f'{fileName}'
+    if os.path.exists(fileName):
+        achtung(f"{fileName} doesnt exist\n cmd ={cmd}")
+    sp.Popen([cmd,], shell=True)
+    return
+def getFileNameFromCMD_byIndx(cmd: str):
+    cmd = cmd[3:]
+    getFileIndx = re.compile('\d+')
+    fileIndx = getFileIndx.match(cmd)
+    fileName = globalLists.fileListMain[int(fileIndx.group(0))]
+    if fileName[-1] == "\n":
+        fileName = fileName[:-1]
+    return fileName
+def getFileNameFromCMD(cmd: str):
+    cmd = cmd[3:]
+    getFileIndx = re.compile('\d+\s+')
+    fileIndx = getFileIndx.match(cmd)
+    cmd = cmd.replace(fileIndx.group(0), '')
+    old_name = globalLists.fileListMain[int(fileIndx.group(0))]
+    res = re.match('\/', cmd)
+    if not res:
+        fileName = old_name
+        fileName, _ = os.path.split(fileName)
+        fileName += f"/{cmd}"
+    else:
+        fileName = f"{cmd}"
+    return fileName
+def delFile(fileName: str, cmd: str, dontDelFromTableJustMark = True):
+    cmd = cmd[3:]
+    getFileIndx = re.compile('\d+')
+    fileIndx = getFileIndx.match(cmd)
+    fileName = globalLists.fileListMain[int(fileIndx.group(0))]
+    fileName = escapeSymbols(fileName)
+    cmd = "rm -f " + f"{fileName}"
+    os.system(cmd)
+    heyFile = os.path.exists(fileName)
+    if False == heyFile and dontDelFromTableJustMark == False:
+        globalLists.fileListMain.remove(int(fileIndx.group(0)))
+    if not heyFile and dontDelFromTableJustMark:
+        globalLists.fileListMain[int(fileIndx.group(0))] = f"{globalLists.fileListMain[int(fileIndx.group(0))]}::D"
+    return
+def copyFile(fileName: str, cmd: str, dontInsert = False):
+    cmd = cmd[3:]
+    getFileIndx = re.compile('\d+\s+')
+    fileIndx = getFileIndx.match(cmd)
+    cmd = cmd.replace(fileIndx.group(0), '')
+    old_name = globalLists.fileListMain[int(fileIndx.group(0))]
+    res = re.match('\/', cmd)
+    if not res:
+        fileName = old_name
+        fileName, _ = os.path.split(fileName)
+        fileName += f"/{cmd}"
+    else:
+        fileName = f"{cmd}"
+        if not dontInsert:
+            globalLists.fileListMain.insert(int(fileIndx.group(0)), fileName)
+    fileName = escapeSymbols(fileName)
+    old_name = escapeSymbols(old_name)
+    if_path_not_existed, _ = os.path.split(fileName)
+    cmd = f"mkdir -p {if_path_not_existed}"
+    os.system(cmd)
+    cmd = "cp -f " + f"{old_name}" + " " + f"{fileName}"
     os.system(cmd)
     return
-def writeInput_str(promt: str, prnt: str, blank_len = 0):
-    promt_len = len(promt)
+def writeInput_str(prompt: str, prnt: str, blank_len = 0):
+    prompt_len = len(prompt)
     if blank_len == 0:
-        blank = ' ' * (promt_len + len(prnt) + 1)
+        blank = ' ' * (prompt_len + len(prnt) + 1)
     else:
-        blank = ' ' * (promt_len + blank_len + 1)
+        blank = ' ' * (prompt_len + blank_len + 1)
     print(f"\r{blank}", end='', flush=True)
-    print(f"\r{promt}{prnt}", end=' ', flush=True)
+    print(f"\r{prompt}{prnt}", end=' ', flush=True)
     print(f'\033[{page_struct.left_shift_4_cur + 1}D', end='', flush=True)
+def clear_cmd_line(prompt: str, prnt: str, blank_len = 0):
+    prompt_len = len(prompt)
+    if blank_len == 0:
+        blank = ' ' * (prompt_len + len(prnt) + 1)
+    else:
+        blank = ' ' * (prompt_len + blank_len + 1)
+    print(f"\r{blank}", end='', flush=True)
+    print(f"\r", end='', flush=True)
 def pressKey():
     prnt = ""
     ENTER = 13
@@ -118,9 +393,12 @@ def ord0(Key):
         return Key
     except TypeError:
         return -1
-def hotKeys(promt: str) -> str:
+def hotKeys(prompt: str) -> str:
     full_length = 0
-    prnt = ""
+    var_4_hotKeys.prnt = ""
+    var_4_hotKeys.save_prnt_to_copy_file = ''
+    var_4_hotKeys.save_prompt_to_copy_file = ''
+    var_4_hotKeys.save_cur_cur_pos = page_struct.cur_cur_pos
     prnt0 = ''
     prnt_short = ''
     prnt_full = ''
@@ -134,81 +412,99 @@ def hotKeys(promt: str) -> str:
     TAB = 9
     DELETE = "\x1b[3~"
     F12 = "\x1b[24~"
+    LEFT_ARROW = "\x1b[D"
+    RIGHT_ARROW = "\x1b[C"
+    UP_ARROW = "\x1b[A"
+    DOWN_ARROW = "\x1b[B"
     while True:
         Key = click.getchar()
         if F12 == Key:
-            full_length = len(prnt)
-            prnt = flushInputBuffer()
-            writeInput_str(promt, prnt, full_length)
+            full_length = len(var_4_hotKeys.prnt)
+            var_4_hotKeys.prnt = flushInputBuffer()
+            writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
             continue
-        if Key == "\x1b[A":
+        if Key == UP_ARROW:
             return "np"
-        if Key == "\x1b[B":
+        if Key == DOWN_ARROW:
             return "pp"
-        if Key == "\x1b[C":
+        if Key == RIGHT_ARROW:
             if page_struct.left_shift_4_cur > 0:
                 page_struct.left_shift_4_cur -= 1
                 page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
                 print('\033[C', end='', flush=True)
             continue
-        if Key == "\x1b[D":
+        if Key == LEFT_ARROW:
             if page_struct.cur_cur_pos > 0:
                 page_struct.left_shift_4_cur += 1
                 page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
-                #print(f"'\033]30;{page_struct.cur_cur_pos}\007'", end='')
                 print('\033[D', end='', flush=True)
             continue
         if ENTER == ord0(Key):
-            if prnt_short != '':
-                renameFile(fileName, prnt)
-                return f"go2 {page_struct.num_page}"
-            return prnt
+            ret = var_4_hotKeys.prnt
+            if not var_4_hotKeys.ENTER_MODE:
+                var_4_hotKeys.save_prnt = var_4_hotKeys.prnt
+                var_4_hotKeys.save_prompt = var_4_hotKeys.prompt
+                ret = handleENTER(fileName)
+                try:
+                    var_4_hotKeys.prnt = ""
+                    page_struct.left_shift_4_cur = 0
+                    page_struct.cur_cur_pos = 0
+                except AttributeError:
+                    var_4_hotKeys.ENTER_MODE = False
+            else:
+                var_4_hotKeys.prnt = var_4_hotKeys.prnt
+                ret = handleENTER(fileName)
+            if "cont" == ret:
+                continue
+            var_4_hotKeys.prompt = var_4_hotKeys.save_prompt
+            var_4_hotKeys.prnt = ret
+            return var_4_hotKeys.prnt
+        if DELETE == Key:
+            if page_struct.left_shift_4_cur == 0:
+                continue
+            else:
+                var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur + 1] + var_4_hotKeys.prnt[len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur + 2:]
+            if page_struct.left_shift_4_cur > 0:
+                page_struct.left_shift_4_cur -= 1
+            prnt0 = var_4_hotKeys.prnt
+            full_length = len(var_4_hotKeys.prnt)
+            writeInput_str(var_4_hotKeys.prompt, prnt0)
+            continue
         if BACKSPACE == ord0(Key):
             if page_struct.left_shift_4_cur == 0:
-                prnt = prnt[:len(prnt) - 1]
+                var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - 1]
             else:
-                prnt = prnt[:len(prnt) - page_struct.left_shift_4_cur - 1] + prnt[len(prnt) - page_struct.left_shift_4_cur:]
+                var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur - 1] + var_4_hotKeys.prnt[len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur:]
             if page_struct.cur_cur_pos > 0:
                 page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
-            prnt0 = prnt
-            full_length = len(prnt)
-            writeInput_str(promt, prnt0)
+            prnt0 = var_4_hotKeys.prnt
+            full_length = len(var_4_hotKeys.prnt)
+            writeInput_str(var_4_hotKeys.prompt, prnt0)
             continue
         if ESCAPE == ord0(Key): SYS(), sys.exit(0)
         if TAB == ord0(Key):
-           ptrn = re.compile('ren\s+\d+', re.IGNORECASE|re.UNICODE)
-           regex_result  = ptrn.search(prnt)
-           if keys.dirty_mode: print(f"{regex_result.group(0)}, {len(regex_result.group(0))}, {prnt}")
-           if regex_result:
-               if len(prnt_short) == 0:
-                   fileName, fileIndx = regex_result.group(0).split()
-                   fileName = globalLists.fileListMain[int(fileIndx)]
-                   fileName = fileName[:-1]
-                   _, prnt_short = os.path.split(fileName)
-                   prnt_short = prnt + f" {prnt_short}"
-                   prnt_full = prnt + f" {fileName}"
-               if len(prnt) < len(prnt_full):
-                   prnt = prnt_full
-                   page_struct.cur_cur_pos = len(prnt_full)
-                   page_struct.left_shift_4_cur = 0
-               else:
-                   page_struct.left_shift_4_cur = 0
-                   prnt = prnt_short
-                   page_struct.cur_cur_pos = len(prnt_short)
-               full_length = len(prnt)
-               writeInput_str(promt, prnt, len(prnt_full))
-               continue
+            var_4_hotKeys.prnt_full = prnt_full
+            var_4_hotKeys.fileIndx = fileIndx
+            var_4_hotKeys.prnt_short = prnt_short
+            var_4_hotKeys.full_length = full_length
+            handleTAB(prompt)
+            prnt_full = var_4_hotKeys.prnt_full
+            fileIndx = var_4_hotKeys.fileIndx
+            prnt_short = var_4_hotKeys.prnt_short
+            full_length = var_4_hotKeys.full_length
+            continue
         else:
-            if page_struct.cur_cur_pos + 1 == full_length:
-                prnt += f"{Key}"
+            if page_struct.cur_cur_pos + 1 == full_length and page_struct.left_shift_4_cur == 0:
+                var_4_hotKeys.prnt += f"{Key}"
+                switch_global_list()
             else:
-                prnt =f"{prnt[:page_struct.cur_cur_pos]}{Key}{prnt[page_struct.cur_cur_pos:]}"
+                var_4_hotKeys.prnt =f"{var_4_hotKeys.prnt[:page_struct.cur_cur_pos]}{Key}{var_4_hotKeys.prnt[page_struct.cur_cur_pos:]}"
             page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
-            prnt0 = prnt
-            writeInput_str(promt, prnt)
-def custom_input(promt: str) -> str:
-    print(f"{promt}", end='', flush=True)
-    return hotKeys(promt)
+            switch_global_list()
+            writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
+def custom_input(prompt: str) -> str:
+    print(f"{prompt}", end='', flush=True)
+    return hotKeys(prompt)
 def signal_manager(sig, frame):
     print(f"sig = {sig}")
 #signal.signal(signal.CTRL_BREAK_EVENT, signal_manager)
@@ -321,17 +617,26 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
     except ValueError:
         file_indx = cmd.split()
         file_indx = file_indx[0]
-        file_indx = int(file_indx)
-    file2run: str = fileListMain[file_indx]
-    file2run = file2run[0:len(file2run) - 1]
-    file2run = file2run.replace("$", "\$")
-    file2run = file2run.replace(";", "\;")
-    cmd = f'{c2r.viewer[viewer_indx]}' + ' ' + f'"{file2run}" > /dev/null'
-    cmd = [cmd,]
-    t = sp.Popen(cmd, shell=True)
+        try:
+            file_indx = int(file_indx)
+        except ValueError:
+            return
+    file2run: str = globalLists.fileListMain[file_indx]
+    file2run = escapeSymbols(file2run)
+    cmd = f'{c2r.viewer[viewer_indx]}'
+    cmd_line = f'{c2r.viewer[viewer_indx]}' + ' ' + f"{file2run} > /dev/null 2>&1"
+    cmd = [cmd_line,]
+    stderr0 = f"/tmp/run_viewers{str(random.random())}"
+    stderr0 = open(stderr0, "w+")
+    t = sp.Popen(cmd, shell=True, stderr=stderr0)
+    if t.stderr is not None:
+        os.system(cmd_line)
+    if keys.dirty_mode:
+        os.system(f"echo '{t.stderr} {t.stdout}' > /tmp/wrong_cmd")
     c2r.running.append(t)
 
 def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
+    funcName = "cmd_page"
     lp = len(fileListMain) // (ps.num_cols * ps.num_rows)
     if cmd == "np":
         ps.num_page += 1
@@ -355,28 +660,36 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
             ps.num_page = lp
         return
     if cmd[0:2] == "fp":
-        _, file_indx = cmd.split()
-        #achtung(fileListMain[int(file_indx)])
-        ps.c2r.full_path = f"file {file_indx}\n{str(fileListMain[int(file_indx)])}"
+        try:
+            _, file_indx = cmd.split()
+            ps.c2r.full_path = f"file {file_indx}\n{str(globalLists.fileListMain[int(file_indx)])}"
+        except ValueError:
+            errMsg("Type fp <file index>", funcName, 2)
+        except IndexError:
+            top = len(globalLists.fileListMain) - 2
+            errMsg(f"You gave index out of range, acceptable values [0, {top}]", funcName, 2)
         return
     run_viewers(ps.c2r, fileListMain, cmd)
 def manage_pages(fileListMain: list, ps: page_struct):
     cmd = ""
-    globalLists.fileListMain = fileListMain
     c2r = ps.c2r
-    ps.count_pages = len(fileListMain) // (ps.num_cols * ps.num_rows) + 1
-    ps.num_files = len(fileListMain)
     while True:
+        try:
+            if globalLists.stopCode != globalLists.fileListMain[-1]:
+                ps.count_pages = len(globalLists.fileListMain) // (ps.num_cols * ps.num_rows) + 1
+                ps.num_files = len(globalLists.fileListMain)
+        except IndexError:
+            continue
         page_struct.num_page = ps.num_page
         addStr = f" files/pages: {ps.num_files}/{ps.count_pages} p. {ps.num_page}"
         adjustKonsoleTitle(addStr, ps)
         clear_screen()
         print(f"{Fore.RED}      NEWS: {ps.news_bar}\n{Style.RESET_ALL}")
         print(f"Viewers: \n{c2r.prnt}\n\nNumber of files/pages: {ps.num_files}/{ps.count_pages} p. {ps.num_page}\nFull path to {c2r.full_path}")
-        table, too_short_row = make_page_of_files2(fileListMain, ps)
+        table, too_short_row = make_page_of_files2(globalLists.fileListMain, ps)
         if too_short_row == 0:
             ps.num_cols = 2
-            table, too_short_row = make_page_of_files2(fileListMain, ps)
+            table, too_short_row = make_page_of_files2(globalLists.fileListMain, ps)
         try:
             print(tabulate(table, tablefmt="fancy_grid", maxcolwidths=[ps.col_width]))
         except IndexError:
@@ -385,7 +698,7 @@ def manage_pages(fileListMain: list, ps: page_struct):
             sys.exit(-2)
         print(cmd)
         try:
-            cmd = custom_input("Please, enter Your command: ")
+            cmd = custom_input(var_4_hotKeys.prompt)
         except KeyboardInterrupt:
             SYS()
         if cmd == "help" or cmd == "" or cmd == "?":
@@ -452,8 +765,6 @@ def make_page_of_files(fileListMain: list, ps: page_struct):
 
 
 # Threads
-stopCode = "∇\n"
-
 #manage files
 def get_fd(fileName: str = ""):
     funcName = "get_fd"
@@ -469,8 +780,24 @@ def get_fd(fileName: str = ""):
         errMsg(f"can't open files {fileName}", funcName)
     finally:
         return norm_out, err_out
-def errMsg(msg: str, funcName: str):
-    print(f"{Fore.RED}{funcName} said: {msg}{Style.RESET_ALL}")
+def checkInt(i) -> bool:
+    if str(i)[0] in ('-'):
+        return str(i)[1:].isdigit()
+    return str(i).isdigit()
+def errMsg(msg: str, funcName: str, delay: int = -1):
+    if not checkInt(delay):
+        achtung(f"delay has to be int in errMsg(), {str(type(delay))}")
+        return
+    if delay == -1:
+        print(f"{Fore.RED}{funcName} said: {msg}{Style.RESET_ALL}")
+    else:
+        full_length = len(var_4_hotKeys.prnt) + len(var_4_hotKeys.prompt)
+        msg = f"{Fore.RED}{funcName} said: {msg}{Style.RESET_ALL}"
+        clear_cmd_line("", "", full_length)
+        writeInput_str(msg, "")
+        time.sleep(delay)
+        writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
+
 def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
     funcName="read_midway_data_from_pipes"
     try:
@@ -494,9 +821,10 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
         prev_pos = cur_pos
         cur_pos = pipes.outNorm_r.tell()
     lapse.read_midway_data_from_pipes_stop = time.time_ns()
-    print(f"prev_pos = {prev_pos}, {cur_pos}")
-    fileListMain = set(fileListMain)
-    print(f"{funcName} exited")
+    globalLists.fileListMain = set(globalLists.fileListMain)
+    globalLists.fileListMain = list(fileListMain)
+    if keys.dirty_mode:
+        print(f"{funcName} exited")
 def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     funcName = "find_files"
     cmd = [f"find -L '{path}' -type f{in_name} > {pipes.outNorm_w.name};echo '\n{pipes.stop}'"]
@@ -680,7 +1008,7 @@ def cmd():
                 filter_name = "*"
             if base_path is None:
                 base_path = "./"
-            fileListMain = []
+            globalLists.fileListMain = []
             tmp_file = get_arg_in_cmd("-tmp_file", argv)
             outNorm, outErr = get_fd(tmp_file)
             tmp_file = None
@@ -688,14 +1016,15 @@ def cmd():
             pipes = PIPES(outNorm, outErr)
             thr_find_files: Thread = thr.Thread(target=find_files, args=(base_path, pipes, filter_name, tmp_file))
             thr_find_files.start()
-            thr_read_midway_data_from_pipes: Thread = thr.Thread(target=read_midway_data_from_pipes, args=(pipes, fileListMain))
+            thr_read_midway_data_from_pipes: Thread = thr.Thread(target=read_midway_data_from_pipes, args=(pipes, globalLists.fileListMain))
             thr_read_midway_data_from_pipes.start()
-            thr_find_files.join()
-            thr_read_midway_data_from_pipes.join()
+            #time.sleep(3)
+            #thr_find_files.join()
+            #thr_read_midway_data_from_pipes.join()
             delta_4_entries = f"Δt for entry points of find_files() & read_midway_data_from_pipes(): {lapse.find_files_start - lapse.read_midway_data_from_pipes_start} ns"
             вар = 5
             print(delta_4_entries)
-            print(f"len of list = {len(fileListMain)}")
+            print(f"len of list = {len(globalLists.fileListMain)}")
             ps = page_struct()
             cols = get_arg_in_cmd("-cols", argv)
             rows = get_arg_in_cmd("-rows", argv)
@@ -708,7 +1037,8 @@ def cmd():
                 ps.col_width = int(col_w)
             ps.c2r = childs2run()
             ps.c2r = init_view(ps.c2r)
-            table = make_page_of_files(fileListMain, ps)
-            manage_pages(fileListMain, ps)
+            table = make_page_of_files(globalLists.fileListMain, ps)
+            manage_pages(globalLists.fileListMain, ps)
 #pressKey()
-cmd()
+if __name__ == "__main__":
+    cmd()
