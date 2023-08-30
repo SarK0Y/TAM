@@ -203,8 +203,8 @@ def handleTAB(prompt: str):
 def switch_global_list(Key: str):
     slash = None
     slash0 = None
+    partial.path += str(Key)
     if modes.path_autocomplete.state:
-        partial.path += str(Key)
         globalLists.ls = createDirList(partial.path, "-type d -maxdepth 1")
         if globalLists.ls is not None:
             globalLists.fileListMain = createDirList(partial.path, "-type d -maxdepth 1")
@@ -224,7 +224,8 @@ def createDirList(dirname: str, opts: str) -> list:
     if list0[1] is None:
         list0 = list0[0]
     else:
-        errMsg(list0[1], funcName, 2)
+        msg = f"{dirname}\n{cmd}\n{list0[0]}"
+        errMsg(msg, funcName, 2)
         return None
     for i in range(0, len(list0)):
         _, head = os.path.split(list0[i])
@@ -242,6 +243,7 @@ def run_cmd(cmd: str, timeout0: float = 100) -> list:
     return p.communicate(timeout=timeout0)
 def reset_autocomplete():
     modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
+    partial.path = ""
 def flushInputBuffer():
     page_struct.left_shift_4_cur = 0
     page_struct.cur_cur_pos = 0
@@ -438,6 +440,7 @@ def hotKeys(prompt: str) -> str:
         if F12 == Key:
             full_length = len(var_4_hotKeys.prnt)
             var_4_hotKeys.prnt = flushInputBuffer()
+            reset_autocomplete()
             writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
             continue
         if Key == UP_ARROW:
