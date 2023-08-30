@@ -22,7 +22,6 @@ class info_struct:
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
 stopCode = "∇\n"
-class false = False
 class modes:
     class path_autocomplete:
         state = False
@@ -91,6 +90,7 @@ class var_4_hotKeys:
 # Terminals
 def handleENTER(fileName: str) -> str:
     funcName = "handleENTER"
+    modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
     var_4_hotKeys.ENTER_MODE = True
     if var_4_hotKeys.prnt[:3] == 'ren':
         var_4_hotKeys.save_prnt_to_copy_file = var_4_hotKeys.prnt
@@ -205,8 +205,6 @@ def handleTAB(prompt: str):
         var_4_hotKeys.full_length = len(var_4_hotKeys.prnt)
         writeInput_str(prompt, var_4_hotKeys.prnt, len(var_4_hotKeys.prnt_full))
 def switch_global_list():
-    true = True
-    false = False
     slash = None
     slash0 = None
     if not modes.path_autocomplete.fst_hit:
@@ -214,19 +212,21 @@ def switch_global_list():
         slash0 = slash.search(var_4_hotKeys.prnt)
     if slash0:
         if not modes.path_autocomplete.state and not modes.path_autocomplete.fst_hit:
-            modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = true
+            modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = True
             globalLists.bkp = copy.copy(globalLists.fileListMain)
             slash0 = var_4_hotKeys.prnt[slash0.start(0):]
             if os.path.isdir(slash0):
-                globalLists.ls = createDirList(slash0, "-lah")
+                globalLists.ls = createDirList(slash0, "-type d -maxdepth 1")
             else:
-                modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = false
+                modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
 
     var_4_hotKeys.prnt = str(slash0)
     return
 def createDirList(dirname: str, opts: str) -> list:
     opts += f" {dirname}"
-    list0 = run_cmd("ls", opts)
+    list0 = run_cmd("find", opts)
+    for i in range(0, len(list0)):
+        list0[i] = f"{i}: {list0[i]}"
     return list0
 def run_cmd(cmd: str, opts: str, timeout0: float = 100) -> list:
     cmd = [f"{str(cmd)} {str(opts)}", ]
@@ -235,6 +235,7 @@ def run_cmd(cmd: str, opts: str, timeout0: float = 100) -> list:
 def flushInputBuffer():
     page_struct.left_shift_4_cur = 0
     page_struct.cur_cur_pos = 0
+    modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
     return ""
 def apostrophe_split(str0: str, delim: str) -> str:
     bulks = str0.split(delim)
