@@ -223,7 +223,7 @@ def switch_global_list():
     var_4_hotKeys.prnt = str(slash0)
     return
 def createDirList(dirname: str, opts: str) -> list:
-    opts += f" {dirname}"
+    opts = f"{dirname} {opts}"
     list0 = run_cmd("find", opts)
     for i in range(0, len(list0)):
         list0[i] = f"{i}: {list0[i]}"
