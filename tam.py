@@ -26,6 +26,8 @@ class modes:
     class path_autocomplete:
         state = False
         fst_hit = False
+class partial:
+    path: str = ""
 class globalLists:
     stopCode = globals()["stopCode"]
     fileListMain: list
@@ -51,13 +53,7 @@ class page_struct:
     news_bar = f"{info_struct.telega} 2 know news & features ;D"
     question_to_User: str = ""
     c2r: childs2run
-class tst:
-    class subtst:
-        h = 1
-        class lvl2:
-            h = 0
 class keys:
-    tst.subtst.h = tst.subtst.lvl2.h
     dirty_mode = False
     rename_file_mode = 0
 class PIPES:
@@ -204,34 +200,48 @@ def handleTAB(prompt: str):
             page_struct.cur_cur_pos = len(var_4_hotKeys.prnt_short)
         var_4_hotKeys.full_length = len(var_4_hotKeys.prnt)
         writeInput_str(prompt, var_4_hotKeys.prnt, len(var_4_hotKeys.prnt_full))
-def switch_global_list():
+def switch_global_list(Key: str):
     slash = None
     slash0 = None
-    if not modes.path_autocomplete.fst_hit:
-        slash = re.compile('/')
-        slash0 = slash.search(var_4_hotKeys.prnt)
-    if slash0:
-        if not modes.path_autocomplete.state and not modes.path_autocomplete.fst_hit:
-            modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = True
-            globalLists.bkp = copy.copy(globalLists.fileListMain)
-            slash0 = var_4_hotKeys.prnt[slash0.start(0):]
-            if os.path.isdir(slash0):
-                globalLists.ls = createDirList(slash0, "-type d -maxdepth 1")
-            else:
-                modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
-
-    var_4_hotKeys.prnt = str(slash0)
+    if modes.path_autocomplete.state:
+        partial.path += str(Key)
+        globalLists.ls = createDirList(partial.path, "-type d -maxdepth 1")
+        if globalLists.ls is not None:
+            globalLists.fileListMain = createDirList(partial.path, "-type d -maxdepth 1")
+    if Key == '/' and not modes.path_autocomplete.fst_hit:
+        modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = True
+        globalLists.bkp = copy.copy(globalLists.fileListMain)
     return
 def createDirList(dirname: str, opts: str) -> list:
-    opts = f"{dirname} {opts}"
-    list0 = run_cmd("find", opts)
+    funcName = "createDirList"
+    path, head = os.path.split(dirname)
+    cmd = ""
+    if head == "": 
+        cmd = f"find {path} {opts}"
+    else:
+        cmd = f"find {path} {opts}|grep -E '{head}'"
+    list0 = run_cmd(cmd)
+    if list0[1] is None:
+        list0 = list0[0]
+    else:
+        errMsg(list0[1], funcName, 2)
+        return None
     for i in range(0, len(list0)):
-        list0[i] = f"{i}: {list0[i]}"
+        _, head = os.path.split(list0[i])
+        if head == "":
+            reset_autocomplete()
+            return None
     return list0
 def run_cmd(cmd: str, opts: str, timeout0: float = 100) -> list:
     cmd = [f"{str(cmd)} {str(opts)}", ]
     p = sp.Popen(cmd, shell=True, stderr=sp.PIPE, stdout=sp.PIPE)
     return p.communicate(timeout=timeout0)
+def run_cmd(cmd: str, timeout0: float = 100) -> list:
+    cmd = [f"{str(cmd)}", ]
+    p = sp.Popen(cmd, shell=True, stderr=sp.PIPE, stdout=sp.PIPE)
+    return p.communicate(timeout=timeout0)
+def reset_autocomplete():
+    modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
 def flushInputBuffer():
     page_struct.left_shift_4_cur = 0
     page_struct.cur_cur_pos = 0
@@ -503,11 +513,11 @@ def hotKeys(prompt: str) -> str:
         else:
             if page_struct.cur_cur_pos + 1 == full_length and page_struct.left_shift_4_cur == 0:
                 var_4_hotKeys.prnt += f"{Key}"
-                switch_global_list()
+                switch_global_list(Key)
             else:
                 var_4_hotKeys.prnt =f"{var_4_hotKeys.prnt[:page_struct.cur_cur_pos]}{Key}{var_4_hotKeys.prnt[page_struct.cur_cur_pos:]}"
             page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
-            switch_global_list()
+            switch_global_list(Key)
             writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
 def custom_input(prompt: str) -> str:
     print(f"{prompt}", end='', flush=True)
