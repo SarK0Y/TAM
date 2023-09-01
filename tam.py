@@ -35,6 +35,7 @@ class globalLists:
     fileListMain: list = []
     ls:  list = []
     bkp: list = []
+    ret = ""
 class childs2run:
     running: list = []
     viewer: list = []
@@ -87,7 +88,7 @@ class var_4_hotKeys:
     ENTER_MODE = False
 # Terminals
 class kCodes:
-    none = None
+    Key = None
 def keyCodes():
     keyCodes0 = """
 kCodes.ENTER = 13
@@ -220,30 +221,25 @@ def handleTAB(prompt: str):
         writeInput_str(prompt, var_4_hotKeys.prnt, len(var_4_hotKeys.prnt_full))
 def switch_global_list(Key: str):
     exec(keyCodes())
-    if Key == kCodes.TAB or Key == kCodes.ESCAPE:
-        return ""
+    if Key == kCodes.UP_ARROW or Key == kCodes.DOWN_ARROW or Key == kCodes.LEFT_ARROW or Key == kCodes.RIGHT_ARROW or Key == kCodes.F12 \
+    or Key == kCodes.TAB or Key == kCodes.ESCAPE:
+        kCodes.Key = Key
+        return "cont"
     ps = page_struct()
     ps.c2r = childs2run()
-    partial.path += str(Key)
+    if modes.path_autocomplete.state:
+        partial.path += str(Key)
     if Key == '/' and not modes.path_autocomplete.fst_hit:
         modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = True
         globalLists.bkp = copy.deepcopy(globalLists.fileListMain)
-        cols = get_arg_in_cmd("-cols", sys.argv)
-        rows = get_arg_in_cmd("-rows", sys.argv)
-        col_w = get_arg_in_cmd("-col_w", sys.argv)
-        if rows:
-            ps.num_rows = int(rows)
-        if cols:
-            ps.num_cols = int(cols)
-        if col_w:
-            ps.col_width = int(col_w)
-        ps.c2r = init_view(ps.c2r)
     if modes.path_autocomplete.state:
-        globalLists.ls = createDirList(partial.path, "-type d -maxdepth 1")
-    if globalLists.ls is not None:
+        globalLists.ls = createDirList(partial.path, "-maxdepth 1")
+    if globalLists.ls != []:
           globalLists.fileListMain = globalLists.ls
           modes.path_autocomplete.page_struct = ps
-    return "go2 0"
+          return "go2 0"
+    else:
+        return "cont"
 def createDirList(dirname: str, opts: str) -> list:
     funcName = "createDirList"
     path, head = os.path.split(dirname)
@@ -448,7 +444,11 @@ def hotKeys(prompt: str) -> str:
     regex_result = ''
     exec(keyCodes())
     while True:
-        Key = click.getchar()
+        if kCodes.Key is None:
+            Key = click.getchar()
+        else:
+            Key = kCodes.Key
+            kCodes.Key = None
         if kCodes.F12 == Key:
             full_length = len(var_4_hotKeys.prnt)
             var_4_hotKeys.prnt = flushInputBuffer()
@@ -528,12 +528,20 @@ def hotKeys(prompt: str) -> str:
         else:
             if page_struct.cur_cur_pos + 1 == full_length and page_struct.left_shift_4_cur == 0:
                 var_4_hotKeys.prnt += f"{Key}"
-                return switch_global_list(Key)
+                globalLists.ret = switch_global_list(Key)
+                if globalLists.ret == "cont":
+                    continue
+                else:
+                    return globalLists.ret
             else:
                 var_4_hotKeys.prnt =f"{var_4_hotKeys.prnt[:page_struct.cur_cur_pos]}{Key}{var_4_hotKeys.prnt[page_struct.cur_cur_pos:]}"
             page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
             writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
-            return switch_global_list(Key)
+            globalLists.ret = switch_global_list(Key)
+            if globalLists.ret == "cont":
+                continue
+            else:
+                return globalLists.ret
 def custom_input(prompt: str) -> str:
     if modes.path_autocomplete.state:
         writeInput_str(prompt, var_4_hotKeys.prnt)
@@ -672,7 +680,7 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
 
 def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
     funcName = "cmd_page"
-    lp = len(fileListMain) // (ps.num_cols * ps.num_rows)
+    lp = len(fileListMain) // (ps.num_cols * ps.num_rows) 
     if cmd == "np":
         ps.num_page += 1
         if ps.num_page > lp:
@@ -716,7 +724,7 @@ def manage_pages(fileListMain: list, ps: page_struct):
             ps = modes.path_autocomplete.page_struct
     while True:
         try:
-            if globalLists.stopCode != globalLists.fileListMain[-1]:
+            if globalLists.stopCode != globalLists.fileListMain[-1] or modes.path_autocomplete.state:
                 ps.count_pages = len(globalLists.fileListMain) // (ps.num_cols * ps.num_rows) + 1
                 ps.num_files = len(globalLists.fileListMain)
         except IndexError:
@@ -734,6 +742,11 @@ def manage_pages(fileListMain: list, ps: page_struct):
         try:
             print(tabulate(table, tablefmt="fancy_grid", maxcolwidths=[ps.col_width]))
         except IndexError:
+            if modes.path_autocomplete.state:
+                ps.count_pages = len(globalLists.fileListMain) // (ps.num_cols * ps.num_rows)
+            if ps.count_pages > 0:
+                ps.num_page -= 1
+                continue
             errMsg("Unfortunately, Nothing has been found.", "TAM")
             SYS()
             sys.exit(-2)
