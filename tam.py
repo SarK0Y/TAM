@@ -224,10 +224,16 @@ def switch_global_list(Key: str):
     if Key == kCodes.UP_ARROW or Key == kCodes.DOWN_ARROW or Key == kCodes.LEFT_ARROW or Key == kCodes.RIGHT_ARROW or Key == kCodes.F12 \
     or Key == kCodes.TAB or Key == kCodes.ESCAPE:
         kCodes.Key = Key
+        print("tstb")
         return "cont"
     ps = page_struct()
     ps.c2r = childs2run()
+    print(f"modes = {str(modes.path_autocomplete.state)}")
     if modes.path_autocomplete.state:
+        if len(globalLists.fileListMain) == 2:
+            ΔL = len(globalLists.fileListMain[0]) - len(partial.path)
+            page_struct.cur_cur_pos += ΔL
+            var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(partial.path, globalLists.fileListMain[0])
         partial.path += str(Key)
     if Key == '/' and not modes.path_autocomplete.fst_hit:
         modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = True
