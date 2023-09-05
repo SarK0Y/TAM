@@ -111,7 +111,7 @@ kCodes.TAB = 9
 kCodes.DELETE = "\x1b[3~"
 kCodes.F12 = "\x1b[24~"
 kCodes.F1 = "\x1bOP"
-kCodes.INSERT = "\x1b[[2~"
+kCodes.INSERT = "\x1b[2~"
 kCodes.LEFT_ARROW = "\x1b[D"
 kCodes.RIGHT_ARROW = "\x1b[C"
 kCodes.UP_ARROW = "\x1b[A"
@@ -522,6 +522,11 @@ def hotKeys(prompt: str) -> str:
         else:
             Key = kCodes.Key
             kCodes.Key = None
+        if kCodes.INSERT == Key:
+            indx = int(input("Please, enter indx of dir/file name to autocomplete: "))
+            name = globalLists.fileListMain[indx]
+            var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(partial.path, name)
+            return f"go2 {modes.path_autocomplete.page_struct.num_page}"
         if kCodes.F1 == Key:
             if globalLists.ls == []:
                 continue
@@ -905,7 +910,8 @@ def make_page_of_files2(fileListMain: list, ps: page_struct):
             try:
                 if os.path.isdir(str(fileListMain[indx])):
                    slash = "/"
-                _, item = os.path.split(str(fileListMain[indx]))
+                _, item = os.path.split(escapeSymbols(fileListMain[indx]))
+                item = item.replace("\\", "")
                 if keys.dirty_mode: print(f"len item = {len(item)}")
                 len_item += len(item)
                 if modes.path_autocomplete.state:
