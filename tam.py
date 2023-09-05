@@ -18,7 +18,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "7-39"
+    rev = "8-..tst"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
