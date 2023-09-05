@@ -589,8 +589,7 @@ def hotKeys(prompt: str) -> str:
             if "cont" == ret:
                 continue
             var_4_hotKeys.prompt = var_4_hotKeys.save_prompt
-            var_4_hotKeys.prnt = ret
-            return var_4_hotKeys.prnt
+            return ret
         if kCodes.DELETE == Key:
             if page_struct.left_shift_4_cur == 0:
                 continue
@@ -799,8 +798,6 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
     if cmd[0:3] == "go2":
         _, ps.num_page = cmd.split()
         ps.num_page = int(ps.num_page)
-        if not modes.path_autocomplete.state:
-            var_4_hotKeys.prnt = ""
         if ps.num_page > lp:
             ps.num_page = lp
     if cmd[0:2] == "fp":
