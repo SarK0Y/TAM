@@ -18,7 +18,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "8-..tst"
+    rev = "7-39"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -577,6 +577,7 @@ def hotKeys(prompt: str) -> str:
                 var_4_hotKeys.save_prompt = var_4_hotKeys.prompt
                 ret = handleENTER(fileName)
                 try:
+                    raise AttributeError
                     var_4_hotKeys.prnt = ""
                     page_struct.left_shift_4_cur = 0
                     page_struct.cur_cur_pos = 0
@@ -798,6 +799,8 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
     if cmd[0:3] == "go2":
         _, ps.num_page = cmd.split()
         ps.num_page = int(ps.num_page)
+        if not modes.path_autocomplete.state:
+            var_4_hotKeys.prnt = ""
         if ps.num_page > lp:
             ps.num_page = lp
     if cmd[0:2] == "fp":
