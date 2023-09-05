@@ -816,7 +816,6 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
             achtung(p)
         except AttributeError:
             pass
-        return
     run_viewers(ps.c2r, fileListMain, cmd)
 def manage_pages(fileListMain: list, ps: page_struct):
     exec(keyCodes())
