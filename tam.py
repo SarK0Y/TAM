@@ -303,6 +303,7 @@ def switch_global_list(Key: str):
         partial.path += str(Key)
     if modes.path_autocomplete.state:
         globalLists.ls = createDirList(partial.path, "-maxdepth 1")
+        achtung(f"ls = {globalLists.ls}")
     if globalLists.ls != []:
           globalLists.fileListMain = globalLists.ls
           return "go2 0"
@@ -311,12 +312,25 @@ def switch_global_list(Key: str):
 def createDirList(dirname: str, opts: str) -> list:
     funcName = "createDirList"
     path, head = os.path.split(dirname)
-    cmd = ""
-    cmd = f"find -L '{path}' {opts}|grep -E '{head}'"
-    achtung(path)
+    cmd = f"find -L {path} {opts}|grep -E {head}"
+    achtung(f"{funcName}{path}, {head}")
     list0 = run_cmd(cmd)
-    list0 = codecs.decode(list0[0])
-    list0 = list0.split('\n')
+    try:
+        list0 = codecs.decode(list0[0])
+        list0 = list0.split('\n')
+    except TypeError:
+        pass
+    log(str(list0), 0, funcName)
+    achtung(f"11111{list0}")
+    if list0 == ['']:
+        cmd = f"find -L {path} {opts}"
+        list0 = run_cmd(cmd)
+    try:
+        list0 = codecs.decode(list0[0])
+        list0 = list0.split('\n')
+    except TypeError:
+        pass
+    achtung(f"111111111{funcName}{list0}, {head}")
     return list0
 def run_cmd(cmd: str, opts: str, timeout0: float = 100) -> list:
     cmd = [f"{str(cmd)} {str(opts)}", ]
@@ -324,6 +338,7 @@ def run_cmd(cmd: str, opts: str, timeout0: float = 100) -> list:
     return p.communicate(timeout=timeout0)
 def run_cmd(cmd: str, timeout0: float = 100) -> list:
     cmd = [f"{str(cmd)}", ]
+    achtung(cmd)
     p = sp.Popen(cmd, shell=True, stderr=sp.PIPE, stdout=sp.PIPE)
     return p.communicate(timeout=timeout0)
 def reset_autocomplete():
@@ -524,8 +539,10 @@ def hotKeys(prompt: str) -> str:
             kCodes.Key = None
         if kCodes.INSERT == Key:
             indx = int(input("Please, enter indx of dir/file name to autocomplete: "))
-            name = globalLists.fileListMain[indx]
+            name = escapeSymbols(globalLists.fileListMain[indx])
             var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(partial.path, name)
+            page_struct.cur_cur_pos += (len(name) - len(partial.path))
+            partial.path = name
             return f"go2 {modes.path_autocomplete.page_struct.num_page}"
         if kCodes.F1 == Key:
             if globalLists.ls == []:
@@ -805,6 +822,7 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
         ps.num_page = int(ps.num_page)
         if ps.num_page > lp:
             ps.num_page = lp
+        achtung(var_4_hotKeys.prnt)
     if cmd[0:2] == "fp":
         try:
             _, file_indx = cmd.split()
