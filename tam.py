@@ -1,6 +1,6 @@
 import random
 import re
-import subprocess
+import io
 from tabulate import tabulate
 import sys, os, signal
 import click
@@ -315,8 +315,10 @@ def createDirList(dirname: str, opts: str) -> list:
     cmd = f"find -L {path} {opts}|grep -E {head}"
     achtung(f"{funcName}{path}, {head}")
     list0 = run_cmd(cmd)
+    achtung(list0[0])
     try:
-        list0 = codecs.decode(list0[0])
+        list0 = open(list0[0], "+r").read()
+        list0 = codecs.decode(list0)
         list0 = list0.split('\n')
     except TypeError:
         pass
@@ -324,9 +326,12 @@ def createDirList(dirname: str, opts: str) -> list:
     achtung(f"11111{list0}")
     if list0 == ['']:
         cmd = f"find -L {path} {opts}"
+        achtung(f"cmd = {cmd}")
         list0 = run_cmd(cmd)
+        achtung(list0[0])
     try:
-        list0 = codecs.decode(list0[0])
+        list0 = open(str(list0[0]), "r").read()
+        list0 = codecs.decode(list0)
         list0 = list0.split('\n')
     except TypeError:
         pass
@@ -339,8 +344,12 @@ def run_cmd(cmd: str, opts: str, timeout0: float = 100) -> list:
 def run_cmd(cmd: str, timeout0: float = 100) -> list:
     cmd = [f"{str(cmd)}", ]
     achtung(cmd)
-    p = sp.Popen(cmd, shell=True, stderr=sp.PIPE, stdout=sp.PIPE)
-    return p.communicate(timeout=timeout0)
+    stderr0_name = f"/tmp/run_cmd_err{str(random.random())}"
+    stderr0 = open(stderr0_name, "w+")
+    stdout0_name = f"/tmp/run_cmd_out{str(random.random())}"
+    stdout0 = open(stdout0_name, "w+")
+    p = sp.Popen(cmd, shell=True, stderr=stderr0, stdout=stdout0)
+    return [stdout0_name, stderr0_name]
 def reset_autocomplete():
     modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
     partial.path = ""
@@ -360,6 +369,10 @@ def apostrophe_split(str0: str, delim: str) -> str:
     return strLoc
 
 def escapeSymbols(name: str, symbIndx = -1):
+    try:
+        if len(name) == 0: return name
+    except TypeError:
+        return name
     quote = ''
     if (name[0] == "\'" or name[0] == "\`") and name[0] == name[-1]:
         quote = name[0]
