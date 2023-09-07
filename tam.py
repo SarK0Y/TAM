@@ -868,7 +868,6 @@ def manage_pages(fileListMain: list, ps: page_struct):
             __manage_pages.ps_bkp = copy.copy(ps)
             __manage_pages.c2r_bkp = c2r
             ps = copy.copy(modes.path_autocomplete.page_struct)
-            log(str(modes.path_autocomplete.page_struct.num_page), 787, funcName)
         else:
             try:
                 ps = copy.copy(__manage_pages.ps_bkp)
@@ -907,9 +906,10 @@ def manage_pages(fileListMain: list, ps: page_struct):
                 if looped < 2:
                     continue
             errMsg("Unfortunately, Nothing has been found.", "TAM")
+            if checkArg("-dont-exit"): continue
             SYS()
             sys.exit(-2)
-        print(cmd)
+        print(f"{partial.path = :.^10}")
         try:
             cmd = custom_input(var_4_hotKeys.prompt)
         except KeyboardInterrupt:
@@ -944,13 +944,14 @@ def make_page_of_files2(fileListMain: list, ps: page_struct):
             try:
                 if os.path.isdir(str(fileListMain[indx])):
                    slash = "/"
-                _, item = os.path.split(escapeSymbols(fileListMain[indx]))
+                fs_obj = escapeSymbols(fileListMain[indx])
+                _, item = os.path.split(fs_obj)
                 item = item.replace("\\", "")
                 if keys.dirty_mode: print(f"len item = {len(item)}")
                 len_item += len(item)
                 if modes.path_autocomplete.state:
                     len_item = 5
-                if len(item) == 1:
+                if len(item) == 1 and not os.path.exists(fs_obj):
                     raise IndexError
                 row.append(str(indx) + ":" + item + slash + " " * ps.num_spaces)
             except IndexError:
