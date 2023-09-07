@@ -279,12 +279,11 @@ def switch_global_list(Key: str):
         partial.path = partial.path[:-1]
         return updateDirList(ps)
     if modes.path_autocomplete.state:
-        print(f"len = {len(globalLists.fileListMain)}\n{globalLists.fileListMain}")
         if len(globalLists.fileListMain) == 2:
             ΔL = len(globalLists.fileListMain[0]) - len(partial.path)
             page_struct.cur_cur_pos += ΔL
             slash = ""
-            if os.path.isdir(globalLists.fileListMain[0]):
+            if os.path.isdir(str(globalLists.fileListMain[0])):
                 slash = "/"
             try:
                 lost_symb = globalLists.fileListMain[0][len(partial.path)]
@@ -294,7 +293,6 @@ def switch_global_list(Key: str):
                 var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(f"{partial.path}", f"{globalLists.fileListMain[0]}{slash}")
                 var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace("//", "/")
             partial.path = globalLists.fileListMain[0] + slash
-            achtung(f"'{partial.path}'")
         else:
             partial.path += str(Key)
     if Key == '/' and not modes.path_autocomplete.fst_hit:
@@ -303,39 +301,47 @@ def switch_global_list(Key: str):
         partial.path += str(Key)
     if modes.path_autocomplete.state:
         globalLists.ls = createDirList(partial.path, "-maxdepth 1")
-        achtung(f"ls = {globalLists.ls}")
     if globalLists.ls != []:
           globalLists.fileListMain = globalLists.ls
           return "go2 0"
     else:
         return "cont"
+def list_from_file(cmd: str) -> list:
+    funcName = "list_from_file"
+    list0 = run_cmd(cmd)
+    try:
+        out = copy.copy(list0[0])
+        err = copy.copy(list0[1])
+        list0 = open(out)
+        #list0 = codecs.decode(list0)
+    except TypeError:
+        print("type err")
+        pass
+    retList = []
+    if list0 is None: achtung("no fd")
+    if keys.dirty_mode: print(err, out)
+    #while True:
+     #   path = list0.readline()
+    for path in iter(list0.readline, b''):
+        print(f"path == {path}") #77777777
+        if path !="":
+          if path[-1] == '\n':
+              retList.append(path[:-1])
+          else:
+              retList.append(path)
+        else:
+          break
+    print(retList)
+    return retList
 def createDirList(dirname: str, opts: str) -> list:
     funcName = "createDirList"
     path, head = os.path.split(dirname)
-    cmd = f"find -L {path} {opts}|grep -E {head}"
-    achtung(f"{funcName}{path}, {head}")
-    list0 = run_cmd(cmd)
-    achtung(list0[0])
-    try:
-        list0 = open(list0[0], "+r").read()
-        list0 = codecs.decode(list0)
-        list0 = list0.split('\n')
-    except TypeError:
-        pass
-    log(str(list0), 0, funcName)
-    achtung(f"11111{list0}")
-    if list0 == ['']:
+    cmd = f"find -L {path} {opts}|grep -Ei '{head}'"
+    list0 = list_from_file(cmd)
+    if list0 == []:
         cmd = f"find -L {path} {opts}"
-        achtung(f"cmd = {cmd}")
-        list0 = run_cmd(cmd)
-        achtung(list0[0])
-    try:
-        list0 = open(str(list0[0]), "r").read()
-        list0 = codecs.decode(list0)
-        list0 = list0.split('\n')
-    except TypeError:
-        pass
-    achtung(f"111111111{funcName}{list0}, {head}")
+        list0 = list_from_file(cmd)
+    partial.retList = list0
     return list0
 def run_cmd(cmd: str, opts: str, timeout0: float = 100) -> list:
     cmd = [f"{str(cmd)} {str(opts)}", ]
@@ -343,12 +349,12 @@ def run_cmd(cmd: str, opts: str, timeout0: float = 100) -> list:
     return p.communicate(timeout=timeout0)
 def run_cmd(cmd: str, timeout0: float = 100) -> list:
     cmd = [f"{str(cmd)}", ]
-    achtung(cmd)
     stderr0_name = f"/tmp/run_cmd_err{str(random.random())}"
     stderr0 = open(stderr0_name, "w+")
     stdout0_name = f"/tmp/run_cmd_out{str(random.random())}"
     stdout0 = open(stdout0_name, "w+")
     p = sp.Popen(cmd, shell=True, stderr=stderr0, stdout=stdout0)
+    p.communicate()
     return [stdout0_name, stderr0_name]
 def reset_autocomplete():
     modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
@@ -835,7 +841,6 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
         ps.num_page = int(ps.num_page)
         if ps.num_page > lp:
             ps.num_page = lp
-        achtung(var_4_hotKeys.prnt)
     if cmd[0:2] == "fp":
         try:
             _, file_indx = cmd.split()
@@ -845,11 +850,9 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
         except IndexError:
             top = len(globalLists.fileListMain) - 2
             errMsg(f"You gave index out of range, acceptable values [0, {top}]", funcName, 2)
-    log("tst", 769, funcName)
     if modes.path_autocomplete.state == False:
         try:
             p = __manage_pages.ps_bkp.num_page = copy.copy(ps.num_page)
-            achtung(p)
         except AttributeError:
             pass
     run_viewers(ps.c2r, fileListMain, cmd)
@@ -1032,7 +1035,7 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
     path0 = ""
     pipes.outNorm_r.flush()
     pipes.outNorm_r.seek(0)
-    print(f"\nprobe write for _r {pipes.outNorm_r.read()} pipes.outNorm_r.fileno ={pipes.outNorm_r.fileno()} ")
+    if keys.dirty_mode: print(f"\nprobe write for _r {pipes.outNorm_r.read()} pipes.outNorm_r.fileno ={pipes.outNorm_r.fileno()} ")
     prev_pos = 0
     cur_pos = 1
     for path in iter(pipes.outNorm_r.readline, b''):
@@ -1053,7 +1056,7 @@ def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
     if tmp_file is None:
         cmd = [f"find -L '{path}' -type f{in_name};echo '\n{pipes.stop}'"]
 
-    print(f"{funcName} {cmd}")
+    if keys.dirty_mode: print(f"{funcName} {cmd}")
     lapse.find_files_start = time.time_ns()
     proc = sp.Popen(
         cmd,
@@ -1062,7 +1065,7 @@ def find_files(path: str, pipes: PIPES, in_name: str, tmp_file: str = None):
         shell=True
         )
     lapse.find_files_stop = time.time_ns()
-    print(f"{funcName} exited")
+    if keys.dirty_mode: print(f"{funcName} exited")
     return proc
 # End threads
 #measure performance
@@ -1155,7 +1158,7 @@ def if_no_quotes(num0: int, cmd_len:int) -> str:
     grep0 = ''
     grep_keys = ''
     i0: int
-    print(f"num0 = {num0}, cmdLen = {cmd_len}, argv = {sys.argv}")
+    if keys.dirty_mode: print(f"num0 = {num0}, cmdLen = {cmd_len}, argv = {sys.argv}")
     for i0 in range(num0, cmd_len):
         if sys.argv[i0][0:1] != "-":
            grep0 += f" {sys.argv[i0]}"
@@ -1168,7 +1171,7 @@ def if_no_quotes(num0: int, cmd_len:int) -> str:
             if sys.argv[i0] == "-in_name":
                 i0 -=1
             return [grep0, i0]
-    print(f"num0 from if_ = {sys.argv[num0]}")
+    if keys.dirty_mode: print(f"num0 from if_ = {sys.argv[num0]}")
 def put_in_name() -> str:
     funcName = "put_in_name"
     cmd_len = len(sys.argv)
@@ -1182,12 +1185,12 @@ def put_in_name() -> str:
         if sys.argv[i0] == "-in_name":
             i0 = i0 + 1
             tmp = if_no_quotes(i0, cmd_len)
-            print(f"tmp {tmp}")
+            if keys.dirty_mode: print(f"tmp {tmp}")
             if tmp is not None:
                 final_grep += f" {tmp[0]}"
                 i0 = tmp[1]
         i0 += 1
-        print(f"{funcName} i0 = {i0} final_grep = {final_grep}")
+        if keys.dirty_mode: print(f"{funcName} i0 = {i0} final_grep = {final_grep}")
     return final_grep
 def cmd():
     var_4_hotKeys.prnt = ""
@@ -1196,7 +1199,6 @@ def cmd():
     sys.argv.append("-!") # Stop code
     print(f"argv = {sys.argv}")
     SetDefaultKonsoleTitle()
-    print("start cmd")
     sys.argv[0] = str(sys.argv)
    # self_recursion()
     cmd_len = len(sys.argv)
@@ -1209,7 +1211,7 @@ def cmd():
         if cmd_key == "-ver":
             info()
         if "-argv0" == cmd_key:
-            print(f"argv = {sys.argv}")
+            if keys.dirty_mode: print(f"argv = {sys.argv}")
             sys.exit()
         if cmd_key == "-time_prec":
             i = i + 1
