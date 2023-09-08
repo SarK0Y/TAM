@@ -358,7 +358,8 @@ def reset_autocomplete():
     modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
     partial.path = ""
     globalLists.ls = []
-    globalLists.fileListMain = globalLists.bkp
+    if globalLists.bkp != []:
+        globalLists.fileListMain = globalLists.bkp
 def flushInputBuffer():
     page_struct.left_shift_4_cur = 0
     page_struct.cur_cur_pos = 0
@@ -818,6 +819,7 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
             file_indx = int(file_indx)
         except ValueError:
             return
+    achtung(globalLists.fileListMain)
     file2run: str = globalLists.fileListMain[file_indx]
     file2run = escapeSymbols(file2run)
     cmd = f'{c2r.viewer[viewer_indx]}'
