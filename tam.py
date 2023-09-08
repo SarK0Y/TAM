@@ -819,7 +819,6 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
             file_indx = int(file_indx)
         except ValueError:
             return
-    achtung(globalLists.fileListMain)
     file2run: str = globalLists.fileListMain[file_indx]
     file2run = escapeSymbols(file2run)
     cmd = f'{c2r.viewer[viewer_indx]}'
