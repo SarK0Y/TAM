@@ -557,10 +557,20 @@ def hotKeys(prompt: str) -> str:
                 indx = int(input("Please, enter indx of dir/file name to autocomplete: "))
             except ValueError:
                 return ""
-            name = escapeSymbols(globalLists.fileListMain[indx])
+            slash = ""
+            try:
+                if os.path.isdir(str(globalLists.fileListMain[indx])):
+                   slash = "/"
+                name = escapeSymbols(globalLists.fileListMain[indx]) + slash
+            except IndexError:
+                errMsg("the indx is out of range.", funcName, 2)
+                kCodes.Key = kCodes.INSERT
+                continue
             var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(partial.path, name)
             page_struct.cur_cur_pos += (len(name) - len(partial.path))
             partial.path = name
+            switch_global_list(slash)
+            partial.path = partial.path.replace("//", "/")
             return f"go2 {modes.path_autocomplete.page_struct.num_page}"
         if kCodes.F1 == Key:
             if globalLists.ls == []:
