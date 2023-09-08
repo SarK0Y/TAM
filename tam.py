@@ -557,7 +557,10 @@ def hotKeys(prompt: str) -> str:
             Key = kCodes.Key
             kCodes.Key = None
         if kCodes.INSERT == Key:
-            indx = int(input("Please, enter indx of dir/file name to autocomplete: "))
+            try:
+                indx = int(input("Please, enter indx of dir/file name to autocomplete: "))
+            except ValueError:
+                return ""
             name = escapeSymbols(globalLists.fileListMain[indx])
             var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(partial.path, name)
             page_struct.cur_cur_pos += (len(name) - len(partial.path))
@@ -906,7 +909,9 @@ def manage_pages(fileListMain: list, ps: page_struct):
                 if looped < 2:
                     continue
             errMsg("Unfortunately, Nothing has been found.", "TAM")
-            if checkArg("-dont-exit"): continue
+            if checkArg("-dont-exit"): 
+                cmd = custom_input(var_4_hotKeys.prompt)
+                continue
             SYS()
             sys.exit(-2)
         print(f"{partial.path = :.^10}")
