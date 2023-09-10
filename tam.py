@@ -18,7 +18,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "8-21"
+    rev = "8-27"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -626,7 +626,6 @@ def hotKeys(prompt: str) -> str:
             if not var_4_hotKeys.ENTER_MODE:
                 var_4_hotKeys.save_prnt = var_4_hotKeys.prnt
                 var_4_hotKeys.save_prompt = var_4_hotKeys.prompt
-                reset_autocomplete()
                 ret = handleENTER(fileName)
                 try:
                     raise AttributeError
@@ -639,8 +638,10 @@ def hotKeys(prompt: str) -> str:
                 var_4_hotKeys.prnt = var_4_hotKeys.prnt
                 ret = handleENTER(fileName)
             if "cont" == ret:
+                #reset_autocomplete()
                 continue
             var_4_hotKeys.prompt = var_4_hotKeys.save_prompt
+            #reset_autocomplete()
             return ret
         if kCodes.DELETE == Key:
             if page_struct.left_shift_4_cur == 0:
@@ -806,7 +807,7 @@ def init_view(c2r: childs2run):
             i += 1
     return c2r
 def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
-    viewer_indx: int = 1
+    viewer_indx: int = 0
     file_indx: int = 0
     try:
         viewer_indx, file_indx = cmd.split()
@@ -819,8 +820,11 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
             file_indx = int(file_indx)
         except ValueError:
             return
-    file2run: str = globalLists.fileListMain[file_indx]
-    file2run = escapeSymbols(file2run)
+    if partial.path == "":
+        file2run: str = globalLists.fileListMain[file_indx]
+        file2run = escapeSymbols(file2run)
+    else:
+        file2run = partial.path
     cmd = f'{c2r.viewer[viewer_indx]}'
     cmd_line = f'{c2r.viewer[viewer_indx]}' + ' ' + f"{file2run} > /dev/null 2>&1"
     cmd = [cmd_line,]
@@ -867,6 +871,7 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
         except AttributeError:
             pass
     run_viewers(ps.c2r, fileListMain, cmd)
+    #reset_autocomplete()
 def manage_pages(fileListMain: list, ps: page_struct):
     exec(keyCodes())
     make_page_struct() #(modes.path_autocomplete.page_struct)
