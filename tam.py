@@ -94,11 +94,13 @@ class var_4_hotKeys:
     save_prnt_to_copy_file: str = ""
     prnt_short: str = ""
     prnt_full: str = ""
+    prnt_step_back: str = ""
     copyfile_msg: str = ""
     fileName: str = ""
     fileIndx: int
     full_length: int
     ENTER_MODE = False
+    only_1_slash = ""
 # Terminals
 class kCodes:
     Key = None
@@ -262,7 +264,7 @@ def make_page_struct():
        modes.path_autocomplete.page_struct = ps
 def updateDirList():
     if modes.path_autocomplete.state:
-        globalLists.ls = createDirList(escapeSymbols(partial.path), "-maxdepth 1")
+        globalLists.ls = createDirList(partial.path, "-maxdepth 1")
     if globalLists.ls != []:
           globalLists.fileListMain = globalLists.ls
           return "go2 0"
@@ -280,15 +282,15 @@ def switch_global_list(Key: str):
         return updateDirList()
     if modes.path_autocomplete.state:
         if len(globalLists.fileListMain) == 1:
+            var_4_hotKeys.prnt = var_4_hotKeys.prnt_step_back
             ΔL = len(globalLists.fileListMain[0]) - len(partial.path)
             page_struct.cur_cur_pos += ΔL
             slash = ""
             if os.path.isdir(str(globalLists.fileListMain[0])):
                 slash = "/"
             try:
-                lost_symb = globalLists.fileListMain[0][len(partial.path)]
-                var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(f"{partial.path}{lost_symb}", f"{globalLists.fileListMain[0]}{slash}")
-                var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace("//", "/")
+                partial.path = partial.path.replace(r'//', '/')
+                var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(f"{partial.path}", f"{globalLists.fileListMain[0]}{slash}")
             except IndexError:
                 var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(f"{partial.path}", f"{globalLists.fileListMain[0]}{slash}")
                 var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace("//", "/")
@@ -300,7 +302,7 @@ def switch_global_list(Key: str):
         globalLists.bkp = copy.copy(globalLists.fileListMain)
         partial.path += str(Key)
     if modes.path_autocomplete.state:
-        globalLists.ls = createDirList(escapeSymbols(partial.path), "-maxdepth 1")
+        globalLists.ls = createDirList(partial.path, "-maxdepth 1")
     if globalLists.ls != []:
           globalLists.fileListMain = globalLists.ls
           return "go2 0"
@@ -335,6 +337,7 @@ def createDirList(dirname: str, opts: str) -> list:
     funcName = "createDirList"
     path, head = os.path.split(dirname)
     head0 = head.replace('\\', '')
+    path = escapeSymbols(path)
     cmd = f"find -L {path} {opts}|grep -Ei '{head0}'"
     list0 = list_from_file(cmd)
     if list0 == []:
@@ -359,6 +362,7 @@ def reset_autocomplete():
     modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
     partial.path = ""
     globalLists.ls = []
+    var_4_hotKeys.only_1_slash = ""
     if globalLists.bkp != []:
         globalLists.fileListMain = globalLists.bkp
 def flushInputBuffer():
@@ -563,12 +567,14 @@ def hotKeys(prompt: str) -> str:
             try:
                 if os.path.isdir(str(globalLists.fileListMain[indx])):
                    slash = "/"
-                name = escapeSymbols(globalLists.fileListMain[indx]) + slash
+                name = (globalLists.fileListMain[indx]) + slash
             except IndexError:
                 errMsg("the indx is out of range.", funcName, 2)
                 kCodes.Key = kCodes.INSERT
                 continue
-            var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(partial.path, name)
+            """
+            """
+            var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(f"{partial.path}", name)
             page_struct.cur_cur_pos += (len(name) - len(partial.path))
             partial.path = name
             switch_global_list(slash)
@@ -637,7 +643,6 @@ def hotKeys(prompt: str) -> str:
                 except AttributeError:
                     var_4_hotKeys.ENTER_MODE = False
             else:
-                var_4_hotKeys.prnt = var_4_hotKeys.prnt
                 ret = handleENTER(fileName)
             if "cont" == ret:
                 #reset_autocomplete()
@@ -684,7 +689,16 @@ def hotKeys(prompt: str) -> str:
             full_length = var_4_hotKeys.full_length
             continue
         else:
-            if page_struct.cur_cur_pos + 1 == full_length and page_struct.left_shift_4_cur == 0:
+            if var_4_hotKeys.only_1_slash == Key and Key == '/':
+                var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace('//', '/')
+                partial.path = partial.path.replace('//', '/')
+                writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
+                """"""
+            else:
+                page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
+            var_4_hotKeys.only_1_slash = Key
+            if page_struct.cur_cur_pos == full_length and page_struct.left_shift_4_cur == 0:
+                var_4_hotKeys.prnt_step_back = var_4_hotKeys.prnt
                 var_4_hotKeys.prnt += f"{Key}"
                 globalLists.ret = switch_global_list(Key)
                 if globalLists.ret == "cont":
@@ -692,8 +706,8 @@ def hotKeys(prompt: str) -> str:
                 else:
                     return globalLists.ret
             else:
+                var_4_hotKeys.prnt_step_back = var_4_hotKeys.prnt
                 var_4_hotKeys.prnt =f"{var_4_hotKeys.prnt[:page_struct.cur_cur_pos]}{Key}{var_4_hotKeys.prnt[page_struct.cur_cur_pos:]}"
-            page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
             writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
             globalLists.ret = switch_global_list(Key)
             if globalLists.ret == "cont":
@@ -792,7 +806,7 @@ def info():
 def help():
     print("np - next page pp - previous page 0p - 1st page lp - last page go2 <number of page>", end='')
 def achtung(msg):
-    os.system(f"wall '{msg}'")
+    os.system(f"notify-send '{msg}'")
 def log(msg, num_line: int, funcName: str):
     f = open("/tmp/it.log", mode="w")
     print(f"{funcName} said cmd = {msg} at line: {str(num_line)}", file=f)
@@ -809,6 +823,7 @@ def init_view(c2r: childs2run):
             i += 1
     return c2r
 def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
+    funcName = "run_viewers"
     viewer_indx: int = 0
     file_indx: int = 0
     try:
@@ -826,7 +841,7 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
         file2run: str = globalLists.fileListMain[file_indx]
         file2run = escapeSymbols(file2run)
     else:
-        file2run = partial.path
+        file2run = escapeSymbols(partial.path)
     cmd = f'{c2r.viewer[viewer_indx]}'
     cmd_line = f'{c2r.viewer[viewer_indx]}' + ' ' + f"{file2run} > /dev/null 2>&1"
     cmd = [cmd_line,]
