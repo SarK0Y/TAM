@@ -260,7 +260,7 @@ def make_page_struct():
           ps.c2r = init_view(ps.c2r)
           ps.num_page = 0
        modes.path_autocomplete.page_struct = ps
-def updateDirList(ps: page_struct):
+def updateDirList():
     if modes.path_autocomplete.state:
         globalLists.ls = createDirList(escapeSymbols(partial.path), "-maxdepth 1")
     if globalLists.ls != []:
@@ -277,7 +277,7 @@ def switch_global_list(Key: str):
         return "cont"
     if kCodes.BACKSPACE == ord0(Key):
         partial.path = partial.path[:-1]
-        return updateDirList(ps)
+        return updateDirList()
     if modes.path_autocomplete.state:
         if len(globalLists.fileListMain) == 1:
             ΔL = len(globalLists.fileListMain[0]) - len(partial.path)
@@ -334,7 +334,6 @@ def list_from_file(cmd: str) -> list:
 def createDirList(dirname: str, opts: str) -> list:
     funcName = "createDirList"
     path, head = os.path.split(dirname)
-    print(f"{head =}")
     head0 = head.replace('\\', '')
     cmd = f"find -L {path} {opts}|grep -Ei '{head0}'"
     list0 = list_from_file(cmd)
@@ -574,6 +573,7 @@ def hotKeys(prompt: str) -> str:
             partial.path = name
             switch_global_list(slash)
             partial.path = partial.path.replace("//", "/")
+            updateDirList()
             return f"go2 {modes.path_autocomplete.page_struct.num_page}"
         if kCodes.F1 == Key:
             if globalLists.ls == []:
