@@ -262,7 +262,7 @@ def make_page_struct():
        modes.path_autocomplete.page_struct = ps
 def updateDirList(ps: page_struct):
     if modes.path_autocomplete.state:
-        globalLists.ls = createDirList(partial.path, "-maxdepth 1")
+        globalLists.ls = createDirList(escapeSymbols(partial.path), "-maxdepth 1")
     if globalLists.ls != []:
           globalLists.fileListMain = globalLists.ls
           return "go2 0"
@@ -300,7 +300,7 @@ def switch_global_list(Key: str):
         globalLists.bkp = copy.copy(globalLists.fileListMain)
         partial.path += str(Key)
     if modes.path_autocomplete.state:
-        globalLists.ls = createDirList(partial.path, "-maxdepth 1")
+        globalLists.ls = createDirList(escapeSymbols(partial.path), "-maxdepth 1")
     if globalLists.ls != []:
           globalLists.fileListMain = globalLists.ls
           return "go2 0"
@@ -334,7 +334,9 @@ def list_from_file(cmd: str) -> list:
 def createDirList(dirname: str, opts: str) -> list:
     funcName = "createDirList"
     path, head = os.path.split(dirname)
-    cmd = f"find -L {path} {opts}|grep -Ei '{head}'"
+    print(f"{head =}")
+    head0 = head.replace('\\', '')
+    cmd = f"find -L {path} {opts}|grep -Ei '{head0}'"
     list0 = list_from_file(cmd)
     if list0 == []:
         cmd = f"find -L {path} {opts}"
