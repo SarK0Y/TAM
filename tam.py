@@ -48,6 +48,7 @@ class globalLists:
     fileListMain: list = []
     ls:  list = []
     bkp: list = []
+    fileListMain0: list = []
     ret = ""
 class childs2run:
     running: list = []
@@ -236,6 +237,11 @@ def handleTAB(prompt: str):
             page_struct.cur_cur_pos = len(var_4_hotKeys.prnt_short)
         var_4_hotKeys.full_length = len(var_4_hotKeys.prnt)
         writeInput_str(prompt, var_4_hotKeys.prnt, len(var_4_hotKeys.prnt_full))
+class once:
+    def once_copy() -> None:
+       globalLists.fileListMain0 = copy.copy(globalLists.fileListMain)
+       achtung(globalLists.fileListMain0)
+    def nop(): pass
 def list_autocomplete_pages(Key: str): 
     if not modes.path_autocomplete.state:
         return
@@ -364,7 +370,7 @@ def reset_autocomplete():
     globalLists.ls = []
     var_4_hotKeys.only_1_slash = ""
     if globalLists.bkp != []:
-        globalLists.fileListMain = globalLists.bkp
+        globalLists.fileListMain = copy.copy(globalLists.fileListMain0)
 def flushInputBuffer():
     page_struct.left_shift_4_cur = 0
     page_struct.cur_cur_pos = 0
@@ -428,6 +434,7 @@ def renameFile(fileName: str, cmd: str):
     else:
         fileName = f"{cmd}"
     globalLists.fileListMain[int(fileIndx.group(0))] = fileName
+    globalLists.fileListMain0[int(fileIndx.group(0))] = fileName
     fileName = escapeSymbols(fileName)
     old_name = escapeSymbols(old_name)
     if_path_not_existed, _ = os.path.split(fileName)
@@ -489,6 +496,7 @@ def copyFile(fileName: str, cmd: str, dontInsert = False):
         fileName = f"{cmd}"
         if not dontInsert:
             globalLists.fileListMain.insert(int(fileIndx.group(0)), fileName)
+            globalLists.fileListMain0.insert(int(fileIndx.group(0)), fileName)
     fileName = escapeSymbols(fileName)
     old_name = escapeSymbols(old_name)
     if_path_not_existed, _ = os.path.split(fileName)
@@ -634,7 +642,11 @@ def hotKeys(prompt: str) -> str:
             if not var_4_hotKeys.ENTER_MODE:
                 var_4_hotKeys.save_prnt = var_4_hotKeys.prnt
                 var_4_hotKeys.save_prompt = var_4_hotKeys.prompt
-                ret = handleENTER(fileName)
+                try:
+                    ret = handleENTER(fileName)
+                except IndexError:
+                    reset_autocomplete()
+                    ret = handleENTER(fileName)
                 try:
                     raise AttributeError
                     var_4_hotKeys.prnt = ""
@@ -643,12 +655,12 @@ def hotKeys(prompt: str) -> str:
                 except AttributeError:
                     var_4_hotKeys.ENTER_MODE = False
             else:
+                reset_autocomplete()
                 ret = handleENTER(fileName)
             if "cont" == ret:
-                #reset_autocomplete()
                 continue
             var_4_hotKeys.prompt = var_4_hotKeys.save_prompt
-            #reset_autocomplete()
+            reset_autocomplete()
             return ret
         if kCodes.DELETE == Key:
             if page_struct.left_shift_4_cur == 0:
@@ -889,7 +901,7 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
             pass
     run_viewers(ps.c2r, fileListMain, cmd)
     #reset_autocomplete()
-def manage_pages(fileListMain: list, ps: page_struct):
+def manage_pages(fileListMain: list, ps: page_struct, once0: once = once.once_copy):
     exec(keyCodes())
     make_page_struct() #(modes.path_autocomplete.page_struct)
     funcName = "manage_pages"
@@ -925,6 +937,9 @@ def manage_pages(fileListMain: list, ps: page_struct):
         #achtung(f"{globalLists.bkp}\n{globalLists.fileListMain}")
         log(globalLists.fileListMain, 0, funcName)
         table, too_short_row = make_page_of_files2(globalLists.fileListMain, ps)
+        once0()
+        once0 = nop
+        achtung(globalLists.fileListMain0)
         if keys.dirty_mode:
             print(table)
         try:
@@ -1298,7 +1313,6 @@ def cmd():
                 ps.col_width = int(col_w)
             ps.c2r = childs2run()
             ps.c2r = init_view(ps.c2r)
-            table = make_page_of_files(globalLists.fileListMain, ps)
             manage_pages(globalLists.fileListMain, ps)
 #pressKey()
 if __name__ == "__main__":
