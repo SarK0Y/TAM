@@ -18,7 +18,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "8-..tst"
+    rev = "8-27"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -94,11 +94,13 @@ class var_4_hotKeys:
     save_prnt_to_copy_file: str = ""
     prnt_short: str = ""
     prnt_full: str = ""
+    prnt_step_back: str = ""
     copyfile_msg: str = ""
     fileName: str = ""
     fileIndx: int
     full_length: int
     ENTER_MODE = False
+    only_1_slash = ""
 # Terminals
 class kCodes:
     Key = None
@@ -260,7 +262,7 @@ def make_page_struct():
           ps.c2r = init_view(ps.c2r)
           ps.num_page = 0
        modes.path_autocomplete.page_struct = ps
-def updateDirList(ps: page_struct):
+def updateDirList():
     if modes.path_autocomplete.state:
         globalLists.ls = createDirList(partial.path, "-maxdepth 1")
     if globalLists.ls != []:
@@ -277,18 +279,18 @@ def switch_global_list(Key: str):
         return "cont"
     if kCodes.BACKSPACE == ord0(Key):
         partial.path = partial.path[:-1]
-        return updateDirList(ps)
+        return updateDirList()
     if modes.path_autocomplete.state:
         if len(globalLists.fileListMain) == 1:
+            var_4_hotKeys.prnt = var_4_hotKeys.prnt_step_back
             ΔL = len(globalLists.fileListMain[0]) - len(partial.path)
             page_struct.cur_cur_pos += ΔL
             slash = ""
             if os.path.isdir(str(globalLists.fileListMain[0])):
                 slash = "/"
             try:
-                lost_symb = globalLists.fileListMain[0][len(partial.path)]
-                var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(f"{partial.path}{lost_symb}", f"{globalLists.fileListMain[0]}{slash}")
-                var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace("//", "/")
+                partial.path = partial.path.replace(r'//', '/')
+                var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(f"{partial.path}", f"{globalLists.fileListMain[0]}{slash}")
             except IndexError:
                 var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(f"{partial.path}", f"{globalLists.fileListMain[0]}{slash}")
                 var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace("//", "/")
@@ -334,7 +336,9 @@ def list_from_file(cmd: str) -> list:
 def createDirList(dirname: str, opts: str) -> list:
     funcName = "createDirList"
     path, head = os.path.split(dirname)
-    cmd = f"find -L {path} {opts}|grep -Ei '{head}'"
+    head0 = head.replace('\\', '')
+    path = escapeSymbols(path)
+    cmd = f"find -L {path} {opts}|grep -Ei '{head0}'"
     list0 = list_from_file(cmd)
     if list0 == []:
         cmd = f"find -L {path} {opts}"
@@ -358,7 +362,9 @@ def reset_autocomplete():
     modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
     partial.path = ""
     globalLists.ls = []
-    globalLists.fileListMain = globalLists.bkp
+    var_4_hotKeys.only_1_slash = ""
+    if globalLists.bkp != []:
+        globalLists.fileListMain = globalLists.bkp
 def flushInputBuffer():
     page_struct.left_shift_4_cur = 0
     page_struct.cur_cur_pos = 0
@@ -561,16 +567,17 @@ def hotKeys(prompt: str) -> str:
             try:
                 if os.path.isdir(str(globalLists.fileListMain[indx])):
                    slash = "/"
-                name = escapeSymbols(globalLists.fileListMain[indx]) + slash
+                name = (globalLists.fileListMain[indx]) + slash
             except IndexError:
                 errMsg("the indx is out of range.", funcName, 2)
                 kCodes.Key = kCodes.INSERT
                 continue
-            var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(partial.path, name)
+            var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(f"'{partial.path}'", name)
             page_struct.cur_cur_pos += (len(name) - len(partial.path))
             partial.path = name
             switch_global_list(slash)
             partial.path = partial.path.replace("//", "/")
+            updateDirList()
             return f"go2 {modes.path_autocomplete.page_struct.num_page}"
         if kCodes.F1 == Key:
             if globalLists.ls == []:
@@ -625,7 +632,6 @@ def hotKeys(prompt: str) -> str:
             if not var_4_hotKeys.ENTER_MODE:
                 var_4_hotKeys.save_prnt = var_4_hotKeys.prnt
                 var_4_hotKeys.save_prompt = var_4_hotKeys.prompt
-                reset_autocomplete()
                 ret = handleENTER(fileName)
                 try:
                     raise AttributeError
@@ -638,8 +644,10 @@ def hotKeys(prompt: str) -> str:
                 var_4_hotKeys.prnt = var_4_hotKeys.prnt
                 ret = handleENTER(fileName)
             if "cont" == ret:
+                #reset_autocomplete()
                 continue
             var_4_hotKeys.prompt = var_4_hotKeys.save_prompt
+            #reset_autocomplete()
             return ret
         if kCodes.DELETE == Key:
             if page_struct.left_shift_4_cur == 0:
@@ -680,7 +688,20 @@ def hotKeys(prompt: str) -> str:
             full_length = var_4_hotKeys.full_length
             continue
         else:
-            if page_struct.cur_cur_pos + 1 == full_length and page_struct.left_shift_4_cur == 0:
+            if var_4_hotKeys.only_1_slash == Key and Key == '/':
+                var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace('//', '/')
+                partial.path = partial.path.replace('//', '/')
+                writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
+                globalLists.ret = switch_global_list(Key)
+                if globalLists.ret == "cont":
+                    continue
+                else:
+                    return globalLists.ret
+            else:
+                page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
+            var_4_hotKeys.only_1_slash = Key
+            if page_struct.cur_cur_pos == full_length and page_struct.left_shift_4_cur == 0:
+                var_4_hotKeys.prnt_step_back = var_4_hotKeys.prnt
                 var_4_hotKeys.prnt += f"{Key}"
                 globalLists.ret = switch_global_list(Key)
                 if globalLists.ret == "cont":
@@ -688,8 +709,8 @@ def hotKeys(prompt: str) -> str:
                 else:
                     return globalLists.ret
             else:
+                var_4_hotKeys.prnt_step_back = var_4_hotKeys.prnt
                 var_4_hotKeys.prnt =f"{var_4_hotKeys.prnt[:page_struct.cur_cur_pos]}{Key}{var_4_hotKeys.prnt[page_struct.cur_cur_pos:]}"
-            page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
             writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
             globalLists.ret = switch_global_list(Key)
             if globalLists.ret == "cont":
@@ -788,7 +809,7 @@ def info():
 def help():
     print("np - next page pp - previous page 0p - 1st page lp - last page go2 <number of page>", end='')
 def achtung(msg):
-    os.system(f"wall '{msg}'")
+    os.system(f"notify-send '{msg}'")
 def log(msg, num_line: int, funcName: str):
     f = open("/tmp/it.log", mode="w")
     print(f"{funcName} said cmd = {msg} at line: {str(num_line)}", file=f)
@@ -805,7 +826,7 @@ def init_view(c2r: childs2run):
             i += 1
     return c2r
 def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
-    viewer_indx: int = 1
+    viewer_indx: int = 0
     file_indx: int = 0
     try:
         viewer_indx, file_indx = cmd.split()
@@ -818,8 +839,11 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
             file_indx = int(file_indx)
         except ValueError:
             return
-    file2run: str = globalLists.fileListMain[file_indx]
-    file2run = escapeSymbols(file2run)
+    if partial.path == "":
+        file2run: str = globalLists.fileListMain[file_indx]
+        file2run = escapeSymbols(file2run)
+    else:
+        file2run = partial.path
     cmd = f'{c2r.viewer[viewer_indx]}'
     cmd_line = f'{c2r.viewer[viewer_indx]}' + ' ' + f"{file2run} > /dev/null 2>&1"
     cmd = [cmd_line,]
@@ -866,6 +890,7 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
         except AttributeError:
             pass
     run_viewers(ps.c2r, fileListMain, cmd)
+    #reset_autocomplete()
 def manage_pages(fileListMain: list, ps: page_struct):
     exec(keyCodes())
     make_page_struct() #(modes.path_autocomplete.page_struct)
