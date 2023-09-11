@@ -572,7 +572,9 @@ def hotKeys(prompt: str) -> str:
                 errMsg("the indx is out of range.", funcName, 2)
                 kCodes.Key = kCodes.INSERT
                 continue
-            var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(f"'{partial.path}'", name)
+            """
+            """
+            var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(f"{partial.path}", name)
             page_struct.cur_cur_pos += (len(name) - len(partial.path))
             partial.path = name
             switch_global_list(slash)
@@ -692,11 +694,7 @@ def hotKeys(prompt: str) -> str:
                 var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace('//', '/')
                 partial.path = partial.path.replace('//', '/')
                 writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
-                globalLists.ret = switch_global_list(Key)
-                if globalLists.ret == "cont":
-                    continue
-                else:
-                    return globalLists.ret
+                """"""
             else:
                 page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
             var_4_hotKeys.only_1_slash = Key
