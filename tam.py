@@ -645,8 +645,8 @@ def hotKeys(prompt: str) -> str:
                 try:
                     ret = handleENTER(fileName)
                 except IndexError:
-                    reset_autocomplete()
-                    ret = handleENTER(fileName)
+                    errMsg("Wrong indx was picked", "handleEnter", 2)
+                    continue
                 try:
                     raise AttributeError
                     var_4_hotKeys.prnt = ""
@@ -655,12 +655,10 @@ def hotKeys(prompt: str) -> str:
                 except AttributeError:
                     var_4_hotKeys.ENTER_MODE = False
             else:
-                reset_autocomplete()
                 ret = handleENTER(fileName)
             if "cont" == ret:
                 continue
             var_4_hotKeys.prompt = var_4_hotKeys.save_prompt
-            reset_autocomplete()
             return ret
         if kCodes.DELETE == Key:
             if page_struct.left_shift_4_cur == 0:
