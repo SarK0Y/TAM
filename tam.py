@@ -18,12 +18,24 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "8-27"
+    rev = "8-43"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
 stopCode = "∇\n"
 class inlines:
+    me_stop_mode1_on = """
+modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
+"""
+    me_stop_mode1 = """
+if checkArg("-me-stop-autocompletion"):
+    sys.argv.append("-me-stop-mode1")
+if not checkArg("-me-stop-mode1"):
+    inlines.me_stop_mode1 = inlines.me_stop_mode1_on
+else:
+    inlines.me_stop_mode1 = "once.nop()"
+exec(inlines.me_stop_mode1)
+"""
     updateDirList = """
 if modes.path_autocomplete.state:
     globalLists.ls = createDirList(partial.path, "-maxdepth 1")
@@ -123,7 +135,7 @@ kCodes.DOWN_ARROW = "\x1b[B"
     return keyCodes0
 def handleENTER(fileName: str) -> str:
     funcName = "handleENTER"
-    modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
+    exec(inlines.me_stop_mode1)
     var_4_hotKeys.ENTER_MODE = True
     if var_4_hotKeys.prnt[:3] == 'ren':
         var_4_hotKeys.save_prnt_to_copy_file = var_4_hotKeys.prnt
@@ -937,24 +949,18 @@ def manage_pages(fileListMain: list, ps: page_struct, once0: once = once.once_co
         table, too_short_row = make_page_of_files2(globalLists.fileListMain, ps)
         once0()
         once0 = nop
-        achtung(globalLists.fileListMain0)
         if keys.dirty_mode:
             print(table)
         try:
             print(tabulate(table, tablefmt="fancy_grid", maxcolwidths=[ps.col_width]))
         except IndexError:
-            if modes.path_autocomplete.state:
-                ps.count_pages = len(globalLists.fileListMain) // (ps.num_cols * ps.num_rows)
-            if ps.count_pages > 0 or len(globalLists.fileListMain) > 0:
+            modes.path_autocomplete.page_struct.num_page = ps.num_page = 0
+            if checkArg("-dont-exit") and looped < 1: 
                 looped += 1
-                if ps.num_page > 0:
-                    ps.num_page -= 1
-                if looped < 2:
-                    continue
-            errMsg("Unfortunately, Nothing has been found.", "TAM")
-            if checkArg("-dont-exit"): 
-                cmd = custom_input(var_4_hotKeys.prompt)
+                #cmd = custom_input(var_4_hotKeys.prompt)
                 continue
+            looped = 0
+            errMsg("Unfortunately, Nothing has been found.", "TAM")
             SYS()
             sys.exit(-2)
         print(f"{partial.path = :.^30}")
