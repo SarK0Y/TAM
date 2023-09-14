@@ -18,7 +18,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "8-43"
+    rev = "8-44"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -252,7 +252,6 @@ def handleTAB(prompt: str):
 class once:
     def once_copy() -> None:
        globalLists.fileListMain0 = copy.copy(globalLists.fileListMain)
-       achtung(globalLists.fileListMain0)
     def nop(): pass
 def list_autocomplete_pages(Key: str): 
     if not modes.path_autocomplete.state:
@@ -1248,6 +1247,8 @@ def put_in_name() -> str:
         if keys.dirty_mode: print(f"{funcName} i0 = {i0} final_grep = {final_grep}")
     return final_grep
 def cmd():
+    if checkArg("-ver") or checkArg("--version"):
+        info()
     var_4_hotKeys.prnt = ""
     if checkArg("-dirty"):
         keys.dirty_mode = True
