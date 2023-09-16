@@ -18,12 +18,32 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "8-44"
+    rev = "8-51"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
 stopCode = "∇\n"
+class tmp:
+    none = None
 class inlines:
+    switch_make_page = """
+tmp.table, tmp.too_short_row = make_page_of_files2(globalLists.fileListMain, ps)
+"""
+    make_page_of_files2 = """
+tmp.table, tmp.too_short_row = make_page_of_files2(globalLists.fileListMain, ps)
+"""
+    make_page_of_files2_li = """
+tmp.table, tmp.too_short_row = make_page_of_files2_li(globalLists.fileListMain, ps)
+"""
+    switch_run_viewer = """
+run_viewers(ps.c2r, fileListMain, cmd)
+"""
+    run_viewer = """
+run_viewers(ps.c2r, fileListMain, cmd)
+"""
+    run_viewer_li = """
+run_viewers_li(ps, fileListMain, cmd)
+"""
     me_stop_mode1_on = """
 modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
 """
@@ -874,10 +894,51 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
     if keys.dirty_mode:
         os.system(f"echo '{t.stderr} {t.stdout}' > /tmp/wrong_cmd")
     c2r.running.append(t)
-
+def run_viewers_li(ps: page_struct, fileListMain: list, cmd: str): # w/ local indices
+    funcName = "run_viewers_li"
+    c2r: childs2run = ps.c2r
+    num_page = ps.num_cols * ps.num_rows * ps.num_page
+    viewer_indx: int = 0
+    file_indx: int = 0
+    try:
+        viewer_indx, file_indx = cmd.split()
+        viewer_indx = int(viewer_indx)
+        file_indx = int(file_indx)
+    except ValueError:
+        file_indx = cmd.split()
+        file_indx = file_indx[0]
+        try:
+            file_indx = int(file_indx)
+        except ValueError:
+            return
+    if partial.path == "":
+        file2run: str = globalLists.fileListMain[file_indx + num_page]
+        file2run = escapeSymbols(file2run)
+    else:
+        file2run = escapeSymbols(partial.path)
+    cmd = f'{c2r.viewer[viewer_indx]}'
+    cmd_line = f'{c2r.viewer[viewer_indx]}' + ' ' + f"{file2run} > /dev/null 2>&1"
+    cmd = [cmd_line,]
+    stderr0 = f"/tmp/run_viewers{str(random.random())}"
+    stderr0 = open(stderr0, "w+")
+    t = sp.Popen(cmd, shell=True, stderr=stderr0)
+    if t.stderr is not None:
+        os.system(cmd_line)
+    if keys.dirty_mode:
+        os.system(f"echo '{t.stderr} {t.stdout}' > /tmp/wrong_cmd")
+    c2r.running.append(t)
 def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
     funcName = "cmd_page"
     lp = len(fileListMain) // (ps.num_cols * ps.num_rows) 
+    if cmd == "slgi":
+        if inlines.switch_make_page == inlines.make_page_of_files2:
+            inlines.switch_make_page = inlines.make_page_of_files2_li
+        else:
+            inlines.switch_make_page = inlines.make_page_of_files2
+        if inlines.switch_run_viewer == inlines.run_viewer:
+            inlines.switch_run_viewer = inlines.run_viewer_li
+        else:
+            inlines.switch_run_viewer = inlines.run_viewer
     if cmd == "np":
         ps.num_page += 1
         if ps.num_page > lp:
@@ -908,7 +969,7 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
             p = __manage_pages.ps_bkp.num_page = copy.copy(ps.num_page)
         except AttributeError:
             pass
-    run_viewers(ps.c2r, fileListMain, cmd)
+    exec(inlines.switch_run_viewer)
     #reset_autocomplete()
 def manage_pages(fileListMain: list, ps: page_struct, once0: once = once.once_copy):
     exec(keyCodes())
@@ -945,7 +1006,11 @@ def manage_pages(fileListMain: list, ps: page_struct, once0: once = once.once_co
         print(f"Viewers: \n{c2r.prnt}\n\nNumber of files/pages: {ps.num_files}/{ps.count_pages} p. {ps.num_page}\nFull path to {c2r.full_path}")
         #achtung(f"{globalLists.bkp}\n{globalLists.fileListMain}")
         log(globalLists.fileListMain, 0, funcName)
-        table, too_short_row = make_page_of_files2(globalLists.fileListMain, ps)
+        exec(inlines.switch_make_page)
+        table = tmp.table
+        too_short_row = tmp.too_short_row
+        del tmp.too_short_row
+        del tmp.table
         once0()
         once0 = nop
         if keys.dirty_mode:
@@ -1041,7 +1106,44 @@ def make_page_of_files(fileListMain: list, ps: page_struct):
         row = []
     too_short_row = len(table)
     return table, too_short_row
-
+def make_page_of_files2_li(fileListMain: list, ps: page_struct):
+    row: list =[]
+    item = ""
+    table: list = []
+    none_row = 0
+    len_item = 0
+    num_page = ps.num_page * ps.num_cols * ps.num_rows
+    num_rows = ps.num_rows
+    for i in range(0, num_rows):
+        for j in range(0, ps.num_cols):
+            indx = j + ps.num_cols * i + num_page
+            slash = ""
+            try:
+                if os.path.isdir(str(fileListMain[indx])):
+                   slash = "/"
+                fs_obj = escapeSymbols(fileListMain[indx])
+                _, item = os.path.split(fs_obj)
+                item = item.replace("\\", "")
+                if keys.dirty_mode: print(f"len item = {len(item)}")
+                len_item += len(item)
+                if modes.path_autocomplete.state:
+                    len_item = 5
+                if len(item) == 1 and not os.path.exists(fs_obj):
+                    raise IndexError
+                row.append(str(indx - num_page) + ":" + item + slash + " " * ps.num_spaces)
+            except IndexError:
+                none_row += 1
+                if keys.dirty_mode: print(f"none row = {none_row}; i,j = {i},{j}")
+                row.append(f"{Back.BLACK}{str(indx)}:{' ' * ps.num_spaces}{Style.RESET_ALL}")
+                num_rows = i
+        if none_row < 3 and len_item > 4:
+            table.append(row)
+        if num_rows != ps.num_rows:
+            break
+        row = []
+        none_row = 0
+    too_short_row = len(table)
+    return table, too_short_row
 
 # Threads
 #manage files
