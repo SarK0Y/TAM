@@ -4,6 +4,7 @@ import io
 from tabulate import tabulate
 import sys, os, signal
 import click
+#import pysdl2
 import keyboard as kbd
 import time
 from threading import Thread
@@ -18,7 +19,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "8-51"
+    rev = "8-52"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -151,6 +152,7 @@ kCodes.LEFT_ARROW = "\x1b[D"
 kCodes.RIGHT_ARROW = "\x1b[C"
 kCodes.UP_ARROW = "\x1b[A"
 kCodes.DOWN_ARROW = "\x1b[B"
+kCodes.Alt_0 = "\x1b0"
     """
     return keyCodes0
 def handleENTER(fileName: str) -> str:
@@ -597,6 +599,8 @@ def hotKeys(prompt: str) -> str:
         else:
             Key = kCodes.Key
             kCodes.Key = None
+        if kCodes.Alt_0 == Key:
+            return "slgi"
         if kCodes.INSERT == Key:
             try:
                 indx = int(input("Please, enter indx of dir/file name to autocomplete: "))
