@@ -19,7 +19,7 @@ from colorama import Back
 #MAIN
 class info_struct:
     ver = 1
-    rev = "8-52"
+    rev = "8-53"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -832,6 +832,7 @@ def info():
     print(" Project: Tiny Automation Manager. ".center(int(colsize), "◑"))
     print(f" TELEGRAM: {info_struct.telega} ".center(int(colsize), "◑"))
     print(" WWW: https://alg0z.blogspot.com ".center(int(colsize), "◑"))
+    print(" ChangeLog: https://alg0z8n8its9lovely6tricks.blogspot.com/2023/09/tam-changelog.html ".center(int(colsize), "◑"))
     print(" E-MAIL: sark0y@protonmail.com ".center(int(colsize), "◑"))
     print(" Supported platforms: TAM  for Linux & alike; TAW for Windows. ".center(int(colsize), "◑"))
     print(f" Version: {info_struct.ver}. ".center(int(colsize), "◑"))
