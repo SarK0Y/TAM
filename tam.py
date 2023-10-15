@@ -16,10 +16,20 @@ from colorama import init as colorama_init
 from colorama import Fore
 from colorama import Style
 from colorama import Back
+try:
+    import subTern as subtern
+except ModuleNotFoundError:
+    pass
+""""""
+try:
+    from sark0y_tam import _subTern as subtern
+except ModuleNotFoundError:
+    pass
+""""""
 #MAIN
 class info_struct:
     ver = 1
-    rev = "8-53"
+    rev = "9-43"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -70,6 +80,9 @@ else:
 class __manage_pages:
     none = None
 class modes:
+    class mark_the_viewer:
+        EXTRN = 0
+        TERM  = 1
     class path_autocomplete:
         state = False
         fst_hit = False
@@ -86,6 +99,7 @@ class globalLists:
 class childs2run:
     running: list = []
     viewer: list = []
+    mode2run: list = []
     prnt: str = ""
     full_path = ""
 class page_struct:
@@ -104,8 +118,10 @@ class page_struct:
     question_to_User: str = ""
     c2r: childs2run
 class keys:
-    dirty_mode = False
-    rename_file_mode = 0
+    dirty_mode: bool = False
+    rename_file_mode: int = 0
+    term_app: bool = False
+
 class PIPES:
     def __init__(self, outNorm, outErr):
         self.outNorm_r = open(outNorm.name, mode="r", encoding="utf8")
@@ -154,7 +170,64 @@ kCodes.UP_ARROW = "\x1b[A"
 kCodes.DOWN_ARROW = "\x1b[B"
 kCodes.Alt_0 = "\x1b0"
     """
+    keyCodes_extrn = """
+try:
+    import tam
+except ModuleNotFoundError:
+    pass
+try:
+    from sark0y_tam import _tam as tam
+except ModuleNotFoundError:
+    pass
+tam.kCodes.ENTER = 13
+tam.kCodes.BACKSPACE = 127
+tam.kCodes.ESCAPE = 27
+tam.kCodes.TAB = 9
+tam.kCodes.DELETE = "\x1b[3~"
+tam.kCodes.F12 = "\x1b[24~"
+tam.kCodes.F1 = "\x1bOP"
+tam.kCodes.INSERT = "\x1b[2~"
+tam.kCodes.LEFT_ARROW = "\x1b[D"
+tam.kCodes.RIGHT_ARROW = "\x1b[C"
+tam.kCodes.UP_ARROW = "\x1b[A"
+tam.kCodes.DOWN_ARROW = "\x1b[B"
+tam.kCodes.Alt_0 = "\x1b0"
+    """
+    if __name__ != "__main__": return keyCodes_extrn
     return keyCodes0
+def setTermAppStatus(proc: sp.Popen) -> bool:
+    funcName: str = "setTermAppStatus"
+    errMsg_dbg("running", funcName)
+    while keys.term_app:
+        os.environ["tamKeysTerm_app"] = str(keys.term_app)
+        os.system(f"export tamKeysTerm_app={str(keys.term_app)}")
+        keys.term_app = subtern.isProcRunning(proc)
+    try:
+        funcStatus: str = os.environ["setTermAppStatus_exited"]
+    except KeyError:
+        funcStatus = 0
+    os.system(f"export setTermAppStatus_exited={int(funcStatus) + 1}")
+    
+def proxy_io():
+    funcName:  str = "proxy_io"
+    inlineCmd: str = "pass"
+    modes = subtern.modes
+    dict_f = subtern.tmp.term_app.dict_f
+    while keys.term_app:
+        if not modes.mc.active and not modes.prime_stdin and not modes.stderr2stdin:
+            Key = hotKeys("")
+            #os.write(dict_f["main"], codecs.encode(str(Key), "utf-8"))
+            os.write(dict_f["main"], codecs.encode(str(Key), "utf-8"))
+    inlineCmd = subtern.prefix4inlines(subtern.inlines.reset_modes, {"ctlCodes": "subtern", "modes.": "subtern", "inlines": "subtern"})
+    achtung(f"{inlineCmd}")
+    errMsg_dbg(inlineCmd, funcName)
+    exec(inlineCmd)
+        #achtung(f"{keys.term_app=}")
+def setTermAppStatus_Thr(proc: sp.Popen) -> None:
+    thr: Thread = Thread(target=setTermAppStatus, args=(proc,))
+    thr.start()
+    thr1: Thread = Thread(target=proxy_io)
+    thr1.start()
 def handleENTER(fileName: str) -> str:
     funcName = "handleENTER"
     exec(inlines.me_stop_mode1)
@@ -592,16 +665,24 @@ def hotKeys(prompt: str) -> str:
     fileIndx = 0
     fileName = ''
     regex_result = ''
+    Key = None
     exec(keyCodes())
+    no_back_slash = subtern.no_back_slash
     while True:
         if kCodes.Key is None:
+            """try: Key = codecs.decode(os.read(sys.stdin.fileno(), 32))#click.getchar()
+            except IOError:
+                errMsg_dbg("got no Key", funcName)
+                pass
+            achtung(Key)"""
             Key = click.getchar()
+            if keys.term_app: return Key
         else:
             Key = kCodes.Key
             kCodes.Key = None
-        if kCodes.Alt_0 == Key:
+        if kCodes.Alt_0 == Key or no_back_slash(kCodes.Alt_0) == Key:
             return "slgi"
-        if kCodes.INSERT == Key:
+        if kCodes.INSERT == Key or no_back_slash(kCodes.INSERT) == Key:
             try:
                 indx = int(input("Please, enter indx of dir/file name to autocomplete: "))
             except ValueError:
@@ -760,6 +841,7 @@ def hotKeys(prompt: str) -> str:
             else:
                 return globalLists.ret
 def custom_input(prompt: str) -> str:
+    if keys.term_app: return ""
     if modes.path_autocomplete.state:
         writeInput_str(prompt, var_4_hotKeys.prnt)
     else:
@@ -852,7 +934,8 @@ def info():
 def help():
     print("np - next page pp - previous page 0p - 1st page lp - last page go2 <number of page>", end='')
 def achtung(msg):
-    os.system(f"notify-send '{msg}'")
+    if not checkArg("-dbg") and not checkArg("-use-achtung"): return
+    os.system(f"notify-send -t 30000 '{str(msg)}' 1>&2 2>/dev/null")
 def log(msg, num_line: int, funcName: str):
     f = open("/tmp/it.log", mode="w")
     print(f"{funcName} said cmd = {msg} at line: {str(num_line)}", file=f)
@@ -860,12 +943,16 @@ def clear_screen():
     if keys.dirty_mode:
         return
     os.system('clear')
+def mark_the_viewer(tag: str) -> int:
+    if tag == "-term-app": return 1
+    if tag == "-view_w" or tag == "-view-w": return 0
 def init_view(c2r: childs2run):
     i = 0
     for v in range(1, len(sys.argv)):
-        if sys.argv[v] == "-view_w":
+        if sys.argv[v] == "-view_w" or sys.argv[v] == "-term-app":
             c2r.viewer.append(str(sys.argv[v + 1]))
             c2r.prnt += f"\n  {i}: {c2r.viewer[-1]}"
+            c2r.mode2run.append(mark_the_viewer(sys.argv[v]))
             i += 1
     return c2r
 def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
@@ -889,16 +976,27 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
     else:
         file2run = escapeSymbols(partial.path)
     cmd = f'{c2r.viewer[viewer_indx]}'
-    cmd_line = f'{c2r.viewer[viewer_indx]}' + ' ' + f"{file2run} > /dev/null 2>&1"
+    cmd_line: str
+    if c2r.mode2run[viewer_indx] == modes.mark_the_viewer.EXTRN:
+        cmd_line = f'{c2r.viewer[viewer_indx]}' + ' ' + f"{file2run} > /dev/null 2>&1"
+    else: cmd_line = f'{c2r.viewer[viewer_indx]}' + ' ' + f"{file2run}"
     cmd = [cmd_line,]
     stderr0 = f"/tmp/run_viewers{str(random.random())}"
     stderr0 = open(stderr0, "w+")
-    t = sp.Popen(cmd, shell=True, stderr=stderr0)
+    t = None
+    if c2r.mode2run[viewer_indx] == modes.mark_the_viewer.EXTRN:
+        t = sp.Popen(cmd, shell=True, stderr=stderr0)
+        c2r.running.append(t)
+    else:
+        keys.term_app = True
+        std_in_out = [sys.stdin.fileno(), sys.stdout.fileno()]
+        t = subtern.term_app(cmd[0], std_in_out)
+        c2r.running.append(t)
+        setTermAppStatus_Thr(c2r.running[-1])
     if t.stderr is not None:
         os.system(cmd_line)
     if keys.dirty_mode:
         os.system(f"echo '{t.stderr} {t.stdout}' > /tmp/wrong_cmd")
-    c2r.running.append(t)
 def run_viewers_li(ps: page_struct, fileListMain: list, cmd: str): # w/ local indices
     funcName = "run_viewers_li"
     c2r: childs2run = ps.c2r
@@ -984,6 +1082,9 @@ def manage_pages(fileListMain: list, ps: page_struct, once0: once = once.once_co
     looped = 0
     c2r = ps.c2r
     while True:
+        if keys.term_app:
+            time.sleep(.2)
+            continue
         if modes.path_autocomplete.state:
             __manage_pages.ps_bkp = copy.copy(ps)
             __manage_pages.c2r_bkp = c2r
@@ -1040,7 +1141,7 @@ def manage_pages(fileListMain: list, ps: page_struct, once0: once = once.once_co
         if cmd == "help" or cmd == "" or cmd == "?":
             clear_screen()
             help()
-            cmd = input("Please, enter Your command: ")
+            cmd = custom_input("Please, enter Your command: ")
         else:
             cmd_page(cmd, ps, fileListMain)
         try:
@@ -1170,10 +1271,10 @@ def checkInt(i) -> bool:
     if str(i)[0] in ('-'):
         return str(i)[1:].isdigit()
     return str(i).isdigit()
-def errMsg(msg: str, funcName: str, delay: int = -1):
-    if not checkInt(delay):
+def errMsg(msg: str, funcName: str, delay: float|int = -1):
+    """if not checkInt(delay):
         achtung(f"delay has to be int in errMsg(), {str(type(delay))}")
-        return
+        return"""
     if delay == -1:
         print(f"{Fore.RED}{funcName} said: {msg}{Style.RESET_ALL}")
     else:
@@ -1183,7 +1284,17 @@ def errMsg(msg: str, funcName: str, delay: int = -1):
         writeInput_str(msg, "")
         time.sleep(delay)
         writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
-
+def errMsg_dbg(msg: str, funcName: str, delay: float|int = -1):
+    if not checkArg("-dbg"): return
+    if delay == -1:
+        print(f"{Fore.RED}{funcName} said: {msg}{Style.RESET_ALL}")
+    else:
+        full_length = len(var_4_hotKeys.prnt) + len(var_4_hotKeys.prompt)
+        msg = f"{Fore.RED}{funcName} said: {msg}{Style.RESET_ALL}"
+        clear_cmd_line("", "", full_length)
+        writeInput_str(msg, "")
+        time.sleep(delay)
+        writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
 def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
     funcName="read_midway_data_from_pipes"
     try:
@@ -1307,7 +1418,7 @@ def checkArg(arg: str) -> bool:
         if key0 == arg:
             return True
     return False
-def get_arg_in_cmd(key: str, argv):
+def get_arg_in_cmd(key: str, argv: list = sys.argv):
     cmd_len = len(argv)
     for i in range(1, cmd_len):
         key0 = argv[i]
@@ -1356,6 +1467,7 @@ def put_in_name() -> str:
 def cmd():
     if checkArg("-ver") or checkArg("--version"):
         info()
+    subtern.init_user_logs()
     var_4_hotKeys.prnt = ""
     if checkArg("-dirty"):
         keys.dirty_mode = True
