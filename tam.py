@@ -29,7 +29,7 @@ except ModuleNotFoundError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-47"
+    rev = "9-49"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -201,6 +201,9 @@ def get_proper_indx_4_page(indx: int) -> int:
     if indx < 0: return page_struct.num_files + indx
     if modes.page_indices.global_or_not: return indx
     indx += page_struct.num_cols * page_struct.num_rows * page_struct.num_page
+    """achtung(f"{indx=} {page_struct.num_page=}")
+    achtung(f"{page_struct.num_cols=}")
+    achtung(f"{page_struct.num_rows=}")"""
     return indx
 
 def setTermAppStatus(proc: sp.Popen) -> bool:
@@ -1015,25 +1018,39 @@ def run_viewers_li(ps: page_struct, fileListMain: list, cmd: str): # w/ local in
     try:
         viewer_indx, file_indx = cmd.split()
         viewer_indx = int(viewer_indx)
-        file_indx = int(file_indx)
+        file_indx = get_proper_indx_4_page(int(file_indx))
     except ValueError:
         file_indx = cmd.split()
-        file_indx = file_indx[0]
         try:
-            file_indx = int(file_indx)
+            file_indx = get_proper_indx_4_page(int(file_indx[0]))
         except ValueError:
             return
     if partial.path == "":
-        file2run: str = globalLists.fileListMain[file_indx + num_page]
+        try:
+            file2run: str = globalLists.fileListMain[file_indx]
+        except IndexError:
+            errMsg(f"indx {file_indx} gets out of range", funcName, 2)
+            return
         file2run = escapeSymbols(file2run)
     else:
         file2run = escapeSymbols(partial.path)
     cmd = f'{c2r.viewer[viewer_indx]}'
-    cmd_line = f'{c2r.viewer[viewer_indx]}' + ' ' + f"{file2run} > /dev/null 2>&1"
+    if c2r.mode2run[viewer_indx] == modes.mark_the_viewer.EXTRN:
+        cmd_line = f'{c2r.viewer[viewer_indx]}' + ' ' + f"{file2run} > /dev/null 2>&1"
+    else: cmd_line = f'{c2r.viewer[viewer_indx]}' + ' ' + f"{file2run}"
     cmd = [cmd_line,]
     stderr0 = f"/tmp/run_viewers{str(random.random())}"
     stderr0 = open(stderr0, "w+")
-    t = sp.Popen(cmd, shell=True, stderr=stderr0)
+    t = None
+    if c2r.mode2run[viewer_indx] == modes.mark_the_viewer.EXTRN:
+        t = sp.Popen(cmd, shell=True, stderr=stderr0)
+        c2r.running.append(t)
+    else:
+        keys.term_app = True
+        std_in_out = [sys.stdin.fileno(), sys.stdout.fileno()]
+        t = subtern.term_app(cmd[0], std_in_out)
+        c2r.running.append(t)
+        setTermAppStatus_Thr(c2r.running[-1])
     if t.stderr is not None:
         os.system(cmd_line)
     if keys.dirty_mode:
