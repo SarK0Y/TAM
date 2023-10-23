@@ -72,8 +72,18 @@ write_logs()
 write_logs()
 """
     reset_modes = """
-import tam
-tam.errMsg_dbg(f"{inlines.reset_modes=}", "inlines")
+try:
+    import tam
+except ModuleNotFoundError:
+    pass
+try:
+    from sark0y_tam import _tam as tam
+except ModuleNotFoundError:
+    pass
+try:
+    tam.errMsg_dbg(f"{inlines.reset_modes=}", "inlines")
+except AttributeError:
+    pass
 modes.mc.active = False
 modes.prime_stdin = False
 modes.stderr2stdin = False
