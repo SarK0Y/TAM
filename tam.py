@@ -29,7 +29,7 @@ except ModuleNotFoundError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-52"
+    rev = "9-55"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -201,9 +201,9 @@ def get_proper_indx_4_page(indx: int) -> int:
     if indx < 0: return page_struct.num_files + indx
     if modes.page_indices.global_or_not: return indx
     indx += page_struct.num_cols * page_struct.num_rows * page_struct.num_page
-    """achtung(f"{indx=} {page_struct.num_page=}")
+    achtung(f"{indx=} {page_struct.num_page=}")
     achtung(f"{page_struct.num_cols=}")
-    achtung(f"{page_struct.num_rows=}")"""
+    achtung(f"{page_struct.num_rows=}")
     return indx
 
 def setTermAppStatus(proc: sp.Popen) -> bool:
@@ -1101,7 +1101,7 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
             pass
     exec(inlines.switch_run_viewer)
     #reset_autocomplete()
-def manage_pages(fileListMain: list, ps: page_struct, once0: once = once.once_copy):
+def manage_pages(fileListMain: list, ps: page_struct): #once0: once = once.once_copy):
     exec(keyCodes())
     make_page_struct() #(modes.path_autocomplete.page_struct)
     funcName = "manage_pages"
@@ -1144,8 +1144,6 @@ def manage_pages(fileListMain: list, ps: page_struct, once0: once = once.once_co
         too_short_row = tmp.too_short_row
         del tmp.too_short_row
         del tmp.table
-        once0()
-        once0 = nop
         if keys.dirty_mode:
             print(table)
         try:
@@ -1342,6 +1340,7 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
             break
         if path !="":
           fileListMain.append(path)
+          globalLists.fileListMain0.append(path)
         prev_pos = cur_pos
         cur_pos = pipes.outNorm_r.tell()
     lapse.read_midway_data_from_pipes_stop = time.time_ns()
