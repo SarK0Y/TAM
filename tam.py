@@ -29,7 +29,7 @@ except ModuleNotFoundError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-55"
+    rev = "9-58"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -333,6 +333,7 @@ def handleENTER(fileName: str) -> str:
         return f"go2 {page_struct.num_page}"
     return var_4_hotKeys.prnt
 def handleTAB(prompt: str):
+    funcName = "handleTAB"
     ptrn = re.compile('ren\s+\d+|cp\s+\d+', re.IGNORECASE | re.UNICODE)
     regex_result = ptrn.search(var_4_hotKeys.prnt)
     if keys.dirty_mode: print(f"{regex_result.group(0)}, {len(regex_result.group(0))}, {var_4_hotKeys.prnt}")
@@ -353,8 +354,9 @@ def handleTAB(prompt: str):
             page_struct.left_shift_4_cur = 0
             var_4_hotKeys.prnt = var_4_hotKeys.prnt_short
             page_struct.cur_cur_pos = len(var_4_hotKeys.prnt_short)
+        errMsg_dbg(f"{var_4_hotKeys.prnt_full=}\n{var_4_hotKeys.prnt_short=}", funcName, 2)
         var_4_hotKeys.full_length = len(var_4_hotKeys.prnt)
-        writeInput_str(prompt, var_4_hotKeys.prnt, len(var_4_hotKeys.prnt_full))
+        writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt, len(var_4_hotKeys.prnt_full))
 class once:
     def once_copy() -> None:
        globalLists.fileListMain0 = copy.copy(globalLists.fileListMain)
@@ -482,7 +484,16 @@ def run_cmd(cmd: str, timeout0: float = 100) -> list:
     p.communicate()
     return [stdout0_name, stderr0_name]
 def reset_autocomplete():
-    modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
+    var_4_hotKeys.ENTER_MODE = modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
+    var_4_hotKeys.prnt  = ""
+    var_4_hotKeys.fileName = ""
+    var_4_hotKeys.save_prnt_to_copy_file = ""
+    var_4_hotKeys.prnt_step_back = ""
+    var_4_hotKeys.prnt_full = ""
+    var_4_hotKeys.prnt_short = ""
+    var_4_hotKeys.full_length = 0
+    page_struct.cur_cur_pos = 0
+    page_struct.left_shift_4_cur = 0
     partial.path = ""
     globalLists.ls = []
     var_4_hotKeys.only_1_slash = ""
@@ -542,7 +553,7 @@ def renameFile(fileName: str, cmd: str):
     getFileIndx = re.compile('\d+\s+')
     fileIndx = getFileIndx.match(cmd)
     cmd = cmd.replace(fileIndx.group(0), '')
-    old_name = globalLists.fileListMain[get_proper_indx_4_page(int(fileIndx.group(0)))]
+    old_name = globalLists.fileListMain0[get_proper_indx_4_page(int(fileIndx.group(0)))]
     res = re.match('\/', cmd)
     if not res:
         fileName = old_name
@@ -806,9 +817,8 @@ def hotKeys(prompt: str) -> str:
                 var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur - 1] + var_4_hotKeys.prnt[len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur:]
             if page_struct.cur_cur_pos > 0:
                 page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
-            prnt0 = var_4_hotKeys.prnt
             full_length = len(var_4_hotKeys.prnt)
-            writeInput_str(var_4_hotKeys.prompt, prnt0)
+            writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
             globalLists.ret = switch_global_list(Key)
             if globalLists.ret == "cont":
                 continue
@@ -816,15 +826,7 @@ def hotKeys(prompt: str) -> str:
                 return globalLists.ret
         if kCodes.ESCAPE == ord0(Key): SYS(), sys.exit(0)
         if kCodes.TAB == ord0(Key):
-            var_4_hotKeys.prnt_full = prnt_full
-            var_4_hotKeys.fileIndx = fileIndx
-            var_4_hotKeys.prnt_short = prnt_short
-            var_4_hotKeys.full_length = full_length
             handleTAB(prompt)
-            prnt_full = var_4_hotKeys.prnt_full
-            fileIndx = var_4_hotKeys.fileIndx
-            prnt_short = var_4_hotKeys.prnt_short
-            full_length = var_4_hotKeys.full_length
             continue
         else:
             if var_4_hotKeys.only_1_slash == Key and Key == '/':
@@ -838,6 +840,7 @@ def hotKeys(prompt: str) -> str:
             if page_struct.cur_cur_pos == full_length and page_struct.left_shift_4_cur == 0:
                 var_4_hotKeys.prnt_step_back = var_4_hotKeys.prnt
                 var_4_hotKeys.prnt += f"{Key}"
+                writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
                 globalLists.ret = switch_global_list(Key)
                 if globalLists.ret == "cont":
                     continue
