@@ -29,7 +29,7 @@ except ModuleNotFoundError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-58"
+    rev = "9-62"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -334,7 +334,7 @@ def handleENTER(fileName: str) -> str:
     return var_4_hotKeys.prnt
 def handleTAB(prompt: str):
     funcName = "handleTAB"
-    ptrn = re.compile('ren\s+\d+|cp\s+\d+', re.IGNORECASE | re.UNICODE)
+    ptrn = re.compile('ren\s+\-?\d+|cp\s+\-?\d+', re.IGNORECASE | re.UNICODE)
     regex_result = ptrn.search(var_4_hotKeys.prnt)
     if keys.dirty_mode: print(f"{regex_result.group(0)}, {len(regex_result.group(0))}, {var_4_hotKeys.prnt}")
     if regex_result:
