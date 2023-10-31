@@ -29,7 +29,7 @@ except ModuleNotFoundError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-62"
+    rev = "9-73"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -80,6 +80,8 @@ else:
 class __manage_pages:
     none = None
 class modes:
+    class switch_2_nxt_tam:
+        state: bool = False
     class page_indices:
         global_or_not: bool = True
     class mark_the_viewer:
@@ -92,6 +94,9 @@ class modes:
 class partial:
     path: str = ""
 class globalLists:
+    class tam_instances:
+        name: list = []
+        wid: list = []
     stopCode = globals()["stopCode"]
     fileListMain: list = []
     ls:  list = []
@@ -119,6 +124,15 @@ class page_struct:
     news_bar = f"{info_struct.telega} 2 know news & features ;D"
     question_to_User: str = ""
     c2r: childs2run
+class ps0:
+    init: bool = False
+    ps: page_struct
+    def __init__(self) -> None:
+        ps0.ps = page_struct()
+        ps0.ps.num_cols = 1
+        ps0.ps.num_rows = 7
+        ps0.ps.col_width = 200
+        ps0.init = True
 class keys:
     dirty_mode: bool = False
     rename_file_mode: int = 0
@@ -154,6 +168,8 @@ class var_4_hotKeys:
     ENTER_MODE = False
     only_1_slash = ""
 # Terminals
+class Markers:
+    console_title: str = "∇∞∇"
 class kCodes:
     Key = None
 def keyCodes():
@@ -171,6 +187,7 @@ kCodes.RIGHT_ARROW = "\x1b[C"
 kCodes.UP_ARROW = "\x1b[A"
 kCodes.DOWN_ARROW = "\x1b[B"
 kCodes.Alt_0 = "\x1b0"
+kCodes.Alt_2 = "\x1b2"
     """
     keyCodes_extrn = """
 try:
@@ -194,6 +211,7 @@ tam.kCodes.RIGHT_ARROW = "\x1b[C"
 tam.kCodes.UP_ARROW = "\x1b[A"
 tam.kCodes.DOWN_ARROW = "\x1b[B"
 tam.kCodes.Alt_0 = "\x1b0"
+tam.kCodes.Alt_2 = "\x1b2"
     """
     if __name__ != "__main__": return keyCodes_extrn
     return keyCodes0
@@ -395,6 +413,27 @@ def updateDirList():
           return "go2 0"
     else:
         return "cont"
+def swtch_2_nxt_tam() -> None:
+    funcName = "swtch_2_nxt_tam"
+    try:
+        indx = int(var_4_hotKeys.prnt)
+    except ValueError:
+        errMsg("indx must be an integer.", funcName, 2)
+        return
+    run_cmd(f"wmctrl", f"-i -a {globalLists.tam_instances.wid[indx]}")
+def find_all_tam_consoles() -> None:
+    globalLists.tam_instances.wid = []
+    globalLists.tam_instances.name = []
+    find = re.compile(Markers.console_title)
+    find_wid = re.compile('0x[abcdef0-9]+')
+    list_all_wndws: list = codecs.decode(run_cmd("wmctrl", "-l")[0]).splitlines()
+    for window in list_all_wndws:
+          if find.findall(window):
+            wid = find_wid.match(window).group(0)
+            globalLists.tam_instances.wid.append(wid)
+            _, window = str(window).split(Markers.console_title)
+            window = Markers.console_title + window
+            globalLists.tam_instances.name.append(f"{window}")
 def switch_global_list(Key: str):
     funcName = "switch_global_list"
     ps = page_struct()
@@ -474,7 +513,7 @@ def run_cmd(cmd: str, opts: str, timeout0: float = 100) -> list:
     cmd = [f"{str(cmd)} {str(opts)}", ]
     p = sp.Popen(cmd, shell=True, stderr=sp.PIPE, stdout=sp.PIPE)
     return p.communicate(timeout=timeout0)
-def run_cmd(cmd: str, timeout0: float = 100) -> list:
+def run_cmd0(cmd: str, timeout0: float = 100) -> list:
     cmd = [f"{str(cmd)}", ]
     stderr0_name = f"/tmp/run_cmd_err{str(random.random())}"
     stderr0 = open(stderr0_name, "w+")
@@ -705,6 +744,15 @@ def hotKeys(prompt: str) -> str:
         if kCodes.Alt_0 == Key or no_back_slash(kCodes.Alt_0) == Key:
             modes.page_indices.global_or_not = not modes.page_indices.global_or_not
             return "slgi"
+        if kCodes.Alt_2 == Key or no_back_slash(kCodes.Alt_2) == Key:
+            find_all_tam_consoles()
+            modes.switch_2_nxt_tam.state = True
+            globalLists.fileListMain = globalLists.tam_instances.name
+            inlines.switch_make_page = """
+ps: ps0 = ps0()
+tmp.table, tmp.too_short_row = make_page_of_tam_list(globalLists.fileListMain, ps.ps)
+"""
+            return "none"
         if kCodes.INSERT == Key or no_back_slash(kCodes.INSERT) == Key:
             try:
                 indx = int(input("Please, enter indx of dir/file name to autocomplete: "))
@@ -729,17 +777,17 @@ def hotKeys(prompt: str) -> str:
             updateDirList()
             return f"go2 {modes.path_autocomplete.page_struct.num_page}"
         if kCodes.F1 == Key:
-            if globalLists.ls == []:
+            if globalLists.ls == [] and not modes.switch_2_nxt_tam.state:
                 continue
             go2 = ""
             full_length = len(var_4_hotKeys.prnt) + len(var_4_hotKeys.prompt)
-            if modes.path_autocomplete.state:
-                globalLists.fileListMain = globalLists.bkp
-                modes.path_autocomplete.state = False
+            if modes.path_autocomplete.state or modes.switch_2_nxt_tam.state:
+                inlines.switch_make_page = inlines.make_page_of_files2
+                globalLists.fileListMain = globalLists.fileListMain0
+                modes.path_autocomplete.state = modes.switch_2_nxt_tam.state = False
                 try:
                     go2 = f"go2 {__manage_pages.ps_bkp.num_page}"
                 except AttributeError:
-                    achtung("bkp")
                     go2 = "go2 0"
             else:
                 globalLists.fileListMain = globalLists.ls
@@ -777,6 +825,9 @@ def hotKeys(prompt: str) -> str:
                 print('\033[D', end='', flush=True)
             continue
         if kCodes.ENTER == ord0(Key):
+            if modes.switch_2_nxt_tam.state:
+                swtch_2_nxt_tam()
+                continue
             ret = var_4_hotKeys.prnt
             if not var_4_hotKeys.ENTER_MODE:
                 var_4_hotKeys.save_prnt = var_4_hotKeys.prnt
@@ -878,12 +929,13 @@ def SetDefaultKonsoleTitle(addStr = ""):
     try:
         out += f" {put_in_name()}"
         out = out.replace("'", "")
-        print(f"konsole title = {out}")
+        if(checkArg("-dirty")): print(f"konsole title = {out}")
     except TypeError:
         out = f"cmd is empty {put_in_name()}"
-    page_struct.KonsoleTitle = out
+    page_struct.KonsoleTitle = f"{Markers.console_title} {out}"
     os.system(f"echo -ne '\033]30;{out}{addStr}\007'")
-def adjustKonsoleTitle(addStr: str, ps: page_struct):
+def adjustKonsoleTitle(addStr: str, ps: page_struct) -> None:
+    if modes.switch_2_nxt_tam.state: return
     os.system(f"echo -ne '\033]30;{ps.KonsoleTitle}{addStr}\007'")
 def self_recursion():
     no_SYS = os.path.exists("/tmp/no_SYS")
@@ -971,6 +1023,7 @@ def init_view(c2r: childs2run):
             i += 1
     return c2r
 def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
+    if modes.switch_2_nxt_tam.state: return
     funcName = "run_viewers"
     viewer_indx: int = 0
     file_indx: int = 0
@@ -1013,6 +1066,7 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
     if keys.dirty_mode:
         os.system(f"echo '{t.stderr} {t.stdout}' > /tmp/wrong_cmd")
 def run_viewers_li(ps: page_struct, fileListMain: list, cmd: str): # w/ local indices
+    if modes.switch_2_nxt_tam.state: return
     funcName = "run_viewers_li"
     c2r: childs2run = ps.c2r
     num_page = ps.num_cols * ps.num_rows * ps.num_page
@@ -1133,15 +1187,17 @@ def manage_pages(fileListMain: list, ps: page_struct): #once0: once = once.once_
                 page_struct.num_files = ps.num_files = len(globalLists.fileListMain)
         except IndexError:
             continue
-        if not modes.path_autocomplete.state:
-            page_struct.num_page = ps.num_page
+        if not modes.path_autocomplete.state or not modes.switch_2_nxt_tam.state:
+            try:
+                ps0.ps.num_page = page_struct.num_page = ps.num_page
+            except AttributeError:
+                page_struct.num_page = ps.num_page
         addStr = f" files/pages: {ps.num_files}/{ps.count_pages} p. {ps.num_page}"
         adjustKonsoleTitle(addStr, ps)
         clear_screen()
         print(f"{Fore.RED}      NEWS: {ps.news_bar}\n{Style.RESET_ALL}")
         print(f"Viewers: \n{c2r.prnt}\n\nNumber of files/pages: {ps.num_files}/{ps.count_pages} p. {ps.num_page}\nFull path to {c2r.full_path}")
         #achtung(f"{globalLists.bkp}\n{globalLists.fileListMain}")
-        log(globalLists.fileListMain, 0, funcName)
         exec(inlines.switch_make_page)
         table = tmp.table
         too_short_row = tmp.too_short_row
@@ -1150,9 +1206,9 @@ def manage_pages(fileListMain: list, ps: page_struct): #once0: once = once.once_
         if keys.dirty_mode:
             print(table)
         try:
-            print(tabulate(table, tablefmt="fancy_grid", maxcolwidths=[ps.col_width]))
+            print(tabulate(table, tablefmt="fancy_grid", maxcolwidths=[300]))#ps.col_width]))
         except IndexError:
-            modes.path_autocomplete.page_struct.num_page = ps.num_page = 0
+            ps0.ps.num_page = modes.path_autocomplete.page_struct.num_page = ps.num_page = 0
             if checkArg("-dont-exit") and looped < 1: 
                 looped += 1
                 #cmd = custom_input(var_4_hotKeys.prompt)
@@ -1181,6 +1237,40 @@ def manage_pages(fileListMain: list, ps: page_struct): #once0: once = once.once_
         looped = 0
 def nop():
     return
+def make_page_of_tam_list(fileListMain: list, ps: page_struct):
+    row: list =[]
+    item = ""
+    table: list = []
+    none_row = 0
+    len_item = 0
+    num_page = ps.num_page * ps.num_cols * ps.num_rows
+    num_rows = ps.num_rows
+    for i in range(0, num_rows):
+        for j in range(0, ps.num_cols):
+            indx = j + ps.num_cols * i + num_page
+            slash = ""
+            try:
+                item = fileListMain[indx]
+                if keys.dirty_mode: print(f"len item = {len(item)}")
+                len_item += len(item)
+                if modes.path_autocomplete.state or modes.switch_2_nxt_tam.state:
+                    len_item = 5
+                if len(item) == 1:
+                    raise IndexError
+                row.append(str(indx) + ":" + item + slash + " " * ps.num_spaces)
+            except IndexError:
+                none_row += 1
+                if keys.dirty_mode: print(f"none row = {none_row}; i,j = {i},{j}")
+                row.append(f"{Back.BLACK}{str(indx)}:{' ' * ps.num_spaces}{Style.RESET_ALL}")
+                num_rows = i
+        if none_row < 3 and len_item > 4:
+            table.append(row)
+        if num_rows != ps.num_rows:
+            break
+        row = []
+        none_row = 0
+    too_short_row = len(table)
+    return table, too_short_row
 def make_page_of_files2(fileListMain: list, ps: page_struct):
     row: list =[]
     item = ""
@@ -1201,7 +1291,7 @@ def make_page_of_files2(fileListMain: list, ps: page_struct):
                 item = item.replace("\\", "")
                 if keys.dirty_mode: print(f"len item = {len(item)}")
                 len_item += len(item)
-                if modes.path_autocomplete.state:
+                if modes.path_autocomplete.state or modes.switch_2_nxt_tam.state:
                     len_item = 5
                 if len(item) == 1 and not os.path.exists(fs_obj):
                     raise IndexError
