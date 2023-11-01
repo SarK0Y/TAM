@@ -29,7 +29,7 @@ except ModuleNotFoundError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-73"
+    rev = "9-76"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -919,6 +919,8 @@ def signal_manager(sig, frame):
 def SYS():
     no_SYS = os.path.exists("/tmp/no_SYS")
     no_SYS1 = get_arg_in_cmd("-SYS", sys.argv)
+    Markers.console_title = "Exited"
+    SetDefaultKonsoleTitle()
     if no_SYS == True or no_SYS1 == "1":
         os.system("rm -f /tmp/no_SYS")
         sys.exit(0)
@@ -926,13 +928,15 @@ def SYS():
     sys.exit(0)
 def SetDefaultKonsoleTitle(addStr = ""):
     out = get_arg_in_cmd("-path0", sys.argv)
+    find_all_tam_consoles()
+    konsole_id = len(globalLists.tam_instances.name)
     try:
         out += f" {put_in_name()}"
         out = out.replace("'", "")
         if(checkArg("-dirty")): print(f"konsole title = {out}")
     except TypeError:
         out = f"cmd is empty {put_in_name()}"
-    page_struct.KonsoleTitle = f"{Markers.console_title} {out}"
+    page_struct.KonsoleTitle = f"{Markers.console_title}{konsole_id} {out}"
     os.system(f"echo -ne '\033]30;{out}{addStr}\007'")
 def adjustKonsoleTitle(addStr: str, ps: page_struct) -> None:
     if modes.switch_2_nxt_tam.state: return
@@ -1586,6 +1590,7 @@ def put_in_name() -> str:
 def cmd():
     if checkArg("-ver") or checkArg("--version"):
         info()
+    if checkArg("-title-mark"): Markers.console_title = get_arg_in_cmd("-title-mark")
     subtern.init_user_logs()
     var_4_hotKeys.prnt = ""
     if checkArg("-dirty"):
