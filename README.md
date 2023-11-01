@@ -34,7 +34,10 @@ So, actually we have hella number of files & we (in many cases) need to use rege
  "lp" - last one.<br>
  "fp <key number of file>" shows full path to chosen file.<br>
  ctrl + c to exit.<br>
+ # Short guide how to use TAM.
  [![Watch the video](https://img.youtube.com/vi/szqe--xIs8I/maxresdefault.jpg)](https://youtu.be/szqe--xIs8I)
+ # How to switch TAM's Konsoles.
+ [![Watch the video](https://img.youtube.com/vi/dkRJKsMTyoc/maxresdefault.jpg)](https://youtu.be/dkRJKsMTyoc)
  # Supported Platforms:
  
  So far, TAM has been tested only for Linux. However, theoretically this variant must work on FreeBSD, NetBSD & MacOS quite smoothly (but i don't guarantee it).
