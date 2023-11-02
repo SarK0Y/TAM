@@ -25,6 +25,8 @@ try:
     from sark0y_tam import _subTern as subtern
 except ModuleNotFoundError:
     pass
+except ImportError:
+    pass
 """"""
 #MAIN
 class info_struct:
@@ -930,6 +932,14 @@ def SetDefaultKonsoleTitle(addStr = ""):
     out = get_arg_in_cmd("-path0", sys.argv)
     find_all_tam_consoles()
     konsole_id = len(globalLists.tam_instances.name)
+    not_sure_4_uniq = re.compile(f"{Markers.console_title}{konsole_id}")
+    for id in globalLists.tam_instances.name:
+        try:
+            if not_sure_4_uniq.match(id).group(0):
+                konsole_id += 1
+                break
+        except AttributeError:
+            pass
     try:
         out += f" {put_in_name()}"
         out = out.replace("'", "")
