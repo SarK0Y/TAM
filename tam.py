@@ -476,7 +476,7 @@ def switch_global_list(Key: str):
         return "cont"
 def list_from_file(cmd: str) -> list:
     funcName = "list_from_file"
-    list0 = run_cmd(cmd)
+    list0 = run_cmd1(cmd)
     try:
         out = copy.copy(list0[0])
         err = copy.copy(list0[1])
@@ -515,6 +515,15 @@ def run_cmd(cmd: str, opts: str, timeout0: float = 100) -> list:
     cmd = [f"{str(cmd)} {str(opts)}", ]
     p = sp.Popen(cmd, shell=True, stderr=sp.PIPE, stdout=sp.PIPE)
     return p.communicate(timeout=timeout0)
+def run_cmd1(cmd: str, timeout0: float = 100) -> list:
+    cmd = [f"{str(cmd)}", ]
+    stderr0_name = f"/tmp/run_cmd_err{str(random.random())}"
+    stderr0 = open(stderr0_name, "w+")
+    stdout0_name = f"/tmp/run_cmd_out{str(random.random())}"
+    stdout0 = open(stdout0_name, "w+")
+    p = sp.Popen(cmd, shell=True, stderr=stderr0, stdout=stdout0)
+    p.communicate()
+    return [stdout0_name, stderr0_name]
 def run_cmd0(cmd: str, timeout0: float = 100) -> list:
     cmd = [f"{str(cmd)}", ]
     stderr0_name = f"/tmp/run_cmd_err{str(random.random())}"
