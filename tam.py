@@ -29,7 +29,7 @@ except ModuleNotFoundError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-76"
+    rev = "9-78"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -937,7 +937,7 @@ def SetDefaultKonsoleTitle(addStr = ""):
     except TypeError:
         out = f"cmd is empty {put_in_name()}"
     page_struct.KonsoleTitle = f"{Markers.console_title}{konsole_id} {out}"
-    os.system(f"echo -ne '\033]30;{out}{addStr}\007'")
+    os.system(f"echo -ne '\033]30;{page_struct.KonsoleTitle}{addStr}\007'")
 def adjustKonsoleTitle(addStr: str, ps: page_struct) -> None:
     if modes.switch_2_nxt_tam.state: return
     os.system(f"echo -ne '\033]30;{ps.KonsoleTitle}{addStr}\007'")
