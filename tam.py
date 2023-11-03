@@ -31,7 +31,7 @@ except ImportError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-79"
+    rev = "9-80"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -172,6 +172,7 @@ class var_4_hotKeys:
 # Terminals
 class Markers:
     console_title: str = "∇∞∇"
+    console_title_pefix: str = ""
 class kCodes:
     Key = None
 def keyCodes():
@@ -948,7 +949,7 @@ def SetDefaultKonsoleTitle(addStr = ""):
         if(checkArg("-dirty")): print(f"konsole title = {out}")
     except TypeError:
         out = f"cmd is empty {put_in_name()}"
-    page_struct.KonsoleTitle = f"{Markers.console_title}{konsole_id} {out}"
+    page_struct.KonsoleTitle = f"{Markers.console_title_pefix}{Markers.console_title}{konsole_id} {out}"
     os.system(f"echo -ne '\033]30;{page_struct.KonsoleTitle}{addStr}\007'")
 def adjustKonsoleTitle(addStr: str, ps: page_struct) -> None:
     if modes.switch_2_nxt_tam.state: return
@@ -1603,6 +1604,7 @@ def cmd():
     if checkArg("-ver") or checkArg("--version"):
         info()
     if checkArg("-title-mark"): Markers.console_title = get_arg_in_cmd("-title-mark")
+    if checkArg("-prefix-title-mark"): Markers.console_title_pefix = f"{get_arg_in_cmd('-prefix-title-mark')}"
     subtern.init_user_logs()
     var_4_hotKeys.prnt = ""
     if checkArg("-dirty"):
