@@ -31,7 +31,7 @@ except ImportError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-78"
+    rev = "9-79"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -796,17 +796,10 @@ tmp.table, tmp.too_short_row = make_page_of_tam_list(globalLists.fileListMain, p
                 inlines.switch_make_page = inlines.make_page_of_files2
                 globalLists.fileListMain = globalLists.fileListMain0
                 modes.path_autocomplete.state = modes.switch_2_nxt_tam.state = False
+                globalLists.ls = []
                 try:
                     go2 = f"go2 {__manage_pages.ps_bkp.num_page}"
                 except AttributeError:
-                    go2 = "go2 0"
-            else:
-                globalLists.fileListMain = globalLists.ls
-                modes.path_autocomplete.state = True
-                try:
-                    go2 = f"go2 {modes.path_autocomplete.page_struct.num_page}"
-                except AttributeError:
-                    achtung("au")
                     go2 = "go2 0"
             writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt, full_length)
             return go2
