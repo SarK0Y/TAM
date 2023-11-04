@@ -31,7 +31,7 @@ except ImportError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-80"
+    rev = "9-81"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -1601,6 +1601,8 @@ def put_in_name() -> str:
         if keys.dirty_mode: print(f"{funcName} i0 = {i0} final_grep = {final_grep}")
     return final_grep
 def cmd():
+    ps1: ps0 = ps0()
+    del ps1
     if checkArg("-ver") or checkArg("--version"):
         info()
     if checkArg("-title-mark"): Markers.console_title = get_arg_in_cmd("-title-mark")
