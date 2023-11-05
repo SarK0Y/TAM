@@ -31,7 +31,7 @@ except ImportError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-81"
+    rev = "9-82"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -82,6 +82,8 @@ else:
 class __manage_pages:
     none = None
 class modes:
+    class sieve:
+        state: bool = False
     class switch_2_nxt_tam:
         state: bool = False
     class page_indices:
@@ -104,6 +106,7 @@ class globalLists:
     ls:  list = []
     bkp: list = []
     fileListMain0: list = []
+    filtered: list = []
     ret = ""
 class childs2run:
     running: list = []
@@ -239,7 +242,13 @@ def setTermAppStatus(proc: sp.Popen) -> bool:
     except KeyError:
         funcStatus = 0
     os.system(f"export setTermAppStatus_exited={int(funcStatus) + 1}")
-    
+def sieve_list(lst: list, rgx: str) -> list:
+    sieve = re.compile(rgx, re.UNICODE|re.IGNORECASE)
+    ret_lst: list = []
+    for item in lst:
+        if sieve.findall(item):
+            ret_lst.append(item)
+    return ret_lst
 def proxy_io():
     funcName:  str = "proxy_io"
     inlineCmd: str = "pass"
@@ -277,7 +286,7 @@ def handleENTER(fileName: str) -> str:
         var_4_hotKeys.ENTER_MODE = False
         return f"go2 {page_struct.num_page}"
     if var_4_hotKeys.prnt[:2] == "cp":
-        IsFile = None
+        IsFile = None #todo..
         try:
             file = getFileNameFromCMD(var_4_hotKeys.prnt)
             IsFile = os.path.exists(file) and os.path.isfile(file)
@@ -600,6 +609,7 @@ def escapeSymbols(name: str, symbIndx = -1):
         name = quote + name + quote
     return name
 def renameFile(fileName: str, cmd: str):
+    funcName = "renameFile"
     cmd = cmd[4:]
     getFileIndx = re.compile('\d+\s+')
     fileIndx = getFileIndx.match(cmd)
@@ -620,8 +630,6 @@ def renameFile(fileName: str, cmd: str):
     cmd = f"mkdir -p {if_path_not_existed}"
     os.system(cmd)
     cmd = "mv -f --backup " + f'{old_name}' + " " + f'{fileName}'
-    if os.path.exists(fileName):
-        achtung(f"{fileName} doesnt exist\n cmd ={cmd}")
     sp.Popen([cmd,], shell=True)
     return
 def getFileNameFromCMD_byIndx(cmd: str):
@@ -789,6 +797,10 @@ tmp.table, tmp.too_short_row = make_page_of_tam_list(globalLists.fileListMain, p
             updateDirList()
             return f"go2 {modes.path_autocomplete.page_struct.num_page}"
         if kCodes.F1 == Key:
+            if modes.sieve.state:
+                globalLists.fileListMain = globalLists.fileListMain0
+                modes.sieve.state = False
+                return "go2 0"
             if globalLists.ls == [] and not modes.switch_2_nxt_tam.state:
                 continue
             go2 = ""
@@ -1142,6 +1154,14 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
             inlines.switch_run_viewer = inlines.run_viewer_li
         else:
             inlines.switch_run_viewer = inlines.run_viewer
+    if cmd[0:5] == "sieve":
+        _, rgx = cmd.split()
+        globalLists.filtered = sieve_list(globalLists.fileListMain, rgx)
+        if globalLists.filtered != []:
+            globalLists.fileListMain = globalLists.filtered
+        modes.sieve.state = True
+        ps.num_page = 0
+        return "none"
     if cmd == "np":
         ps.num_page += 1
         if ps.num_page > lp:
