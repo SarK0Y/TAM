@@ -31,7 +31,7 @@ except ImportError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-83"
+    rev = "9-84"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -616,7 +616,7 @@ def renameFile(fileName: str, cmd: str):
     fileIndx = getFileIndx.match(cmd)
     cmd = cmd.replace(fileIndx.group(0), '')
     if modes.sieve.state: old_name = globalLists.filtered[get_proper_indx_4_page(int(fileIndx.group(0)))]
-    else: old_name = globalLists.fileListMain[get_proper_indx_4_page(int(fileIndx.group(0)))]
+    else: old_name = globalLists.fileListMain0[get_proper_indx_4_page(int(fileIndx.group(0)))]
     res = re.match('\/', cmd)
     if not res:
         fileName = old_name
@@ -631,14 +631,14 @@ def renameFile(fileName: str, cmd: str):
         fileName_copy = f"{fileName}/{fileName_copy}"
     globalLists.fileListMain[get_proper_indx_4_page(int(fileIndx.group(0)))] = fileName_copy
     globalLists.fileListMain0[get_proper_indx_4_page(int(fileIndx.group(0)))] = fileName_copy
+    if modes.sieve.state: globalLists.filtered[get_proper_indx_4_page(int(fileIndx.group(0)))] = fileName_copy
     fileName = escapeSymbols(fileName)
     old_name = escapeSymbols(old_name)
     if_path_not_existed, _ = os.path.split(fileName)
     cmd = f"mkdir -p {if_path_not_existed}"
     os.system(cmd)
     cmd = "mv -f --backup " + f'{old_name}' + " " + f'{fileName}'
-    modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
-    partial.path = ""
+    reset_autocomplete()
     sp.Popen([cmd,], shell=True)
     return
 def getFileNameFromCMD_byIndx(cmd: str):
@@ -646,7 +646,7 @@ def getFileNameFromCMD_byIndx(cmd: str):
     getFileIndx = re.compile('-?\d+')
     fileIndx = getFileIndx.match(cmd)
     if modes.sieve.state: fileName = globalLists.filtered[get_proper_indx_4_page(int(fileIndx.group(0)))]
-    else: fileName = globalLists.fileListMain[get_proper_indx_4_page(int(fileIndx.group(0)))]
+    else: fileName = globalLists.fileListMain0[get_proper_indx_4_page(int(fileIndx.group(0)))]
     if fileName[-1] == "\n":
         fileName = fileName[:-1]
     return fileName
@@ -656,7 +656,7 @@ def getFileNameFromCMD(cmd: str):
     fileIndx = getFileIndx.match(cmd)
     cmd = cmd.replace(fileIndx.group(0), '')
     if modes.sieve.state: fileName = globalLists.filtered[get_proper_indx_4_page(int(fileIndx.group(0)))]
-    else: old_name = globalLists.fileListMain[get_proper_indx_4_page(int(fileIndx.group(0)))]
+    else: old_name = globalLists.fileListMain0[get_proper_indx_4_page(int(fileIndx.group(0)))]
     res = re.match('\/', cmd)
     if not res:
         fileName = old_name
@@ -669,7 +669,7 @@ def delFile(fileName: str, cmd: str, dontDelFromTableJustMark = True):
     cmd = cmd[3:]
     getFileIndx = re.compile('-?\d+')
     fileIndx = getFileIndx.match(cmd)
-    fileName = globalLists.fileListMain[get_proper_indx_4_page(int(fileIndx.group(0)))]
+    fileName = globalLists.fileListMain0[get_proper_indx_4_page(int(fileIndx.group(0)))]
     if modes.sieve.state: fileName = globalLists.filtered[get_proper_indx_4_page(int(fileIndx.group(0)))]
     fileName = escapeSymbols(fileName)
     cmd = "rm -f " + f"{fileName}"
@@ -678,7 +678,11 @@ def delFile(fileName: str, cmd: str, dontDelFromTableJustMark = True):
     if False == heyFile and dontDelFromTableJustMark == False:
         globalLists.fileListMain.remove(int(fileIndx.group(0)))
     if not heyFile and dontDelFromTableJustMark:
-        globalLists.fileListMain[int(fileIndx.group(0))] = f"{globalLists.fileListMain[int(fileIndx.group(0))]}::D"
+        if modes.sieve.state: globalLists.fileListMain0[int(fileIndx.group(0))] = f"{globalLists.filtered[int(fileIndx.group(0))]}::D"
+        if modes.path_autocomplete.state: globalLists.fileListMain0[int(fileIndx.group(0))] = f"{globalLists.fileListMain0[int(fileIndx.group(0))]}::D"
+        else: 
+            globalLists.fileListMain[int(fileIndx.group(0))] = f"{globalLists.fileListMain0[int(fileIndx.group(0))]}::D"
+            globalLists.fileListMain0[int(fileIndx.group(0))] = f"{globalLists.fileListMain0[int(fileIndx.group(0))]}::D"
     return
 def copyFile(fileName: str, cmd: str, dontInsert = False):
     cmd = cmd[3:]
@@ -686,7 +690,7 @@ def copyFile(fileName: str, cmd: str, dontInsert = False):
     fileIndx = getFileIndx.match(cmd)
     cmd = cmd.replace(fileIndx.group(0), '')
     if modes.sieve.state: old_name = globalLists.filtered[get_proper_indx_4_page(int(fileIndx.group(0)))]
-    else: old_name = globalLists.fileListMain[get_proper_indx_4_page(int(fileIndx.group(0)))]
+    else: old_name = globalLists.fileListMain0[get_proper_indx_4_page(int(fileIndx.group(0)))]
     res = re.match('\/', cmd)
     if not res:
         fileName = old_name
@@ -708,8 +712,7 @@ def copyFile(fileName: str, cmd: str, dontInsert = False):
     cmd = f"mkdir -p {if_path_not_existed}"
     os.system(cmd)
     cmd = "cp -f " + f"{old_name}" + " " + f"{fileName}"
-    modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
-    partial.path = ""
+    reset_autocomplete()
     os.system(cmd)
     return
 def writeInput_str(prompt: str, prnt: str, blank_len = 0):
@@ -1204,12 +1207,13 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
             file_indx = get_proper_indx_4_page(int(file_indx))
             ps.c2r.full_path = f"file {file_indx}\n{str(globalLists.fileListMain[file_indx])}"
             if modes.sieve.state: ps.c2r.full_path = f"file {file_indx}\n{str(globalLists.filtered[file_indx])}"
-            return
         except ValueError:
             errMsg("Type fp <file index>", funcName, 2)
+            return
         except IndexError:
             top = len(globalLists.fileListMain) - 2
             errMsg(f"You gave index out of range, acceptable values [0, {top}]", funcName, 2)
+            return
     if modes.path_autocomplete.state == False:
         try:
             p = __manage_pages.ps_bkp.num_page = copy.copy(ps.num_page)
