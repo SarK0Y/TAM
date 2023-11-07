@@ -615,8 +615,8 @@ def renameFile(fileName: str, cmd: str):
     getFileIndx = re.compile('\d+\s+')
     fileIndx = getFileIndx.match(cmd)
     cmd = cmd.replace(fileIndx.group(0), '')
-    old_name = globalLists.fileListMain[get_proper_indx_4_page(int(fileIndx.group(0)))]
     if modes.sieve.state: old_name = globalLists.filtered[get_proper_indx_4_page(int(fileIndx.group(0)))]
+    else: old_name = globalLists.fileListMain[get_proper_indx_4_page(int(fileIndx.group(0)))]
     res = re.match('\/', cmd)
     if not res:
         fileName = old_name
@@ -645,8 +645,8 @@ def getFileNameFromCMD_byIndx(cmd: str):
     cmd = cmd[3:]
     getFileIndx = re.compile('-?\d+')
     fileIndx = getFileIndx.match(cmd)
-    fileName = globalLists.fileListMain[get_proper_indx_4_page(int(fileIndx.group(0)))]
     if modes.sieve.state: fileName = globalLists.filtered[get_proper_indx_4_page(int(fileIndx.group(0)))]
+    else: fileName = globalLists.fileListMain[get_proper_indx_4_page(int(fileIndx.group(0)))]
     if fileName[-1] == "\n":
         fileName = fileName[:-1]
     return fileName
@@ -655,8 +655,8 @@ def getFileNameFromCMD(cmd: str):
     getFileIndx = re.compile('-?\d+\s+')
     fileIndx = getFileIndx.match(cmd)
     cmd = cmd.replace(fileIndx.group(0), '')
-    old_name = globalLists.fileListMain[get_proper_indx_4_page(int(fileIndx.group(0)))]
     if modes.sieve.state: fileName = globalLists.filtered[get_proper_indx_4_page(int(fileIndx.group(0)))]
+    else: old_name = globalLists.fileListMain[get_proper_indx_4_page(int(fileIndx.group(0)))]
     res = re.match('\/', cmd)
     if not res:
         fileName = old_name
@@ -685,8 +685,8 @@ def copyFile(fileName: str, cmd: str, dontInsert = False):
     getFileIndx = re.compile('-?\d+\s+')
     fileIndx = getFileIndx.match(cmd)
     cmd = cmd.replace(fileIndx.group(0), '')
-    old_name = globalLists.fileListMain[get_proper_indx_4_page(int(fileIndx.group(0)))]
     if modes.sieve.state: old_name = globalLists.filtered[get_proper_indx_4_page(int(fileIndx.group(0)))]
+    else: old_name = globalLists.fileListMain[get_proper_indx_4_page(int(fileIndx.group(0)))]
     res = re.match('\/', cmd)
     if not res:
         fileName = old_name
