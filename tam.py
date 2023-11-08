@@ -31,7 +31,7 @@ except ImportError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-84"
+    rev = "9-85"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -107,6 +107,7 @@ class globalLists:
     bkp: list = []
     fileListMain0: list = []
     filtered: list = []
+    merge: list = []
     ret = ""
 class childs2run:
     running: list = []
@@ -679,7 +680,7 @@ def delFile(fileName: str, cmd: str, dontDelFromTableJustMark = True):
         globalLists.fileListMain.remove(int(fileIndx.group(0)))
     if not heyFile and dontDelFromTableJustMark:
         if modes.sieve.state: globalLists.fileListMain0[int(fileIndx.group(0))] = f"{globalLists.filtered[int(fileIndx.group(0))]}::D"
-        if modes.path_autocomplete.state: globalLists.fileListMain0[int(fileIndx.group(0))] = f"{globalLists.fileListMain0[int(fileIndx.group(0))]}::D"
+        elif modes.path_autocomplete.state: globalLists.fileListMain0[int(fileIndx.group(0))] = f"{globalLists.fileListMain0[int(fileIndx.group(0))]}::D"
         else: 
             globalLists.fileListMain[int(fileIndx.group(0))] = f"{globalLists.fileListMain0[int(fileIndx.group(0))]}::D"
             globalLists.fileListMain0[int(fileIndx.group(0))] = f"{globalLists.fileListMain0[int(fileIndx.group(0))]}::D"
@@ -1167,7 +1168,17 @@ def run_viewers_li(ps: page_struct, fileListMain: list, cmd: str): # w/ local in
     c2r.running.append(t)
 def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
     funcName = "cmd_page"
-    lp = len(fileListMain) // (ps.num_cols * ps.num_rows) 
+    if cmd == "show mrg" or cmd == "show merge" or cmd == "switch to merged list":
+        if globalLists.merge == []:
+            errMsg("Merge list is empty", funcName, 1)
+            return
+        globalLists.fileListMain = globalLists.merge
+        modes.sieve.state = True
+        ps.num_page = 0
+        return
+    if cmd == "mrg" or cmd == "merge":
+        globalLists.merge += globalLists.filtered
+        return
     if cmd == "slgi":
         if inlines.switch_make_page == inlines.make_page_of_files2:
             inlines.switch_make_page = inlines.make_page_of_files2_li
@@ -1177,14 +1188,17 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
             inlines.switch_run_viewer = inlines.run_viewer_li
         else:
             inlines.switch_run_viewer = inlines.run_viewer
+        return
     if cmd[0:5] == "sieve":
         _, rgx = cmd.split()
         globalLists.filtered = sieve_list(globalLists.fileListMain, rgx)
         if globalLists.filtered != []:
             globalLists.fileListMain = globalLists.filtered
+            ps.num_page = 0
+        else: errMsg("No records were found", funcName, 1)
         modes.sieve.state = True
-        ps.num_page = 0
-        return "none"
+        return
+    lp = len(fileListMain) // (ps.num_cols * ps.num_rows) 
     if cmd == "np":
         ps.num_page += 1
         if ps.num_page > lp:
