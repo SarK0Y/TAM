@@ -31,7 +31,7 @@ except ImportError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-86"
+    rev = "9-87"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -477,7 +477,7 @@ def switch_global_list(Key: str):
             partial.path += str(Key)
     if Key == '/' and not modes.path_autocomplete.fst_hit:
         modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = True
-        globalLists.bkp = copy.copy(globalLists.fileListMain) # todo has to depricate bkp list
+        globalLists.bkp = copy.copy(globalLists.fileListMain) # todo has to deprecate bkp list
         partial.path += str(Key)
     if modes.path_autocomplete.state:
         globalLists.ls = createDirList(partial.path, "-maxdepth 1")
@@ -1168,6 +1168,16 @@ def run_viewers_li(ps: page_struct, fileListMain: list, cmd: str): # w/ local in
     c2r.running.append(t)
 def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
     funcName = "cmd_page"
+    if cmd[:5] == "f2mrg":
+        try:
+            _, index = cmd.split()
+            globalLists.merge.append(globalLists.fileListMain[int(index)])
+        except IndexError:
+            errMsg(f"Indx has to be in range 0 - {len(globalLists.fileListMain)}", funcName, 0.7)
+            return
+        except ValueError:
+            errMsg("Indx has to be an integer", funcName, 0.7)
+        return
     if cmd == "cl mrg" or cmd == "clear mrg" or cmd == "clear merge":
         modes.sieve.state = False
         globalLists.fileListMain = globalLists.fileListMain0
@@ -1204,8 +1214,7 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
         else: errMsg("No records were found", funcName, 1)
         modes.sieve.state = True
         return
-    lp = len(globalLists.fileListMain) // (ps.num_cols * ps.num_rows) 
-    achtung(f"{lp}")
+    lp = len(globalLists.fileListMain) // (ps.num_cols * ps.num_rows)
     if cmd == "np":
         ps.num_page += 1
         if ps.num_page > lp:
