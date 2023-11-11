@@ -31,7 +31,7 @@ except ImportError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-87"
+    rev = "9-88"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -1172,6 +1172,7 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
         try:
             _, index = cmd.split()
             globalLists.merge.append(globalLists.fileListMain[int(index)])
+            globalLists.merge = list(set(globalLists.merge))
         except IndexError:
             errMsg(f"Indx has to be in range 0 - {len(globalLists.fileListMain)}", funcName, 0.7)
             return
@@ -1194,6 +1195,7 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
         return
     if cmd == "mrg" or cmd == "merge":
         globalLists.merge += globalLists.filtered
+        globalLists.merge = list(set(globalLists.merge))
         return
     if cmd == "slgi":
         if inlines.switch_make_page == inlines.make_page_of_files2:
