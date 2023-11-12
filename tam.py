@@ -31,7 +31,7 @@ except ImportError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-88"
+    rev = "9-93"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -187,6 +187,7 @@ kCodes.ESCAPE = 27
 kCodes.TAB = 9
 kCodes.DELETE = "\x1b[3~"
 kCodes.F12 = "\x1b[24~"
+kCodes.F5 = "\x1b[15~"
 kCodes.F1 = "\x1bOP"
 kCodes.INSERT = "\x1b[2~"
 kCodes.LEFT_ARROW = "\x1b[D"
@@ -211,6 +212,7 @@ tam.kCodes.ESCAPE = 27
 tam.kCodes.TAB = 9
 tam.kCodes.DELETE = "\x1b[3~"
 tam.kCodes.F12 = "\x1b[24~"
+tam.kCodes.F5 = "\x1b[15~"
 tam.kCodes.F1 = "\x1bOP"
 tam.kCodes.INSERT = "\x1b[2~"
 tam.kCodes.LEFT_ARROW = "\x1b[D"
@@ -820,11 +822,14 @@ tmp.table, tmp.too_short_row = make_page_of_tam_list(globalLists.fileListMain, p
             partial.path = partial.path.replace("//", "/")
             updateDirList()
             return f"go2 {modes.path_autocomplete.page_struct.num_page}"
+        if kCodes.F5 == Key:
+            create_or_updateMainList()
+            return "go2 0"
         if kCodes.F1 == Key:
             if modes.sieve.state:
                 globalLists.fileListMain = globalLists.fileListMain0
                 modes.sieve.state = False
-                return "go2 0"
+                return f"go2 {page_struct.num_page}"
             if globalLists.ls == [] and not modes.switch_2_nxt_tam.state:
                 continue
             go2 = ""
@@ -1033,7 +1038,8 @@ def info():
     _, colsize = os.popen("stty size", 'r').read().split()
     print(" Project: Tiny Automation Manager. ".center(int(colsize), "◑"))
     print(f" TELEGRAM: {info_struct.telega} ".center(int(colsize), "◑"))
-    print(" WWW: https://alg0z.blogspot.com ".center(int(colsize), "◑"))
+    print(" ALG0Z RU: https://dzen.ru/alg0z ".center(int(colsize), "◑"))
+    print(" ALG0Z EN: https://alg0z.blogspot.com ".center(int(colsize), "◑"))
     print(" ChangeLog: https://alg0z8n8its9lovely6tricks.blogspot.com/2023/09/tam-changelog.html ".center(int(colsize), "◑"))
     print(" E-MAIL: sark0y@protonmail.com ".center(int(colsize), "◑"))
     print(" Supported platforms: TAM  for Linux & alike; TAW for Windows. ".center(int(colsize), "◑"))
@@ -1679,6 +1685,45 @@ def put_in_name() -> str:
         i0 += 1
         if keys.dirty_mode: print(f"{funcName} i0 = {i0} final_grep = {final_grep}")
     return final_grep
+def create_or_updateMainList() -> None:
+    argv: list = sys.argv
+    if checkArg("-argv0"):
+                print(f"argv = {sys.argv}")
+                sys.exit()
+    base_path: str = get_arg_in_cmd("-path0", argv)
+    filter_name = put_in_name()
+    if filter_name is None:
+        filter_name = "*"
+    if base_path is None:
+        base_path = "./"
+    globalLists.fileListMain = []
+    tmp_file = get_arg_in_cmd("-tmp_file", argv)
+    outNorm, outErr = get_fd(tmp_file)
+    tmp_file = None
+    if checkArg("-dirty"): print(f"IDs: norm = {outNorm}, err = {outErr}")
+    pipes = PIPES(outNorm, outErr)
+    thr_find_files: Thread = thr.Thread(target=find_files, args=(base_path, pipes, filter_name, tmp_file))
+    thr_find_files.start()
+    thr_read_midway_data_from_pipes: Thread = thr.Thread(target=read_midway_data_from_pipes, args=(pipes, globalLists.fileListMain))
+    thr_read_midway_data_from_pipes.start()
+            #time.sleep(3)
+            #thr_find_files.join()
+            #thr_read_midway_data_from_pipes.join()
+    delta_4_entries = f"Δt for entry points of find_files() & read_midway_data_from_pipes(): {lapse.find_files_start - lapse.read_midway_data_from_pipes_start} ns"
+    вар = 5
+    if checkArg("-dirty"): 
+        print(delta_4_entries)
+        print(f"len of list = {len(globalLists.fileListMain)}")
+    ps = page_struct()
+    cols = get_arg_in_cmd("-cols", argv)
+    rows = get_arg_in_cmd("-rows", argv)
+    col_w = get_arg_in_cmd("-col_w", argv)
+    if rows: page_struct.num_rows = ps.num_rows = int(rows)
+    if cols: page_struct.num_cols = ps.num_cols = int(cols)
+    if col_w: page_struct.col_width = ps.col_width = int(col_w)
+    ps.c2r = childs2run()
+    ps.c2r = init_view(ps.c2r)
+    manage_pages(globalLists.fileListMain, ps)
 def cmd():
     ps1: ps0 = ps0()
     del ps1
@@ -1718,45 +1763,7 @@ def cmd():
             else:
                 time_samples(cmd_val, int(num_of_samples))
         if cmd_key == "-find_files":
-            if checkArg("-argv0"):
-                print(f"argv = {sys.argv}")
-                sys.exit()
-            base_path = get_arg_in_cmd("-path0", argv)
-            filter_name = put_in_name()
-            if filter_name is None:
-                filter_name = "*"
-            if base_path is None:
-                base_path = "./"
-            globalLists.fileListMain = []
-            tmp_file = get_arg_in_cmd("-tmp_file", argv)
-            outNorm, outErr = get_fd(tmp_file)
-            tmp_file = None
-            print(f"IDs: norm = {outNorm}, err = {outErr}")
-            pipes = PIPES(outNorm, outErr)
-            thr_find_files: Thread = thr.Thread(target=find_files, args=(base_path, pipes, filter_name, tmp_file))
-            thr_find_files.start()
-            thr_read_midway_data_from_pipes: Thread = thr.Thread(target=read_midway_data_from_pipes, args=(pipes, globalLists.fileListMain))
-            thr_read_midway_data_from_pipes.start()
-            #time.sleep(3)
-            #thr_find_files.join()
-            #thr_read_midway_data_from_pipes.join()
-            delta_4_entries = f"Δt for entry points of find_files() & read_midway_data_from_pipes(): {lapse.find_files_start - lapse.read_midway_data_from_pipes_start} ns"
-            вар = 5
-            print(delta_4_entries)
-            print(f"len of list = {len(globalLists.fileListMain)}")
-            ps = page_struct()
-            cols = get_arg_in_cmd("-cols", argv)
-            rows = get_arg_in_cmd("-rows", argv)
-            col_w = get_arg_in_cmd("-col_w", argv)
-            if rows:
-                page_struct.num_rows = ps.num_rows = int(rows)
-            if cols:
-                page_struct.num_cols = ps.num_cols = int(cols)
-            if col_w:
-                page_struct.col_width = ps.col_width = int(col_w)
-            ps.c2r = childs2run()
-            ps.c2r = init_view(ps.c2r)
-            manage_pages(globalLists.fileListMain, ps)
+            create_or_updateMainList()
 #pressKey()
 if __name__ == "__main__":
     cmd()
