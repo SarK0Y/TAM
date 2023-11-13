@@ -31,7 +31,7 @@ except ImportError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-93"
+    rev = "9-95"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -954,6 +954,9 @@ tmp.table, tmp.too_short_row = make_page_of_tam_list(globalLists.fileListMain, p
                 return globalLists.ret
 def custom_input(prompt: str) -> str:
     if keys.term_app: return ""
+    if page_struct.question_to_User != "":
+        print(f"{page_struct.question_to_User}")
+        page_struct.question_to_User = ""
     if modes.path_autocomplete.state:
         writeInput_str(prompt, var_4_hotKeys.prnt)
     else:
@@ -1174,7 +1177,14 @@ def run_viewers_li(ps: page_struct, fileListMain: list, cmd: str): # w/ local in
     c2r.running.append(t)
 def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
     funcName = "cmd_page"
-    if cmd[:5] == "f2mrg":
+    if cmd[:4] == "deli":
+        try:
+            _, index = cmd.split()
+            page_struct.question_to_User = f"deleted record {globalLists.fileListMain.pop(int(index))}"
+        except IndexError:
+            errMsg(f"Indx has to be in range 0 - {len(globalLists.fileListMain)}", funcName, 0.7)
+        return
+    if cmd[:5] == "f2mrg" or (cmd[:3] == "mrg" and len(cmd) > 3):
         try:
             _, index = cmd.split()
             globalLists.merge.append(globalLists.fileListMain[int(index)])
