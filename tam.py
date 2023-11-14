@@ -31,7 +31,7 @@ except ImportError:
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-95"
+    rev = "9-96"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -900,7 +900,7 @@ tmp.table, tmp.too_short_row = make_page_of_tam_list(globalLists.fileListMain, p
             if page_struct.left_shift_4_cur == 0:
                 continue
             else:
-                var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur + 1] + var_4_hotKeys.prnt[len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur + 2:]
+                var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur] + var_4_hotKeys.prnt[len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur + 1:]
             if page_struct.left_shift_4_cur > 0:
                 page_struct.left_shift_4_cur -= 1
             prnt0 = var_4_hotKeys.prnt
@@ -945,7 +945,7 @@ tmp.table, tmp.too_short_row = make_page_of_tam_list(globalLists.fileListMain, p
                     return globalLists.ret
             else:
                 var_4_hotKeys.prnt_step_back = var_4_hotKeys.prnt
-                var_4_hotKeys.prnt =f"{var_4_hotKeys.prnt[:page_struct.cur_cur_pos]}{Key}{var_4_hotKeys.prnt[page_struct.cur_cur_pos:]}"
+                var_4_hotKeys.prnt =f"{var_4_hotKeys.prnt[:page_struct.cur_cur_pos - 1]}{Key}{var_4_hotKeys.prnt[page_struct.cur_cur_pos - 1:]}"
             writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
             globalLists.ret = switch_global_list(Key)
             if globalLists.ret == "cont":
@@ -1177,6 +1177,9 @@ def run_viewers_li(ps: page_struct, fileListMain: list, cmd: str): # w/ local in
     c2r.running.append(t)
 def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
     funcName = "cmd_page"
+    if cmd == "ver":
+        page_struct.question_to_User = f"VER {info_struct.ver}.{info_struct.rev}"
+        return
     if cmd[:4] == "deli":
         try:
             _, index = cmd.split()
