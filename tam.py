@@ -18,20 +18,17 @@ from colorama import Style
 from colorama import Back
 try:
     import subTern as subtern
-except ModuleNotFoundError:
-    pass
+except ModuleNotFoundError: pass
 """"""
 try:
     from sark0y_tam import _subTern as subtern
-except ModuleNotFoundError:
-    pass
-except ImportError:
-    pass
+except ModuleNotFoundError: pass
+except ImportError: pass
 """"""
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-96"
+    rev = "9-99"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -143,6 +140,7 @@ class keys:
     dirty_mode: bool = False
     rename_file_mode: int = 0
     term_app: bool = False
+    вар = "дело пошло.. таки :)"
 
 class PIPES:
     def __init__(self, outNorm, outErr):
@@ -1180,6 +1178,9 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
     if cmd == "ver":
         page_struct.question_to_User = f"VER {info_struct.ver}.{info_struct.rev}"
         return
+    if var_4_hotKeys.prnt == "вар":
+        var_4_hotKeys.prnt = keys.вар
+        return
     if cmd[:4] == "deli":
         try:
             _, index = cmd.split()
@@ -1274,6 +1275,7 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
     #reset_autocomplete()
 def manage_pages(fileListMain: list, ps: page_struct): #once0: once = once.once_copy):
     exec(keyCodes())
+    tmp.ps = ps
     make_page_struct() #(modes.path_autocomplete.page_struct)
     funcName = "manage_pages"
     cmd = ""
@@ -1698,7 +1700,48 @@ def put_in_name() -> str:
         i0 += 1
         if keys.dirty_mode: print(f"{funcName} i0 = {i0} final_grep = {final_grep}")
     return final_grep
-def create_or_updateMainList() -> None:
+def create_or_updateMainList(mod = None) -> None:
+    if var_4_hotKeys.prnt == "hot reload":
+        loaded: bool = False
+        try:
+            import sark0y_tam
+            loaded = True
+        except ModuleNotFoundError: pass
+        except ImportError: pass
+        try:
+            if loaded: raise ModuleNotFoundError
+            import subTern as subtern
+        except ModuleNotFoundError: pass
+        try:
+            if loaded: raise ModuleNotFoundError
+            import tam as tam
+        except ModuleNotFoundError: pass
+        except ImportError: pass
+        from importlib import reload
+        from importlib.machinery import SourceFileLoader
+        if loaded:
+            errMsg_dbg("sark0y_tam to reload", "TAM")
+            sark0y_tam = sys.modules["sark0y_tam"]
+            tam_desc: str = f"{sark0y_tam}"
+            path_2_tam: str = re.findall("/.*sark0y_tam/", tam_desc)[0]
+            errMsg_dbg(f"{sark0y_tam}... {path_2_tam}", "TAM")
+            os.system(f"rm -f {path_2_tam}__pycache__/*")
+            subtern = SourceFileLoader("_subTern", f"{path_2_tam}_subTern.py").load_module()
+            tam = SourceFileLoader("_tam", f"{path_2_tam}_tam.py").load_module()
+            errMsg_dbg(f"{tam.info_struct.rev}", "TAM")
+        else:
+            subtern = reload(subtern)
+            tam = reload(tam)
+        tam.globalLists = copy.copy(globalLists)
+        tam.kCodes = copy.copy(kCodes)
+        var = copy.copy(keys.вар)
+        tam.keys = copy.copy(keys)
+        keys.вар = copy.copy(var)
+        tam.var_4_hotKeys = copy.copy(var_4_hotKeys)
+        tam.modes = copy.copy(modes)
+        try: tam.manage_pages(tam.globalLists.fileListMain, copy.copy(tmp.ps))
+        except AttributeError: pass
+        return
     argv: list = sys.argv
     if checkArg("-argv0"):
                 print(f"argv = {sys.argv}")
@@ -1723,7 +1766,6 @@ def create_or_updateMainList() -> None:
             #thr_find_files.join()
             #thr_read_midway_data_from_pipes.join()
     delta_4_entries = f"Δt for entry points of find_files() & read_midway_data_from_pipes(): {lapse.find_files_start - lapse.read_midway_data_from_pipes_start} ns"
-    вар = 5
     if checkArg("-dirty"): 
         print(delta_4_entries)
         print(f"len of list = {len(globalLists.fileListMain)}")
