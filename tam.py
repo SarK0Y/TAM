@@ -28,7 +28,7 @@ except ImportError: pass
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-101"
+    rev = "9-103"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -376,6 +376,7 @@ def handleENTER(fileName: str) -> str:
     return var_4_hotKeys.prnt
 def handleTAB(prompt: str):
     funcName = "handleTAB"
+    if modes.sieve.state: globalLists.fileListMain = globalLists.filtered
     ptrn = re.compile('ren\s+\-?\d+|cp\s+\-?\d+', re.IGNORECASE | re.UNICODE)
     regex_result = ptrn.search(var_4_hotKeys.prnt)
     if keys.dirty_mode: print(f"{regex_result.group(0)}, {len(regex_result.group(0))}, {var_4_hotKeys.prnt}")
@@ -690,7 +691,7 @@ def delFile(fileName: str, cmd: str, dontDelFromTableJustMark = True) -> str:
         globalLists.fileListMain.remove(int(fileIndx.group(0)))
     if not heyFile and dontDelFromTableJustMark:
         if modes.sieve.state: globalLists.fileListMain0[int(fileIndx.group(0))] = f"{globalLists.filtered[int(fileIndx.group(0))]}::D"
-        elif modes.path_autocomplete.state: globalLists.fileListMain0[int(fileIndx.group(0))] = f"{globalLists.fileListMain0[int(fileIndx.group(0))]}::D"
+        #elif modes.path_autocomplete.state: globalLists.fileListMain0[int(fileIndx.group(0))] = f"{globalLists.fileListMain0[int(fileIndx.group(0))]}::D"
         else: 
             globalLists.fileListMain[int(fileIndx.group(0))] = f"{globalLists.fileListMain0[int(fileIndx.group(0))]}::D"
             globalLists.fileListMain0[int(fileIndx.group(0))] = f"{globalLists.fileListMain0[int(fileIndx.group(0))]}::D"
@@ -1244,6 +1245,7 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
             modes.sieve.state = True
             globalLists.fileListMain = globalLists.filtered
             ps.num_page = 0
+            return
         else: errMsg("No records were found", funcName, 1)
         modes.sieve.state = False
         return
