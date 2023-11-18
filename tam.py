@@ -28,7 +28,7 @@ except ImportError: pass
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-104"
+    rev = "9-105"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -248,10 +248,6 @@ def setTermAppStatus(proc: sp.Popen) -> bool:
     except KeyError:
         funcStatus = 0
     os.system(f"export setTermAppStatus_exited={int(funcStatus) + 1}")
-def page_struct_4_sieve(lst: list):
-    ps0.sieve = page_struct()
-    ps0.sieve.col_width = page_struct.col_width
-    ps0.sieve.count_pages
 def sieve_list(lst: list, rgx: str) -> list:
     sieve = re.compile(rgx, re.UNICODE|re.IGNORECASE)
     ret_lst: list = []
@@ -695,7 +691,10 @@ def delFile(fileName: str, cmd: str, dontDelFromTableJustMark = True) -> str:
     if False == heyFile and dontDelFromTableJustMark == False:
         globalLists.fileListMain.remove(int(fileIndx.group(0)))
     if not heyFile and dontDelFromTableJustMark:
-        if modes.sieve.state: globalLists.fileListMain0[int(fileIndx.group(0))] = f"{globalLists.filtered[int(fileIndx.group(0))]}::D"
+        if modes.sieve.state: 
+            globalLists.fileListMain0.insert(int(fileIndx.group(0)), f"{globalLists.filtered[int(fileIndx.group(0))]}::D")
+            globalLists.filtered[int(fileIndx.group(0))] = f"{globalLists.filtered[int(fileIndx.group(0))]}::D"
+            globalLists.fileListMain = globalLists.fileListMain0
         #elif modes.path_autocomplete.state: globalLists.fileListMain0[int(fileIndx.group(0))] = f"{globalLists.fileListMain0[int(fileIndx.group(0))]}::D"
         else: 
             globalLists.fileListMain[int(fileIndx.group(0))] = f"{globalLists.fileListMain0[int(fileIndx.group(0))]}::D"
