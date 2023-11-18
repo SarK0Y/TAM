@@ -28,7 +28,7 @@ except ImportError: pass
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-103"
+    rev = "9-104"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -134,6 +134,7 @@ class page_struct:
 class ps0:
     init: bool = False
     ps: page_struct
+    sieve: page_struct
     def __init__(self) -> None:
         ps0.ps = page_struct()
         ps0.ps.num_cols = 1
@@ -247,6 +248,10 @@ def setTermAppStatus(proc: sp.Popen) -> bool:
     except KeyError:
         funcStatus = 0
     os.system(f"export setTermAppStatus_exited={int(funcStatus) + 1}")
+def page_struct_4_sieve(lst: list):
+    ps0.sieve = page_struct()
+    ps0.sieve.col_width = page_struct.col_width
+    ps0.sieve.count_pages
 def sieve_list(lst: list, rgx: str) -> list:
     sieve = re.compile(rgx, re.UNICODE|re.IGNORECASE)
     ret_lst: list = []
@@ -1251,19 +1256,22 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
         return
     lp = len(globalLists.fileListMain) // (ps.num_cols * ps.num_rows)
     if cmd == "np":
-        ps.num_page += 1
-        if ps.num_page > lp:
+       ps.num_page += 1
+       page_struct.num_page = ps.num_page
+       if ps.num_page > lp:
             ps.num_page = lp
-        return
+       return
     if cmd == "pp":
         if ps.num_page > 0:
             ps.num_page -= 1
+            page_struct.num_page = ps.num_page
         return
     if cmd == "0p":
         ps.num_page = 0
         return
     if cmd == "lp":
         ps.num_page = lp
+        page_struct.num_page = ps.num_page
         return
     if cmd[0:3] == "go2":
         _, ps.num_page = cmd.split()
@@ -1364,6 +1372,7 @@ def manage_pages(fileListMain: list, ps: page_struct): #once0: once = once.once_
             help()
             cmd = custom_input("Please, enter Your command: ")
         else:
+            if modes.sieve.state: globalLists.fileListMain = globalLists.filtered
             cmd_page(cmd, ps, globalLists.fileListMain)
         try:
             if modes.path_autocomplete.state:
