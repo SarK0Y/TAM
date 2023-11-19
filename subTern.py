@@ -228,6 +228,9 @@ def isProcRunning(proc: sp.Popen):
     return True
 def reset_main_term() -> None:
     os.system("reset")
+def activate_mc_mode():
+    modes.mc.active = True
+    modes.prime_stdin = True
 def control_subTerm(cmd: str, std_in_out = [int, int]) -> None:
     Key = None
     if cmd == "":

@@ -17,10 +17,17 @@ from colorama import Fore
 from colorama import Style
 from colorama import Back
 try:
+    from sark0y_tam import _tam as tam0
+except ModuleNotFoundError:
+    print("TAM can't do 1st loading")
+    sys.exit()
+try:
     import subTern as subtern
-except ModuleNotFoundError: pass
+except ModuleNotFoundError: pass #errMsg("subTern module not found", "TAM")
 """"""
 try:
+    if __name__ == "__main__":
+       if tam0.checkArg("-no-pkg"): raise ModuleNotFoundError
     from sark0y_tam import _subTern as subtern
 except ModuleNotFoundError: pass
 except ImportError: pass
@@ -28,7 +35,7 @@ except ImportError: pass
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-105"
+    rev = "9-106"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -1118,6 +1125,8 @@ def run_viewers(c2r: childs2run, fileListMain: list, cmd: str):
         file2run = escapeSymbols(file2run)
     else:
         file2run = escapeSymbols(partial.path)
+    if c2r.viewer[viewer_indx] == "mc": subtern.activate_mc_mode()
+    if subtern.modes.mc.active: file2run, _ = os.path.split(file2run)
     cmd = f'{c2r.viewer[viewer_indx]}'
     cmd_line: str
     if c2r.mode2run[viewer_indx] == modes.mark_the_viewer.EXTRN:
@@ -1166,6 +1175,12 @@ def run_viewers_li(ps: page_struct, fileListMain: list, cmd: str): # w/ local in
         file2run = escapeSymbols(file2run)
     else:
         file2run = escapeSymbols(partial.path)
+    if c2r.viewer[viewer_indx] == "mc": subtern.activate_mc_mode()
+    if subtern.modes.mc.active: file2run, _ = os.path.split(file2run)
+        #file2run += '//'
+    errMsg_dbg(f"{file2run}{subtern.modes.mc.active}", funcName)
+    achtung(f"{file2run}")
+    achtung(f"{subtern.modes.mc.active}")
     cmd = f'{c2r.viewer[viewer_indx]}'
     if c2r.mode2run[viewer_indx] == modes.mark_the_viewer.EXTRN:
         cmd_line = f'{c2r.viewer[viewer_indx]}' + ' ' + f"{file2run} > /dev/null 2>&1"
