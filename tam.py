@@ -35,7 +35,7 @@ except ImportError: pass
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-106"
+    rev = "9-111"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -234,7 +234,9 @@ tam.kCodes.Alt_2 = "\x1b2"
     """
     if __name__ != "__main__": return keyCodes_extrn
     return keyCodes0
-def get_proper_indx_4_page(indx: int) -> int:
+def get_proper_indx_4_page(indx: int) -> int|None:
+    indx = int(indx)
+    if not checkInt(indx): return None
     if indx < 0: return page_struct.num_files + indx
     if modes.page_indices.global_or_not: return indx
     indx += page_struct.num_cols * page_struct.num_rows * page_struct.num_page
@@ -242,7 +244,23 @@ def get_proper_indx_4_page(indx: int) -> int:
     achtung(f"{page_struct.num_cols=}")
     achtung(f"{page_struct.num_rows=}")
     return indx
-
+def vdir() -> str:
+    funcName = "vdir"
+    _, path_2_vdir = var_4_hotKeys.prnt.split()
+    path_2_vdir = escapeSymbols(path_2_vdir)
+    os.system(f"mkdir -p {str(path_2_vdir)}")
+    if not os.path.exists(path_2_vdir):
+        errMsg(f"{path_2_vdir} ain't existed", funcName, 1.15)
+        return
+    if path_2_vdir[-1] != "/": path_2_vdir += "/"
+    for p in globalLists.filtered:
+        fn: str = os.path.basename(p)
+        fn = escapeSymbols(fn)
+        p = escapeSymbols(p)
+        errMsg_dbg(f"{p=}{fn}", funcName)
+        cmd = f"ln -sf {p} {path_2_vdir}{fn}"
+        os.system(cmd)
+    return path_2_vdir
 def setTermAppStatus(proc: sp.Popen) -> bool:
     funcName: str = "setTermAppStatus"
     errMsg_dbg("running", funcName)
@@ -1221,7 +1239,8 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
     if cmd[:5] == "f2mrg" or (cmd[:3] == "mrg" and len(cmd) > 3):
         try:
             _, index = cmd.split()
-            globalLists.merge.append(globalLists.fileListMain[int(index)])
+            index = get_proper_indx_4_page(index)
+            globalLists.merge.append(globalLists.fileListMain[index])
             globalLists.merge = list(set(globalLists.merge))
         except IndexError:
             errMsg(f"Indx has to be in range 0 - {len(globalLists.fileListMain)}", funcName, 0.7)
@@ -1306,6 +1325,15 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
             top = len(globalLists.fileListMain) - 2
             errMsg(f"You gave index out of range, acceptable values [0, {top}]", funcName, 2)
             return
+    if cmd[:4] == "vdir":
+        subtern.activate_mc_mode()
+        path: str = vdir()
+        std_in_out = [sys.stdin.fileno(), sys.stdout.fileno()]
+        cmd = f"mc {path}" 
+        keys.term_app = True
+        proc = subtern.term_app(cmd, std_in_out)
+        setTermAppStatus_Thr(proc)
+        return
     if cmd == "just [y]es to kill file": 
         modes.file_ops.justYes2KillFile = True
         var_4_hotKeys.prnt = "just-[y]es-to-kill-file mode is activated"
@@ -1387,6 +1415,8 @@ def manage_pages(fileListMain: list, ps: page_struct): #once0: once = once.once_
             cmd = custom_input("Please, enter Your command: ")
         else:
             if modes.sieve.state: globalLists.fileListMain = globalLists.filtered
+            if modes.path_autocomplete.state: 
+                if globalLists.ls != []: globalLists.fileListMain = globalLists.ls
             cmd_page(cmd, ps, globalLists.fileListMain)
         try:
             if modes.path_autocomplete.state:
@@ -1591,15 +1621,11 @@ def read_midway_data_from_pipes(pipes: PIPES, fileListMain: list) -> None:
     for path in iter(pipes.outNorm_r.readline, b''):
         if path == pipes.stop:
             break
-        if path !="":
-          globalLists.fileListMain.append(path)
-          globalLists.fileListMain0.append(path)
+        if path !="": globalLists.fileListMain0.append(path)
         prev_pos = cur_pos
         cur_pos = pipes.outNorm_r.tell()
     lapse.read_midway_data_from_pipes_stop = time.time_ns()
-    globalLists.fileListMain = set(globalLists.fileListMain)
-    globalLists.fileListMain = list(globalLists.fileListMain)
-    globalLists.fileListMain0 = list(set(globalLists.fileListMain0))
+    globalLists.fileListMain = list(set(globalLists.fileListMain0))
     achtung(f"{len(globalLists.fileListMain)=}")
     if keys.dirty_mode:
         print(f"{funcName} exited")

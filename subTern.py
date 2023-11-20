@@ -227,6 +227,7 @@ def isProcRunning(proc: sp.Popen):
         return False #and not ctlCodes.write_log.running: return True
     return True
 def reset_main_term() -> None:
+    if tam.checkArg("-dirty"): return
     os.system("reset")
 def activate_mc_mode():
     modes.mc.active = True
