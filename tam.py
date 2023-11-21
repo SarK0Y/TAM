@@ -19,8 +19,11 @@ from colorama import Back
 try:
     from sark0y_tam import _tam as tam0
 except ModuleNotFoundError:
-    print("TAM can't do 1st loading")
-    sys.exit()
+    try:
+        import tam as tam0
+    except ModuleNotFoundError:
+        print("TAM can't do 1st loading")
+        sys.exit()
 try:
     import subTern as subtern
 except ModuleNotFoundError: pass #errMsg("subTern module not found", "TAM")
@@ -35,7 +38,7 @@ except ImportError: pass
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-111"
+    rev = "9-113"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -152,7 +155,7 @@ class keys:
     dirty_mode: bool = False
     rename_file_mode: int = 0
     term_app: bool = False
-    вар = "дело пошло.. таки :)"
+    вар = "дело пошло.. таки :) 147"
 
 class PIPES:
     def __init__(self, outNorm, outErr):
@@ -244,6 +247,19 @@ def get_proper_indx_4_page(indx: int) -> int|None:
     achtung(f"{page_struct.num_cols=}")
     achtung(f"{page_struct.num_rows=}")
     return indx
+def uvdir() -> str:
+    funcName = "uvdir"
+    _, path_2_vdir = var_4_hotKeys.prnt.split()
+    path_2_vdir = escapeSymbols(path_2_vdir)
+    if path_2_vdir[-1] != "/": path_2_vdir += "/"
+    dir_content: str = createDirList0(path_2_vdir, "-type l", no_grep=True)
+    errMsg_dbg(f"{dir_content}", funcName)
+    for p in dir_content:
+        p = escapeSymbols(p)
+        errMsg_dbg(f"{p=}", funcName)
+        cmd = f"unlink {p}"
+        os.system(cmd)
+
 def vdir() -> str:
     funcName = "vdir"
     _, path_2_vdir = var_4_hotKeys.prnt.split()
@@ -548,12 +564,26 @@ def list_from_file(cmd: str) -> list:
         else:
           break
     return retList
-def createDirList(dirname: str, opts: str) -> list:
+def createDirList(dirname: str, opts: str, no_grep: bool = False) -> list:
     funcName = "createDirList"
     path, head = os.path.split(dirname)
     head0 = head.replace('\\', '')
     path = escapeSymbols(path)
     cmd = f"find -L {path} {opts}|grep -Ei '{head0}'"
+    if no_grep: cmd = f"find -L {path} {opts}"
+    list0 = list_from_file(cmd)
+    if list0 == []:
+        cmd = f"find -L {path} {opts}"
+        list0 = list_from_file(cmd)
+    partial.retList = list0
+    return list0
+def createDirList0(dirname: str, opts: str, no_grep: bool = False) -> list:
+    funcName = "createDirList0"
+    path, head = os.path.split(dirname)
+    head0 = head.replace('\\', '')
+    path = escapeSymbols(path)
+    cmd = f"find -L {path} {opts}|grep -Ei '{head0}'"
+    if no_grep: cmd = f"find {path} {opts}"
     list0 = list_from_file(cmd)
     if list0 == []:
         cmd = f"find -L {path} {opts}"
@@ -1334,6 +1364,9 @@ def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
         proc = subtern.term_app(cmd, std_in_out)
         setTermAppStatus_Thr(proc)
         return
+    if cmd[:5] == "uvdir":
+        uvdir()
+        return
     if cmd == "just [y]es to kill file": 
         modes.file_ops.justYes2KillFile = True
         var_4_hotKeys.prnt = "just-[y]es-to-kill-file mode is activated"
@@ -1812,6 +1845,7 @@ def create_or_updateMainList(mod = None) -> None:
         keys.вар = copy.copy(var)
         tam.var_4_hotKeys = copy.copy(var_4_hotKeys)
         tam.modes = copy.copy(modes)
+        tam.page_struct = copy.copy(page_struct)
         try: tam.manage_pages(tam.globalLists.fileListMain, copy.copy(tmp.ps))
         except AttributeError: pass
         return
