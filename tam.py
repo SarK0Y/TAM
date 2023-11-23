@@ -38,7 +38,7 @@ except ImportError: pass
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-115"
+    rev = "9-117"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -228,6 +228,7 @@ tam.kCodes.TAB = 9
 tam.kCodes.DELETE = "\x1b[3~"
 tam.kCodes.F12 = "\x1b[24~"
 tam.kCodes.F5 = "\x1b[15~"
+tam.kCodes.PgUP = "\x1b[5~"
 tam.kCodes.F1 = "\x1bOP"
 tam.kCodes.INSERT = "\x1b[2~"
 tam.kCodes.LEFT_ARROW = "\x1b[D"
@@ -607,7 +608,7 @@ def createDirList0(dirname: str, opts: str, no_grep: bool = False) -> list:
     cmd = f"find {path} {opts}|grep -Ei '{head0}'"
     errMsg_dbg(f"{cmd=}", funcName)
     if no_grep: cmd = f"find {path} {opts}"
-    os.system(f"echo 'cmd == {cmd}'")
+    if checkArg("-dirty"): os.system(f"echo 'cmd == {cmd}'")
     list0 = list_from_file(cmd)
     partial.retList = list0
     return list0
@@ -964,6 +965,9 @@ tmp.table, tmp.too_short_row = make_page_of_tam_list(globalLists.fileListMain, p
                 page_struct.left_shift_4_cur -= 1
                 page_struct.cur_cur_pos = page_struct.cur_cur_pos + 1
                 print('\033[C', end='', flush=True)
+            else:
+                page_struct.cur_cur_pos = len(var_4_hotKeys.prnt)
+                writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
             continue
         if Key == kCodes.LEFT_ARROW:
             if page_struct.cur_cur_pos > 0:
@@ -1010,13 +1014,13 @@ tmp.table, tmp.too_short_row = make_page_of_tam_list(globalLists.fileListMain, p
             continue
         if kCodes.BACKSPACE == ord0(Key):
             if page_struct.left_shift_4_cur == 0:
-                var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - 1]
-                page_struct.cur_cur_pos = len(var_4_hotKeys.prnt)
+                var_4_hotKeys.prnt = var_4_hotKeys.prnt[:- 1]
+                page_struct.cur_cur_pos = len(var_4_hotKeys.prnt) + 1
             else:
                 var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur - 1] + var_4_hotKeys.prnt[len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur:]
             if page_struct.cur_cur_pos > 0:
                 page_struct.cur_cur_pos = page_struct.cur_cur_pos - 1
-            full_length = len(var_4_hotKeys.prnt)
+            full_length = len(var_4_hotKeys.prnt) + 1
             writeInput_str(var_4_hotKeys.prompt, var_4_hotKeys.prnt)
             globalLists.ret = switch_global_list(Key)
             if globalLists.ret == "cont":
@@ -1096,10 +1100,10 @@ def SetDefaultKonsoleTitle(addStr = ""):
     except TypeError:
         out = f"cmd is empty {put_in_name()}"
     page_struct.KonsoleTitle = f"{Markers.console_title_pefix}{Markers.console_title}{konsole_id} {out}"
-    os.system(f"echo -ne '\033]30;{page_struct.KonsoleTitle}{addStr}\007'")
+    os.system(f"echo -ne '\033]30;{page_struct.KonsoleTitle}{addStr}\007' 1>&2 2>/dev/null")
 def adjustKonsoleTitle(addStr: str, ps: page_struct) -> None:
     if modes.switch_2_nxt_tam.state: return
-    os.system(f"echo -ne '\033]30;{ps.KonsoleTitle}{addStr}\007'")
+    os.system(f"echo -ne '\033]30;{ps.KonsoleTitle}{addStr}\007' 1>&2 2>/dev/null")
 def self_recursion():
     no_SYS = os.path.exists("/tmp/no_SYS")
     no_SYS1 = get_arg_in_cmd("-SYS", sys.argv)
@@ -1138,7 +1142,7 @@ def banner0(delay: int):
         print(f"\r{typeIt}", flush=True, end='')
         time.sleep(delay)
 def info():
-    os.system(f"echo -ne '\033]30;TAM {info_struct.ver}.{info_struct.rev}\007'") # set konsole title
+    os.system(f"echo -ne '\033]30;TAM {info_struct.ver}.{info_struct.rev}\007' 1>&2 2>/dev/null") # set konsole title
     clear_screen()
     _, colsize = os.popen("stty size", 'r').read().split()
     print(" Project: Tiny Automation Manager. ".center(int(colsize), "◑"))
