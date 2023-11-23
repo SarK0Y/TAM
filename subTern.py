@@ -147,8 +147,8 @@ def Prime_subTerminal(cmdInput: str, std_in_out = [int, int]) -> dict:
         Main = main0
     _, err = os.openpty()
     stop = str(ctlCodes.stop0) * int(cols)
-    if ctlCodes.locale is not None:
-        cmdInput = f"LC_ALL={ctlCodes.locale} {cmdInput}"
+    if ctlCodes.locale is not None and tam.checkArg("-dbg"): cmdInput = f"export LC_ALL={ctlCodes.locale};echo locale $LC_ALL;{cmdInput}"
+    if ctlCodes.locale is not None and not tam.checkArg("-dbg"): cmdInput = f"export LC_ALL={ctlCodes.locale};{cmdInput}"
     cmd = [f"stty cols {cols};stty rows {rows};{cmdInput};echo '{stop}\nPress Enter, if command line ain`t seen';sleep .2;exit {ctlCodes.Prime_subTerminal.ExitCode}", ]
     tam.errMsg_dbg(cmd, funcName)
     proc = sp.Popen(cmd, stderr=err, stdout=std_in_out[1], stdin=std_in_out[0], shell=True, close_fds=True)
