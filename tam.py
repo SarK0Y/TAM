@@ -38,7 +38,7 @@ except ImportError: pass
 #MAIN
 class info_struct:
     ver = 1
-    rev = "9-113"
+    rev = "9-115"
     author = "Evgeney Knyazhev (SarK0Y)"
     year = '2023'
     telega = "https://t.me/+N_TdOq7Ui2ZiOTM6"
@@ -106,6 +106,7 @@ class modes:
         state = False
         fst_hit = False
         page_struct = None
+        letsStop: str = ""
 class partial:
     path: str = ""
 class globalLists:
@@ -203,6 +204,7 @@ kCodes.F12 = "\x1b[24~"
 kCodes.F5 = "\x1b[15~"
 kCodes.F1 = "\x1bOP"
 kCodes.INSERT = "\x1b[2~"
+kCodes.PgUP = "\x1b[5~"
 kCodes.LEFT_ARROW = "\x1b[D"
 kCodes.RIGHT_ARROW = "\x1b[C"
 kCodes.UP_ARROW = "\x1b[A"
@@ -249,10 +251,13 @@ def get_proper_indx_4_page(indx: int) -> int|None:
     return indx
 def uvdir() -> str:
     funcName = "uvdir"
-    _, path_2_vdir = var_4_hotKeys.prnt.split()
-    path_2_vdir = escapeSymbols(path_2_vdir)
+    path_2_vdir = var_4_hotKeys.prnt[5:]
+    while True:
+        if path_2_vdir[0] == " ": path_2_vdir = path_2_vdir[1:]
+        else: break
+    path_2_vdir = path_2_vdir.replace("//", "/")
     if path_2_vdir[-1] != "/": path_2_vdir += "/"
-    dir_content: str = createDirList0(path_2_vdir, "-type l", no_grep=True)
+    dir_content: list = createDirList0(path_2_vdir, "-type l", no_grep=True)
     errMsg_dbg(f"{dir_content}", funcName)
     for p in dir_content:
         p = escapeSymbols(p)
@@ -262,19 +267,28 @@ def uvdir() -> str:
 
 def vdir() -> str:
     funcName = "vdir"
-    _, path_2_vdir = var_4_hotKeys.prnt.split()
-    path_2_vdir = escapeSymbols(path_2_vdir)
-    os.system(f"mkdir -p {str(path_2_vdir)}")
-    if not os.path.exists(path_2_vdir):
+    path_2_vdir: str = var_4_hotKeys.prnt[4:]
+    while True:
+        if path_2_vdir[0] == " ": path_2_vdir = path_2_vdir[1:]
+        else: break
+    path_2_vdir = path_2_vdir.replace("//", "/")
+    if path_2_vdir[-1] == "/": path_2_vdir = path_2_vdir[:-1]
+    mkdir: str = escapeSymbols(path_2_vdir)
+    os.system(f"mkdir -p {mkdir}")
+    try:
+        ret: list = createDirList0(f"{path_2_vdir}", "-type d")
+    except IndexError: pass
+    errMsg_dbg(f"{path_2_vdir=}{ret=}", funcName)
+    if ret == []:
         errMsg(f"{path_2_vdir} ain't existed", funcName, 1.15)
         return
-    if path_2_vdir[-1] != "/": path_2_vdir += "/"
+    path_2_vdir = mkdir
     for p in globalLists.filtered:
         fn: str = os.path.basename(p)
         fn = escapeSymbols(fn)
         p = escapeSymbols(p)
         errMsg_dbg(f"{p=}{fn}", funcName)
-        cmd = f"ln -sf {p} {path_2_vdir}{fn}"
+        cmd = f"ln -sf {p} {path_2_vdir}/{fn}"
         os.system(cmd)
     return path_2_vdir
 def setTermAppStatus(proc: sp.Popen) -> bool:
@@ -473,7 +487,9 @@ def make_page_struct():
           ps.num_page = 0
        modes.path_autocomplete.page_struct = ps
 def updateDirList():
+    errMsg_dbg(f"{modes.path_autocomplete.letsStop=} {modes.path_autocomplete.state}", "updateDirList")
     if modes.path_autocomplete.state:
+        errMsg_dbg("", "updateDirList")
         globalLists.ls = createDirList(partial.path, "-maxdepth 1")
     if globalLists.ls != []:
           globalLists.fileListMain = globalLists.ls
@@ -512,6 +528,11 @@ def switch_global_list(Key: str):
         partial.path = partial.path[:-1]
         return updateDirList()
     if modes.path_autocomplete.state:
+        if Key == "/": modes.path_autocomplete.letsStop += "/"
+        if modes.path_autocomplete.letsStop == "//": 
+            modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
+            Key = ""
+            modes.path_autocomplete.letsStop = ""
         if len(globalLists.fileListMain) == 1:
             var_4_hotKeys.prnt = var_4_hotKeys.prnt_step_back
             ΔL = len(globalLists.fileListMain[0]) - len(partial.path)
@@ -519,12 +540,9 @@ def switch_global_list(Key: str):
             slash = ""
             if os.path.isdir(str(globalLists.fileListMain[0])):
                 slash = "/"
-            try:
-                partial.path = partial.path.replace(r'//', '/')
-                var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(f"{partial.path}", f"{globalLists.fileListMain[0]}{slash}")
-            except IndexError:
-                var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(f"{partial.path}", f"{globalLists.fileListMain[0]}{slash}")
-                var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace("//", "/")
+            partial.path = partial.path.replace(r'//', '/')
+            var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace(f"{partial.path}", f"{globalLists.fileListMain[0]}{slash}")
+            var_4_hotKeys.prnt = var_4_hotKeys.prnt.replace("//", "/")
             partial.path = globalLists.fileListMain[0] + slash
         else:
             partial.path += str(Key)
@@ -569,8 +587,9 @@ def createDirList(dirname: str, opts: str, no_grep: bool = False) -> list:
     path, head = os.path.split(dirname)
     head0 = head.replace('\\', '')
     path = escapeSymbols(path)
+   # if no_grep: cmd = f"find -L {path} {opts}"
     cmd = f"find -L {path} {opts}|grep -Ei '{head0}'"
-    if no_grep: cmd = f"find -L {path} {opts}"
+    errMsg_dbg(f"{cmd=}", funcName)
     list0 = list_from_file(cmd)
     if list0 == []:
         cmd = f"find -L {path} {opts}"
@@ -580,14 +599,16 @@ def createDirList(dirname: str, opts: str, no_grep: bool = False) -> list:
 def createDirList0(dirname: str, opts: str, no_grep: bool = False) -> list:
     funcName = "createDirList0"
     path, head = os.path.split(dirname)
+    #path = dirname.replace(f"{head}", '')
     head0 = head.replace('\\', '')
     path = escapeSymbols(path)
-    cmd = f"find -L {path} {opts}|grep -Ei '{head0}'"
+    #path = path.replace("\\\\", "\\")
+    #path = path.replace("\\\\", "\\")
+    cmd = f"find {path} {opts}|grep -Ei '{head0}'"
+    errMsg_dbg(f"{cmd=}", funcName)
     if no_grep: cmd = f"find {path} {opts}"
+    os.system(f"echo 'cmd == {cmd}'")
     list0 = list_from_file(cmd)
-    if list0 == []:
-        cmd = f"find -L {path} {opts}"
-        list0 = list_from_file(cmd)
     partial.retList = list0
     return list0
 def run_cmd(cmd: str, opts: str, timeout0: float = 100) -> list:
@@ -612,6 +633,9 @@ def run_cmd0(cmd: str, timeout0: float = 100) -> list:
     p = sp.Popen(cmd, shell=True, stderr=stderr0, stdout=stdout0)
     p.communicate()
     return [stdout0_name, stderr0_name]
+def stop_autocomplete():
+    modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
+    modes.path_autocomplete.letsStop = ""
 def reset_autocomplete():
     var_4_hotKeys.ENTER_MODE = modes.path_autocomplete.state = modes.path_autocomplete.fst_hit = False
     var_4_hotKeys.prnt  = ""
@@ -624,6 +648,7 @@ def reset_autocomplete():
     page_struct.cur_cur_pos = 0
     page_struct.left_shift_4_cur = 0
     partial.path = ""
+    modes.path_autocomplete.letsStop = ""
     globalLists.ls = []
     var_4_hotKeys.only_1_slash = ""
     if globalLists.bkp != []:
@@ -659,6 +684,8 @@ def escapeSymbols(name: str, symbIndx = -1):
         name = name.replace("&", "\&")
         name = name.replace("(", "\(")
         name = name.replace(")", "\)")
+        name = name.replace("}", "\}")
+        name = name.replace("{", "\{")
     if symbIndx == 0:
         name = name.replace(" ", "\ ")
     if symbIndx == 1:
@@ -825,7 +852,7 @@ def ord0(Key):
         return Key
     except TypeError:
         return -1
-def hotKeys(prompt: str) -> str:
+def hotKeys(prompt: str) -> str|None:
     funcName = "hotKeys"
     full_length = 0
     #if not modes.path_autocomplete.state:
@@ -889,7 +916,13 @@ tmp.table, tmp.too_short_row = make_page_of_tam_list(globalLists.fileListMain, p
             switch_global_list(slash)
             partial.path = partial.path.replace("//", "/")
             updateDirList()
+            if partial.path[-1] == "/": modes.path_autocomplete.letsStop = ""
+            errMsg_dbg(f"{slash=}", funcName)
             return f"go2 {modes.path_autocomplete.page_struct.num_page}"
+        if kCodes.PgUP == Key:
+            if len(var_4_hotKeys.prnt) == page_struct.cur_cur_pos:
+                stop_autocomplete()
+            return None
         if kCodes.F5 == Key:
             create_or_updateMainList()
             return "go2 0"
@@ -978,6 +1011,7 @@ tmp.table, tmp.too_short_row = make_page_of_tam_list(globalLists.fileListMain, p
         if kCodes.BACKSPACE == ord0(Key):
             if page_struct.left_shift_4_cur == 0:
                 var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - 1]
+                page_struct.cur_cur_pos = len(var_4_hotKeys.prnt)
             else:
                 var_4_hotKeys.prnt = var_4_hotKeys.prnt[:len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur - 1] + var_4_hotKeys.prnt[len(var_4_hotKeys.prnt) - page_struct.left_shift_4_cur:]
             if page_struct.cur_cur_pos > 0:
@@ -1253,6 +1287,7 @@ def run_viewers_li(ps: page_struct, fileListMain: list, cmd: str): # w/ local in
     c2r.running.append(t)
 def cmd_page(cmd: str, ps: page_struct, fileListMain: list):
     funcName = "cmd_page"
+    if cmd == None: return
     if cmd == "ver":
         page_struct.question_to_User = f"VER {info_struct.ver}.{info_struct.rev}"
         return
